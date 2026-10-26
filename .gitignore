@@ -1,0 +1,12 @@
+# Ignore unused / dev files
+unused/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor & logs
+*.log
+.vscode/
+.idea/
