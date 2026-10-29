@@ -13,7 +13,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cardo:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Montserrat:wght@400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=21">
+  <link rel="stylesheet" href="style.css?v=25">
+
+  <!-- Instant Viewport Scale Calculation to Prevent FOUC -->
+  <script>
+    (function() {
+      function setScale() {
+        var w = window.innerWidth || document.documentElement.clientWidth;
+        var h = window.innerHeight || document.documentElement.clientHeight;
+        var s = Math.min(w / 393, h / 852);
+        document.documentElement.style.setProperty('--story-scale', s.toFixed(4));
+      }
+      setScale();
+      window.addEventListener('resize', setScale, { passive: true });
+      window.addEventListener('orientationchange', setScale, { passive: true });
+    })();
+  </script>
 </head>
 <body>
 
@@ -26,6 +41,20 @@
   <!-- Mobile Viewport Frame Container -->
   <div class="mobile-frame-wrapper" id="appWrapper">
     <main class="story-container" id="storyContainer" role="region" aria-label="Graduation Invitation">
+
+      <!-- Top Navigation Guidance Buttons (Previous / Next arrows in top 2 corners) -->
+      <nav class="story-nav-bar" id="storyNavBar" aria-label="Slide navigation">
+        <button type="button" class="btn-story-nav btn-nav-prev hidden-nav" id="btnNavPrev" aria-label="Trang trước" title="Trang trước">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button type="button" class="btn-story-nav btn-nav-next" id="btnNavNext" aria-label="Trang sau" title="Trang sau">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </nav>
 
       <!-- ============================================== -->
       <!-- SLIDES DECK (AUTHENTIC CANVA ANIMATED EXPERIENCE) -->
@@ -179,16 +208,20 @@
             <!-- Ceremony title: Playfair Display Bold 17.9pt -->
             <h3 class="ceremony-line ceremony-title">Phuong’s<br>Graduation Ceremony</h3>
 
-            <!-- Date & Time: Cardo Regular 15.9pt -->
-            <div class="ceremony-line ceremony-datetime" id="hotspotDateTime" title="Click to Add to Calendar">
-              <p class="datetime-date">SUN, NOV 8, 2026</p>
-              <p class="datetime-time">08:00AM – 11:30AM</p>
+            <!-- Date & Time: Cardo Regular 15.9pt (Chỉ bấm trực tiếp vào dòng chữ mới mở lịch) -->
+            <div class="ceremony-line ceremony-datetime">
+              <div class="ceremony-link-trigger" id="hotspotDateTime" role="button" tabindex="0" title="Click to Add to Calendar">
+                <p class="datetime-date">SUN, NOV 8, 2026</p>
+                <p class="datetime-time">08:00AM – 11:30AM</p>
+              </div>
             </div>
 
-            <!-- Venue: FPT University (Cardo 13.9pt), Hall A (Cardo 15.9pt) -->
-            <div class="ceremony-line ceremony-venue" id="hotspotVenue" title="Click to Open Google Maps">
-              <p class="venue-uni">FPT UNIVERSITY HCMC</p>
-              <p class="venue-hall">Hall A, Campus</p>
+            <!-- Venue: FPT University (Cardo 13.9pt), Hall A (Cardo 15.9pt) (Chỉ bấm trực tiếp vào dòng chữ mới mở Maps) -->
+            <div class="ceremony-line ceremony-venue">
+              <div class="ceremony-link-trigger" id="hotspotVenue" role="button" tabindex="0" title="Click to Open Google Maps">
+                <p class="venue-uni">FPT UNIVERSITY HCMC</p>
+                <p class="venue-hall">Hall A, Campus</p>
+              </div>
             </div>
 
             <!-- Thanh gạt chậm từ trái sang phải -->
@@ -300,24 +333,19 @@
           </div>
         </article>
 
-        <!-- SLIDE 8 (TRANG 9): OUTRO (Tương tự Trang 2, Thank you Cardo Italic 18.9pt & Contact 8.9pt) -->
+        <!-- SLIDE 8 (TRANG 9): OUTRO (Bố cục & hiệu ứng giữ nguyên 100% như Trang 2) -->
         <article class="slide-item slide-cover slide-outro" data-index="8">
           <!-- Background Ribbon Layer: ribbon1.png, opacity 41%, tilted -80deg in Canva, zoom animation -->
           <div class="cover-ribbon-layer" aria-hidden="true">
             <img src="ribbon1.png" alt="" class="cover-ribbon-img outro-ribbon-img" draggable="false">
           </div>
 
-          <!-- Star Accent: sao.png at opacity 81% -->
-          <div class="cover-star-layer" aria-hidden="true">
-            <img src="sao.png" alt="" class="cover-star-img outro-star-img" draggable="false">
-          </div>
-
           <!-- Main Typography Deck: Giữ nguyên bố cục và cấu trúc như Trang 2 -->
           <div class="cover-content-container">
             <div class="cover-title-group">
-              <!-- Star Sparkle Image: sao.png, opacity 81% -->
+              <!-- Star Sparkle Image: sao.png, opacity 81% (đúng như Trang 2, không thêm ngôi sao to) -->
               <div class="cover-star-sparkle" aria-hidden="true">
-                <img src="sao.png" alt="" class="cover-star-img outro-star-img" draggable="false">
+                <img src="sao.png" alt="" class="cover-star-img" draggable="false">
               </div>
 
               <!-- Line 1: THE (Cardo Regular 16.6 — Center-outward: H first, then T & E) -->
@@ -343,7 +371,7 @@
 
             <!-- 2 dòng ở dưới: 'Thank you' (Cardo 18.9pt italic) và 'Contact' (Cardo 8.9pt) -->
             <div class="cover-footer-meta outro-footer-meta" id="outroFooterMeta">
-              <p class="outro-thankyou-text">Thank you</p>
+              <p class="outro-thankyou-text">Thank you!</p>
               <p class="outro-contact-text">
                 <a href="tel:+84825497013" class="outro-contact-link" title="Tap to Call (+84)825 497 013">Contact: (+84)825 497 013</a>
               </p>
@@ -369,6 +397,6 @@
   <div class="toast-notification" id="toastBox" role="status" aria-live="polite"></div>
 
   <!-- Main JavaScript Logic -->
-  <script src="app.js?v=21"></script>
+  <script src="app.js?v=23"></script>
 </body>
 </html>

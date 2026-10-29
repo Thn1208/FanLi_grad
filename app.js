@@ -25,7 +25,7 @@
       location: "Hall A, FPT University HCMC, D1 High-Tech Park, Long Thanh My, Thu Duc City, HCMC",
       startDate: "20261108T080000",
       endDate: "20261108T113000",
-      mapsUrl: "https://maps.google.com/?q=Dai+Hoc+FPT+TPHCM+Khu+Cong+Nghe+Cao+Long+Thanh+My+Thu+Duc"
+      mapsUrl: "https://maps.app.goo.gl/F1LVCkgJ4KDwRs2bA"
     }
   };
 
@@ -92,6 +92,10 @@
     memoryVideo: document.getElementById('memoryVideo'),
     btnCloseVideo: document.getElementById('btnCloseVideo'),
 
+    // Navigation Arrows in top 2 corners
+    btnNavPrev: document.getElementById('btnNavPrev'),
+    btnNavNext: document.getElementById('btnNavNext'),
+
     // Slide 8 (Outro - Trang 9): Title, Typewriter Script, Meta & Replay
     outroLeadThe: document.getElementById('outroLeadThe'),
     outroHeading: document.getElementById('outroHeading'),
@@ -129,9 +133,22 @@
   let isTransitioningThankyou = false;
 
   // ========================================================================
+  // RESPONSIVE ARTBOARD SCALING (393px x 852px base artboard)
+  // ========================================================================
+  function updateStoryScale() {
+    const baseW = 393;
+    const baseH = 852;
+    const winW = window.innerWidth || document.documentElement.clientWidth;
+    const winH = window.innerHeight || document.documentElement.clientHeight;
+    const scale = Math.min(winW / baseW, winH / baseH);
+    document.documentElement.style.setProperty('--story-scale', scale.toFixed(4));
+  }
+
+  // ========================================================================
   // INITIALIZATION
   // ========================================================================
   function init() {
+    updateStoryScale();
     setupGuestPersonalization();
     bindEvents();
     checkStoredRsvp();
@@ -358,12 +375,12 @@
     }
     timelineTimers.push(setTimeout(typeNextTimelineChar, 80));
 
-    // 2. Start line drawing downward with short overhang past Star 4 (~14px to 20px)
+    // 2. Start line drawing downward with extended overhang at both ends (~24px)
     timelineTimers.push(setTimeout(() => {
       if (STATE.currentSlideIndex !== 3) return;
       if (lineEl) {
         lineEl.style.transition = 'height 2.8s cubic-bezier(0.25, 1, 0.5, 1)';
-        lineEl.style.height = 'calc(100% + 6px)';
+        lineEl.style.height = 'calc(100% + 48px)';
       }
     }, 250));
 
@@ -482,6 +499,22 @@
         slide.classList.remove('active', 'exiting-title', 'exiting-invite', 'exiting-step1', 'exiting-step2');
       }
     });
+
+    // Cập nhật trạng thái hiển thị của các nút mũi tên góc trên màn hình
+    if (DOM.btnNavPrev) {
+      if (index === 0) {
+        DOM.btnNavPrev.classList.add('hidden-nav');
+      } else {
+        DOM.btnNavPrev.classList.remove('hidden-nav');
+      }
+    }
+    if (DOM.btnNavNext) {
+      if (index === STATE.totalSlides - 1) {
+        DOM.btnNavNext.classList.add('hidden-nav');
+      } else {
+        DOM.btnNavNext.classList.remove('hidden-nav');
+      }
+    }
 
     // Trigger per-slide animations
     if (index === 1) {
@@ -623,11 +656,34 @@
   // 6. EVENT LISTENERS
   // ========================================================================
   function bindEvents() {
+    // 0. Top Navigation Guidance Arrows (Previous / Next)
+    if (DOM.btnNavPrev) {
+      DOM.btnNavPrev.addEventListener('click', (e) => {
+        e.stopPropagation();
+        prevSlide();
+      });
+    }
+
+    if (DOM.btnNavNext) {
+      DOM.btnNavNext.addEventListener('click', (e) => {
+        e.stopPropagation();
+        nextSlide();
+      });
+    }
+
     // 1. Click anywhere on screen to manually navigate slides
     if (DOM.storyContainer) {
       DOM.storyContainer.addEventListener('click', (e) => {
+        // Trang 6 (RSVP): Khi đang hiển thị khung nhập lời nhắn mà chạm ra màn hình bên ngoài -> hiển thị lại lựa chọn ban đầu
+        if (STATE.currentSlideIndex === 5 && DOM.rsvpInlineStep && DOM.rsvpInlineStep.classList.contains('revealed')) {
+          if (!e.target.closest('#rsvpInlineStep') && !e.target.closest('#btnRsvpYes') && !e.target.closest('#btnRsvpNo')) {
+            resetRsvpToInitial();
+            return;
+          }
+        }
+
         // Do NOT advance slide if clicking on an interactive button, input, hotspot, or modal
-        if (e.target.closest('button, a, input, select, textarea, .rsvp-inline-step, .hotspot, .hotspot-choice, .video-trigger-hotspot, .video-modal-overlay, .replay-story-hotspot, .btn-close-video')) {
+        if (e.target.closest('button, a, input, select, textarea, .btn-story-nav, .rsvp-inline-step, .hotspot, .hotspot-choice, .ceremony-link-trigger, .video-trigger-hotspot, .video-modal-overlay, .replay-story-hotspot, .btn-close-video')) {
           return;
         }
 
@@ -649,6 +705,13 @@
       });
     }
 
+    // 1.1 Responsive Scale Window Events
+    window.addEventListener('resize', updateStoryScale, { passive: true });
+    window.addEventListener('orientationchange', updateStoryScale, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateStoryScale, { passive: true });
+    }
+
     // 2. Touch swipe gestures on mobile
     if (DOM.storyContainer) {
       DOM.storyContainer.addEventListener('touchstart', (e) => {
@@ -657,7 +720,7 @@
       }, { passive: true });
 
       DOM.storyContainer.addEventListener('touchend', (e) => {
-        if (e.target.closest('button, a, input, select, textarea, .rsvp-inline-step, .video-modal-overlay')) return;
+        if (e.target.closest('button, a, input, select, textarea, .rsvp-inline-step, .ceremony-link-trigger, .video-modal-overlay')) return;
 
         const deltaX = e.changedTouches[0].clientX - STATE.touchStartX;
         const deltaY = e.changedTouches[0].clientY - STATE.touchStartY;
@@ -742,6 +805,23 @@
   // ========================================================================
   // 7. INLINE RSVP (NO POPUPS, SAME CARD & FONT, GOOGLE SHEETS)
   // ========================================================================
+  function resetRsvpToInitial() {
+    if (DOM.rsvpInlineStep) {
+      DOM.rsvpInlineStep.classList.remove('revealed');
+      DOM.rsvpInlineStep.classList.add('hidden');
+    }
+    if (DOM.rsvpInlineFeedback) {
+      DOM.rsvpInlineFeedback.classList.remove('revealed');
+      DOM.rsvpInlineFeedback.classList.add('hidden');
+    }
+    if (DOM.rsvpFlowInitial) {
+      DOM.rsvpFlowInitial.classList.remove('hidden-flow');
+    }
+    if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.remove('selected');
+    if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.remove('selected');
+    STATE.selectedAttendance = null;
+  }
+
   function handleRsvpChoice(attendance) {
     STATE.selectedAttendance = attendance;
 
@@ -836,6 +916,13 @@
       } else {
         DOM.rsvpFeedbackMsg.innerHTML = `Cảm ơn bạn${nameDisp} rất nhiều! Hẹn gặp lại bạn vào một dịp gần nhất nhé! 🤍`;
       }
+
+      // Tự động chuyển sang trang tiếp theo sau khi hiển thị lời cảm ơn
+      setTimeout(() => {
+        if (STATE.currentSlideIndex === 5) {
+          nextSlide();
+        }
+      }, 1400);
     }
   }
 
