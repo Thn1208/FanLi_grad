@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cardo:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Montserrat:wght@400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
 
@@ -32,56 +32,43 @@
       <!-- ============================================== -->
       <div class="slides-wrapper" id="slidesWrapper">
 
-        <!-- SLIDE 0: INTRO RIBBON BOW (The/1.png - HIGH-RES FULL IMAGE) -->
-        <article class="slide-item active slide-intro" data-index="0" style="background-image: url('The/1.png');" aria-label="Tap to open invitation">
-          <!-- Ambient drifting starlight particles -->
-          <div class="intro-stars" id="introStars" aria-hidden="true"></div>
-
-          <!-- Satin Sheen Light Reflection Sweep -->
-          <div class="satin-sheen-sweep" aria-hidden="true"></div>
-
-          <!-- Minimalist Luxury Tap Hint -->
-          <div class="tap-hint-container" aria-hidden="true">
-            <p class="tap-hint-text">— Chạm để mở thiệp mời —</p>
-            <span class="tap-hint-sub">Tap anywhere to open</span>
+        <!-- SLIDE 0 (TRANG 1): INTRO RIBBON BOW (Nơ.png on #1d1a18, no effects or text) -->
+        <article class="slide-item active slide-intro" data-index="0" aria-label="Tap to open invitation">
+          <div class="intro-bow-wrapper" aria-hidden="true">
+            <img src="Nơ.png" alt="" class="intro-bow-img" id="introBowImg" draggable="false">
           </div>
         </article>
 
-        <!-- SLIDE 1: COVER WITH CHARACTER CLARITY & TYPEWRITER ANIMATION -->
-        <article class="slide-item slide-cover" data-index="1" style="background-image: url('assets_clean/bg_cover_clean.png');">
+        <!-- SLIDE 1 (TRANG 2): COVER WITH RIBBON1.PNG, SAO.PNG, CARDO & SCRIPT TYPOGRAPHY -->
+        <article class="slide-item slide-cover" data-index="1">
+          <!-- Background Ribbon Layer: ribbon1.png, opacity 41%, tilted -80deg in Canva, zoom animation -->
+          <div class="cover-ribbon-layer" aria-hidden="true">
+            <img src="ribbon1.png" alt="" class="cover-ribbon-img" draggable="false">
+          </div>
+
           <div class="cover-content-container">
             <div class="cover-title-group">
-              <!-- Glowing Title Star Sparkle (Positioned between Q and U above QUIET, pointing to THE) -->
+              <!-- Star Sparkle Image: sao.png, opacity 81% -->
               <div class="cover-star-sparkle" aria-hidden="true">
-                <svg viewBox="0 0 64 64" fill="currentColor">
-                  <circle cx="16" cy="17" r="0.95" opacity="0.65" fill="currentColor"/>
-                  <circle cx="48" cy="16" r="0.9" opacity="0.6" fill="currentColor"/>
-                  <circle cx="17" cy="48" r="0.9" opacity="0.6" fill="currentColor"/>
-                  <circle cx="47" cy="47" r="0.95" opacity="0.65" fill="currentColor"/>
-                  <g transform="rotate(45 32 32)">
-                    <path d="M 32 14 C 32 30.7 30.7 32 14 32 C 30.7 32 32 33.3 32 50 C 32 33.3 33.3 32 50 32 C 33.3 32 32 30.7 32 14 Z" opacity="0.8" fill="currentColor"/>
-                  </g>
-                  <path d="M 32 0 C 32 30.3 30.3 32 0 32 C 30.3 32 32 33.7 32 64 C 32 33.7 33.7 32 64 32 C 33.7 32 32 30.3 32 0 Z" fill="currentColor"/>
-                  <circle cx="32" cy="32" r="1.6" fill="#ffffff"/>
-                </svg>
+                <img src="sao.png" alt="" class="cover-star-img" draggable="false">
               </div>
 
-              <!-- Line 1: THE (Indented, T is positioned above U) -->
+              <!-- Line 1: THE (Cardo Regular 16.6 — Center-outward: H first, then T & E) -->
               <span class="cover-lead-the" id="coverLeadThe">
-                <span class="clarity-char" data-order="1">T</span><span class="clarity-char" data-order="3">H</span><span class="clarity-char" data-order="2">E</span>
+                <span class="clarity-char" data-order="2">T</span><span class="clarity-char char-lead" data-order="1">H</span><span class="clarity-char" data-order="2">E</span>
               </span>
 
-              <!-- Heading: QUIET & STRENGTH -->
+              <!-- Heading: QUIET (Cardo Regular 30) & STRENGTH (Cardo Bold 30) — Center-outward -->
               <h1 class="cover-heading" id="coverHeading">
                 <span class="title-line title-quiet">
-                  <span class="clarity-char char-lead" data-order="1">Q</span><span class="clarity-char" data-order="4">U</span><span class="clarity-char" data-order="2">I</span><span class="clarity-char char-lead" data-order="1">E</span><span class="clarity-char" data-order="3">T</span>
+                  <span class="clarity-char" data-order="3">Q</span><span class="clarity-char" data-order="2">U</span><span class="clarity-char char-lead" data-order="1">I</span><span class="clarity-char" data-order="2">E</span><span class="clarity-char" data-order="3">T</span>
                 </span>
                 <span class="title-line title-strength">
-                  <span class="clarity-char char-lead" data-order="1">S</span><span class="clarity-char" data-order="5">T</span><span class="clarity-char" data-order="3">R</span><span class="clarity-char char-lead" data-order="1">E</span><span class="clarity-char" data-order="4">N</span><span class="clarity-char" data-order="2">G</span><span class="clarity-char" data-order="5">T</span><span class="clarity-char" data-order="3">H</span>
+                  <span class="clarity-char" data-order="4">S</span><span class="clarity-char" data-order="3">T</span><span class="clarity-char" data-order="2">R</span><span class="clarity-char char-lead" data-order="1">E</span><span class="clarity-char char-lead" data-order="1">N</span><span class="clarity-char" data-order="2">G</span><span class="clarity-char" data-order="3">T</span><span class="clarity-char" data-order="4">H</span>
                 </span>
               </h1>
 
-              <!-- Line 4: Graduation Ceremony (Typewriter starting under S of STRENGTH) -->
+              <!-- Line 4: Graduation Ceremony (Beautifully Delicious Script Regular 27.9) -->
               <div class="cover-script-subtitle" id="coverSubtitle">
                 <span class="typewriter-script-text" id="typewriterScriptText"></span><span class="typewriter-cursor" id="typewriterCursor">|</span>
               </div>
@@ -94,59 +81,48 @@
           </div>
         </article>
 
-        <!-- SLIDE 2: WARM INVITATION WITH FADE-IN ANIMATION -->
-        <article class="slide-item slide-invite" data-index="2" style="background-image: url('assets_clean/bg_invite_clean.png');">
+        <!-- SLIDE 2 (TRANG 3): WARM INVITATION WITH RIBBON2.PNG, SAO.PNG & 3.2S BLUR-IN -->
+        <article class="slide-item slide-invite" data-index="2">
+          <!-- Top Ribbon Layer: ribbon2.png with blur-to-clear reveal -->
+          <div class="invite-ribbon-layer" aria-hidden="true">
+            <img src="ribbon2.png" alt="" class="invite-ribbon-img" draggable="false">
+          </div>
+
           <div class="invite-content-container">
-            <p class="invite-line line-1">You are</p>
-            <p class="invite-line line-2">warmly invited</p>
-            <p class="invite-line line-3">to my graduation ceremony</p>
+            <p class="invite-line line-1">You are<br>warmly invited</p>
+            <p class="invite-line line-2">to my graduation ceremony</p>
             
             <div class="invite-star-sparkle" aria-hidden="true">
-              <svg viewBox="0 0 40 40" fill="currentColor">
-                <circle cx="9" cy="10" r="0.75" opacity="0.8" fill="currentColor"/>
-                <circle cx="31" cy="9.5" r="0.7" opacity="0.65" fill="currentColor"/>
-                <circle cx="9.5" cy="30" r="0.65" opacity="0.6" fill="currentColor"/>
-                <circle cx="30.5" cy="30.5" r="0.75" opacity="0.75" fill="currentColor"/>
-                <g transform="rotate(45 20 20)">
-                  <path d="M20 7 C20 16.8 18.6 19.5 7 20 C18.6 20.5 20 23.2 20 33 C20 23.2 21.4 20.5 33 20 C21.4 19.5 20 16.8 20 7 Z" opacity="0.88" fill="currentColor"/>
-                </g>
-                <path d="M20 0 C20 16.5 18.2 19.4 0 20 C18.2 20.6 20 23.5 20 40 C20 23.5 21.8 20.6 40 20 C21.8 19.4 20 16.5 20 0 Z" fill="currentColor"/>
-                <circle cx="20" cy="20" r="1.5" fill="#ffffff"/>
-              </svg>
+              <img src="sao.png" alt="" class="invite-star-img" draggable="false">
             </div>
           </div>
         </article>
 
-        <!-- SLIDE 3: UNIFIED STAR TIMELINE WITH DRAWING LINE ANIMATION -->
-        <article class="slide-item slide-timeline" data-index="3" style="background-image: url('assets_clean/bg_timeline_clean.png');">
+        <!-- SLIDE 3 (TRANG 4): STAR TIMELINE WITH NÚI1.PNG, ROTATED SAO.PNG & TYPEWRITER HEADING -->
+        <article class="slide-item slide-timeline" data-index="3">
+          <!-- Right Mountain Strip: núi1.png -->
+          <div class="timeline-mountain-layer" aria-hidden="true">
+            <img src="núi1.png" alt="" class="timeline-mountain-img" draggable="false">
+          </div>
+
           <div class="timeline-container">
-            <!-- Header -->
-            <h2 class="timeline-heading">
-              <span>A journey</span>
-              <span>of small steps</span>
-              <span>and big dreams</span>
+            <!-- Header: Playfair Display Bold 18.9pt with Typewriter effect -->
+            <h2 class="timeline-heading" id="timelineHeading">
+              <span class="timeline-type-line" id="timelineTypeLine1"></span>
+              <span class="timeline-type-line" id="timelineTypeLine2"></span>
+              <span class="timeline-type-line" id="timelineTypeLine3"></span>
             </h2>
 
             <!-- Timeline track -->
             <div class="timeline-track-wrapper">
-              <!-- Glowing vertical drawn line -->
+              <!-- Glowing vertical drawn line connecting the 4 stars without overhanging -->
               <div class="timeline-vertical-line" id="timelineVerticalLine"></div>
 
-              <!-- 4 Star Milestones -->
+              <!-- 4 Star Milestones (sao.png rotated at varied angles) -->
               <div class="timeline-milestones" id="timelineMilestones">
                 <div class="milestone-item" data-step="1">
                   <div class="milestone-star">
-                    <svg viewBox="0 0 40 40" fill="currentColor">
-                      <circle cx="9" cy="10" r="0.75" opacity="0.8" fill="currentColor"/>
-                      <circle cx="31" cy="9.5" r="0.7" opacity="0.65" fill="currentColor"/>
-                      <circle cx="9.5" cy="30" r="0.65" opacity="0.6" fill="currentColor"/>
-                      <circle cx="30.5" cy="30.5" r="0.75" opacity="0.75" fill="currentColor"/>
-                      <g transform="rotate(45 20 20)">
-                        <path d="M20 7 C20 16.8 18.6 19.5 7 20 C18.6 20.5 20 23.2 20 33 C20 23.2 21.4 20.5 33 20 C21.4 19.5 20 16.8 20 7 Z" opacity="0.88" fill="currentColor"/>
-                      </g>
-                      <path d="M20 0 C20 16.5 18.2 19.4 0 20 C18.2 20.6 20 23.5 20 40 C20 23.5 21.8 20.6 40 20 C21.8 19.4 20 16.5 20 0 Z" fill="currentColor"/>
-                      <circle cx="20" cy="20" r="1.5" fill="#ffffff"/>
-                    </svg>
+                    <img src="sao.png" alt="" class="milestone-star-img star-rot-1" draggable="false">
                   </div>
                   <div class="milestone-text">
                     <p class="milestone-title">First day<br>at university</p>
@@ -155,17 +131,7 @@
 
                 <div class="milestone-item" data-step="2">
                   <div class="milestone-star">
-                    <svg viewBox="0 0 40 40" fill="currentColor">
-                      <circle cx="9" cy="10" r="0.75" opacity="0.8" fill="currentColor"/>
-                      <circle cx="31" cy="9.5" r="0.7" opacity="0.65" fill="currentColor"/>
-                      <circle cx="9.5" cy="30" r="0.65" opacity="0.6" fill="currentColor"/>
-                      <circle cx="30.5" cy="30.5" r="0.75" opacity="0.75" fill="currentColor"/>
-                      <g transform="rotate(45 20 20)">
-                        <path d="M20 7 C20 16.8 18.6 19.5 7 20 C18.6 20.5 20 23.2 20 33 C20 23.2 21.4 20.5 33 20 C21.4 19.5 20 16.8 20 7 Z" opacity="0.88" fill="currentColor"/>
-                      </g>
-                      <path d="M20 0 C20 16.5 18.2 19.4 0 20 C18.2 20.6 20 23.5 20 40 C20 23.5 21.8 20.6 40 20 C21.8 19.4 20 16.5 20 0 Z" fill="currentColor"/>
-                      <circle cx="20" cy="20" r="1.5" fill="#ffffff"/>
-                    </svg>
+                    <img src="sao.png" alt="" class="milestone-star-img star-rot-2" draggable="false">
                   </div>
                   <div class="milestone-text">
                     <p class="milestone-title">New friends,<br>new perspectives</p>
@@ -174,17 +140,7 @@
 
                 <div class="milestone-item" data-step="3">
                   <div class="milestone-star">
-                    <svg viewBox="0 0 40 40" fill="currentColor">
-                      <circle cx="9" cy="10" r="0.75" opacity="0.8" fill="currentColor"/>
-                      <circle cx="31" cy="9.5" r="0.7" opacity="0.65" fill="currentColor"/>
-                      <circle cx="9.5" cy="30" r="0.65" opacity="0.6" fill="currentColor"/>
-                      <circle cx="30.5" cy="30.5" r="0.75" opacity="0.75" fill="currentColor"/>
-                      <g transform="rotate(45 20 20)">
-                        <path d="M20 7 C20 16.8 18.6 19.5 7 20 C18.6 20.5 20 23.2 20 33 C20 23.2 21.4 20.5 33 20 C21.4 19.5 20 16.8 20 7 Z" opacity="0.88" fill="currentColor"/>
-                      </g>
-                      <path d="M20 0 C20 16.5 18.2 19.4 0 20 C18.2 20.6 20 23.5 20 40 C20 23.5 21.8 20.6 40 20 C21.8 19.4 20 16.5 20 0 Z" fill="currentColor"/>
-                      <circle cx="20" cy="20" r="1.5" fill="#ffffff"/>
-                    </svg>
+                    <img src="sao.png" alt="" class="milestone-star-img star-rot-3" draggable="false">
                   </div>
                   <div class="milestone-text">
                     <p class="milestone-title">Challenges<br>and growth</p>
@@ -193,17 +149,7 @@
 
                 <div class="milestone-item" data-step="4">
                   <div class="milestone-star">
-                    <svg viewBox="0 0 40 40" fill="currentColor">
-                      <circle cx="9" cy="10" r="0.75" opacity="0.8" fill="currentColor"/>
-                      <circle cx="31" cy="9.5" r="0.7" opacity="0.65" fill="currentColor"/>
-                      <circle cx="9.5" cy="30" r="0.65" opacity="0.6" fill="currentColor"/>
-                      <circle cx="30.5" cy="30.5" r="0.75" opacity="0.75" fill="currentColor"/>
-                      <g transform="rotate(45 20 20)">
-                        <path d="M20 7 C20 16.8 18.6 19.5 7 20 C18.6 20.5 20 23.2 20 33 C20 23.2 21.4 20.5 33 20 C21.4 19.5 20 16.8 20 7 Z" opacity="0.88" fill="currentColor"/>
-                      </g>
-                      <path d="M20 0 C20 16.5 18.2 19.4 0 20 C18.2 20.6 20 23.5 20 40 C20 23.5 21.8 20.6 40 20 C21.8 19.4 20 16.5 20 0 Z" fill="currentColor"/>
-                      <circle cx="20" cy="20" r="1.5" fill="#ffffff"/>
-                    </svg>
+                    <img src="sao.png" alt="" class="milestone-star-img star-rot-4" draggable="false">
                   </div>
                   <div class="milestone-text">
                     <p class="milestone-title">Grateful<br>for every moment</p>
@@ -214,44 +160,124 @@
           </div>
         </article>
 
-        <!-- SLIDE 4: CEREMONY DETAILS (The/6.png) -->
-        <article class="slide-item" data-index="4" style="background-image: url('The/6.png');">
-          <!-- Dynamic Personalized Guest Name Overlay (if custom ?to= or ?name= passed) -->
-          <div class="custom-guest-overlay hidden" id="customGuestOverlay">
-            <span class="guest-text" id="customGuestText">Dear Ms. Thuy Linh.</span>
+        <!-- SLIDE 4 (TRANG 5): CEREMONY DETAILS (thư.png + sao.png + Cardo & Playfair) -->
+        <article class="slide-item slide-ceremony" data-index="4" style="background-image: url('thư.png');">
+          <div class="ceremony-container">
+            <!-- Star: sao.png -->
+            <div class="ceremony-star-wrapper" aria-hidden="true">
+              <img src="sao.png" alt="" class="ceremony-star-img" draggable="false">
+            </div>
+
+            <!-- Greeting (Personalized): Playfair Display Italic 11.9pt, Name in đậm -->
+            <div class="ceremony-line ceremony-guest" id="ceremonyGuestLine">
+              <span id="customGuestText">Dear <strong class="guest-name-bold">Name</strong>.</span>
+            </div>
+
+            <!-- Invitation header: Playfair Display Italic 12.9pt -->
+            <p class="ceremony-line ceremony-intro">You are invited to</p>
+
+            <!-- Ceremony title: Playfair Display Bold 17.9pt -->
+            <h3 class="ceremony-line ceremony-title">Phuong’s<br>Graduation Ceremony</h3>
+
+            <!-- Date & Time: Cardo Regular 15.9pt -->
+            <div class="ceremony-line ceremony-datetime" id="hotspotDateTime" title="Click to Add to Calendar">
+              <p class="datetime-date">SUN, NOV 8, 2026</p>
+              <p class="datetime-time">08:00AM – 11:30AM</p>
+            </div>
+
+            <!-- Venue: FPT University (Cardo 13.9pt), Hall A (Cardo 15.9pt) -->
+            <div class="ceremony-line ceremony-venue" id="hotspotVenue" title="Click to Open Google Maps">
+              <p class="venue-uni">FPT UNIVERSITY HCMC</p>
+              <p class="venue-hall">Hall A, Campus</p>
+            </div>
+
+            <!-- Thanh gạt chậm từ trái sang phải -->
+            <div class="ceremony-divider-wrapper" aria-hidden="true">
+              <div class="ceremony-divider-line" id="ceremonyDividerLine"></div>
+            </div>
+
+            <!-- Meaning quote: Playfair Display Italic 9.9pt -->
+            <p class="ceremony-line ceremony-quote">Your prescence means<br>a lot of me.</p>
           </div>
-
-          <!-- Subtle Interactive Hotspots -->
-          <div class="hotspot hotspot-datetime" id="hotspotDateTime" title="Click to Add to Calendar"></div>
-          <div class="hotspot hotspot-venue" id="hotspotVenue" title="Click to Open Google Maps"></div>
-          <div class="star-sparkle-overlay star-ceremony" aria-hidden="true"></div>
         </article>
 
-        <!-- SLIDE 5: RSVP (The/7.png) -->
-        <article class="slide-item" data-index="5" style="background-image: url('The/7.png');">
-          <!-- Interactive Choice Hotspots positioned directly over "Yes" and "No" in The/7.png -->
-          <button type="button" class="hotspot-choice choice-yes" id="btnRsvpYes" aria-label="RSVP Yes - Will join" title="Click to RSVP Yes">
-            <span class="choice-halo"></span>
-          </button>
-          
-          <button type="button" class="hotspot-choice choice-no" id="btnRsvpNo" aria-label="RSVP No - Cannot join" title="Click to RSVP No">
-            <span class="choice-halo"></span>
-          </button>
+        <!-- SLIDE 5 (TRANG 6): RSVP (thư.png + sao.png + Playfair Display) -->
+        <article class="slide-item slide-rsvp" data-index="5" style="background-image: url('thư.png');">
+          <div class="rsvp-content-container">
+            <!-- Star: sao.png -->
+            <div class="rsvp-star-wrapper" aria-hidden="true">
+              <img src="sao.png" alt="" class="rsvp-star-img" draggable="false">
+            </div>
 
-          <!-- Subtle selected badge indicator -->
-          <div class="rsvp-status-badge hidden" id="rsvpStatusBadge">
-            <span class="badge-text" id="rsvpBadgeText">✓ You responded: Yes</span>
+            <!-- Header RSVP: Playfair Display Bold 17.9pt -->
+            <h3 class="rsvp-line rsvp-heading">RSVP</h3>
+
+            <!-- Initial Prompt & Choice (No underline, Playfair Display) -->
+            <div class="rsvp-flow-initial" id="rsvpFlowInitial">
+              <p class="rsvp-line rsvp-question">Will you join the ceremony?</p>
+
+              <!-- Divider line -->
+              <div class="rsvp-divider-wrapper" aria-hidden="true">
+                <div class="rsvp-divider-line" id="rsvpDividerLine"></div>
+              </div>
+
+              <!-- Yes / No Choice Buttons (No underline, styled as in Canva) -->
+              <div class="rsvp-line rsvp-choices-group">
+                <button type="button" class="btn-rsvp-opt btn-opt-yes" id="btnRsvpYes" aria-label="Yes - Will join">
+                  <span>Yes</span>
+                </button>
+                <span class="rsvp-choice-slash">/</span>
+                <button type="button" class="btn-rsvp-opt btn-opt-no" id="btnRsvpNo" aria-label="No - Cannot join">
+                  <span>No</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Interactive Inline Step (Same background, no separate window/modal) -->
+            <div class="rsvp-inline-step hidden" id="rsvpInlineStep">
+              <p class="rsvp-step-prompt" id="rsvpStepPrompt">Cảm ơn bạn! Bạn có lời gì muốn gửi đến Phương không?</p>
+              
+              <div class="rsvp-input-wrapper">
+                <textarea class="rsvp-inline-textarea" id="rsvpInlineMessage" rows="3" placeholder="Viết vài lời nhắn gửi cho Phương..."></textarea>
+                <button type="button" class="btn-rsvp-inline-submit" id="btnRsvpInlineSubmit">
+                  <span>Gửi lời nhắn</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Inline Final Confirmation Message after Submit -->
+            <div class="rsvp-inline-feedback hidden" id="rsvpInlineFeedback">
+              <p class="feedback-msg" id="rsvpFeedbackMsg">Cảm ơn bạn và hẹn gặp lại tại buổi lễ tốt nghiệp nhé! ✨</p>
+            </div>
           </div>
-          <div class="star-sparkle-overlay star-rsvp" aria-hidden="true"></div>
         </article>
 
-        <!-- SLIDE 6: THANK YOU & SIGNATURE (The/8.png) -->
-        <article class="slide-item" data-index="6" style="background-image: url('The/8.png');">
-          <div class="star-sparkle-overlay star-thankyou" aria-hidden="true"></div>
+        <!-- SLIDE 6 (TRANG 7): THANK YOU & SIGNATURE (núi2.png + sao.png + sign.png + Playfair) -->
+        <article class="slide-item slide-thankyou" data-index="6" style="background-image: url('núi2.png');">
+          <div class="thankyou-container">
+            <!-- 1. Text lines: Playfair Display Regular 15pt (top 39.5%, left 19%) -->
+            <div class="thankyou-text-box" id="thankyouTextBox">
+              <p class="thankyou-line">Thank you</p>
+              <p class="thankyou-line">for being part of</p>
+              <p class="thankyou-line">this special chapter</p>
+              <p class="thankyou-line">in my life.</p>
+            </div>
+
+            <!-- 2. Star: sao.png (top 65%, left 19.5%) -->
+            <div class="thankyou-star-wrapper" id="thankyouStarWrapper" aria-hidden="true">
+              <img src="sao.png" alt="" class="thankyou-star-img" draggable="false">
+            </div>
+
+            <!-- 3. Signature: sign.png với cọ vẽ đường cong (top 76%, left 17.5%) -->
+            <div class="thankyou-sign-wrapper" id="thankyouSignWrapper" aria-hidden="true">
+              <img src="sign.png" alt="Signature" class="thankyou-sign-img" draggable="false">
+            </div>
+          </div>
         </article>
 
-        <!-- SLIDE 7: SHORT VIDEO (The/9.png) -->
-        <article class="slide-item" data-index="7" style="background-image: url('The/9.png');">
+        <!-- SLIDE 7 (TRANG 8): SHORT VIDEO (núi2.png background) -->
+        <article class="slide-item slide-video" data-index="7" style="background-image: url('núi2.png');">
+          <div class="video-overlay-tint"></div>
           <!-- Center Play Trigger for the Memory Video -->
           <div class="video-trigger-hotspot" id="btnTriggerVideo" title="Tap to Play Video">
             <div class="play-pulse-ring"></div>
@@ -274,11 +300,56 @@
           </div>
         </article>
 
-        <!-- SLIDE 8: OUTRO & CONTACT (The/10.png) -->
-        <article class="slide-item" data-index="8" style="background-image: url('The/10.png');">
-          <!-- Interactive Hotspot over Phone Number -->
-          <a href="tel:+84825497013" class="hotspot-phone" id="hotspotPhone" title="Tap to Call (+84)825 497 013"></a>
-          
+        <!-- SLIDE 8 (TRANG 9): OUTRO (Tương tự Trang 2, Thank you Cardo Italic 18.9pt & Contact 8.9pt) -->
+        <article class="slide-item slide-cover slide-outro" data-index="8">
+          <!-- Background Ribbon Layer: ribbon1.png, opacity 41%, tilted -80deg in Canva, zoom animation -->
+          <div class="cover-ribbon-layer" aria-hidden="true">
+            <img src="ribbon1.png" alt="" class="cover-ribbon-img outro-ribbon-img" draggable="false">
+          </div>
+
+          <!-- Star Accent: sao.png at opacity 81% -->
+          <div class="cover-star-layer" aria-hidden="true">
+            <img src="sao.png" alt="" class="cover-star-img outro-star-img" draggable="false">
+          </div>
+
+          <!-- Main Typography Deck: Giữ nguyên bố cục và cấu trúc như Trang 2 -->
+          <div class="cover-content-container">
+            <div class="cover-title-group">
+              <!-- Star Sparkle Image: sao.png, opacity 81% -->
+              <div class="cover-star-sparkle" aria-hidden="true">
+                <img src="sao.png" alt="" class="cover-star-img outro-star-img" draggable="false">
+              </div>
+
+              <!-- Line 1: THE (Cardo Regular 16.6 — Center-outward: H first, then T & E) -->
+              <span class="cover-lead-the" id="outroLeadThe">
+                <span class="clarity-char" data-order="2">T</span><span class="clarity-char char-lead" data-order="1">H</span><span class="clarity-char" data-order="2">E</span>
+              </span>
+
+              <!-- Heading: QUIET (Cardo Regular 30) & STRENGTH (Cardo Bold 30) — Center-outward -->
+              <h1 class="cover-heading" id="outroHeading">
+                <span class="title-line title-quiet">
+                  <span class="clarity-char" data-order="3">Q</span><span class="clarity-char" data-order="2">U</span><span class="clarity-char char-lead" data-order="1">I</span><span class="clarity-char" data-order="2">E</span><span class="clarity-char" data-order="3">T</span>
+                </span>
+                <span class="title-line title-strength">
+                  <span class="clarity-char" data-order="4">S</span><span class="clarity-char" data-order="3">T</span><span class="clarity-char" data-order="2">R</span><span class="clarity-char char-lead" data-order="1">E</span><span class="clarity-char char-lead" data-order="1">N</span><span class="clarity-char" data-order="2">G</span><span class="clarity-char" data-order="3">T</span><span class="clarity-char" data-order="4">H</span>
+                </span>
+              </h1>
+
+              <!-- Line 4: Graduation Ceremony (Beautifully Delicious Script Regular 28.9) -->
+              <div class="cover-script-subtitle outro-script-subtitle" id="outroSubtitle">
+                <span class="typewriter-script-text" id="outroTypewriterScriptText"></span><span class="typewriter-cursor" id="outroTypewriterCursor">|</span>
+              </div>
+            </div>
+
+            <!-- 2 dòng ở dưới: 'Thank you' (Cardo 18.9pt italic) và 'Contact' (Cardo 8.9pt) -->
+            <div class="cover-footer-meta outro-footer-meta" id="outroFooterMeta">
+              <p class="outro-thankyou-text">Thank you</p>
+              <p class="outro-contact-text">
+                <a href="tel:+84825497013" class="outro-contact-link" title="Tap to Call (+84)825 497 013">Contact: (+84)825 497 013</a>
+              </p>
+            </div>
+          </div>
+
           <!-- Subtle Replay Button at the very bottom -->
           <button type="button" class="replay-story-hotspot" id="btnReplayStory" title="Replay Invitation">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -291,58 +362,6 @@
 
       </div><!-- /.slides-wrapper -->
 
-      <!-- ============================================== -->
-      <!-- LUXURY BOTTOM SHEET FOR RSVP (Google Sheets)   -->
-      <!-- ============================================== -->
-      <div class="rsvp-bottom-sheet hidden" id="rsvpSheet" role="dialog" aria-modal="true" aria-label="RSVP Response">
-        <div class="sheet-backdrop" id="sheetBackdrop"></div>
-        <div class="sheet-panel">
-          <div class="sheet-drag-handle"></div>
-
-          <div class="sheet-header">
-            <h3 class="sheet-title" id="sheetTitle">RSVP Confirmation</h3>
-            <p class="sheet-sub" id="sheetSub">Will you join Phuong's graduation ceremony?</p>
-          </div>
-
-          <form class="sheet-form" id="sheetRsvpForm">
-            <div class="sheet-input-group">
-              <label for="rsvpInputName" class="sheet-label">Your Name</label>
-              <input type="text" id="rsvpInputName" class="sheet-input" placeholder="Enter your full name" required>
-            </div>
-
-            <div class="sheet-input-group" id="rsvpGuestCountGroup">
-              <label for="rsvpInputCount" class="sheet-label">Number of Attendees</label>
-              <select id="rsvpInputCount" class="sheet-input sheet-select">
-                <option value="1">1 Person (Just me)</option>
-                <option value="2">2 Persons</option>
-                <option value="3">3 Persons</option>
-                <option value="4+">4+ Persons</option>
-              </select>
-            </div>
-
-            <div class="sheet-input-group">
-              <label for="rsvpInputMessage" class="sheet-label">Wishes / Message for Phuong (Optional)</label>
-              <textarea id="rsvpInputMessage" class="sheet-input sheet-textarea" rows="2" placeholder="Send your warmest congratulations..."></textarea>
-            </div>
-
-            <div class="sheet-actions">
-              <button type="button" class="btn-sheet-cancel" id="btnCancelSheet">Cancel</button>
-              <button type="submit" class="btn-sheet-submit" id="btnSubmitSheet">
-                <span class="btn-text">Submit RSVP</span>
-                <span class="btn-spinner hidden"></span>
-              </button>
-            </div>
-          </form>
-
-          <div class="sheet-success-state hidden" id="sheetSuccessState">
-            <div class="success-sparkle-icon">✨</div>
-            <h4 class="success-heading">Response Confirmed!</h4>
-            <p class="success-desc" id="successDetailText">Thank you! Your response has been recorded.</p>
-            <button type="button" class="btn-sheet-submit" id="btnCloseSuccess">Done</button>
-          </div>
-        </div>
-      </div>
-
     </main>
   </div><!-- /.mobile-frame-wrapper -->
 
@@ -350,6 +369,6 @@
   <div class="toast-notification" id="toastBox" role="status" aria-live="polite"></div>
 
   <!-- Main JavaScript Logic -->
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>

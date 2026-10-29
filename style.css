@@ -35,7 +35,7 @@
 }
 
 :root {
-  --bg-dark: #0c0c0e;
+  --bg-dark: #1d1a18;
   --text-platinum: #f4f4f6;
   --text-silver-muted: #b4b6bc;
   --border-silver: rgba(255, 255, 255, 0.14);
@@ -160,7 +160,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #171615;
+  background-color: #1d1a18;
 }
 
 .slide-item {
@@ -187,7 +187,7 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   SLIDE 0: INTRO RIBBON BOW (The/1.png FULL HIGH-RES)
+   SLIDE 0 (TRANG 1): INTRO RIBBON BOW (Nơ.png on #1d1a18, no effects or text)
    -------------------------------------------------------------------------- */
 .slide-intro {
   background-color: #1d1a18;
@@ -195,97 +195,87 @@ html, body {
   overflow: hidden;
 }
 
-.slide-intro.active {
-  animation: bowGentleFloat 5.4s infinite ease-in-out;
-}
-
-@keyframes bowGentleFloat {
-  0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
-  25% { transform: translateY(-5px) scale(1.012) rotate(-0.5deg); }
-  50% { transform: translateY(-2px) scale(1.006) rotate(0.4deg); }
-  75% { transform: translateY(-6px) scale(1.015) rotate(-0.3deg); }
-}
-
-.satin-sheen-sweep {
+.intro-bow-wrapper {
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.05) 46%, rgba(255, 255, 255, 0.18) 50%, rgba(255, 255, 255, 0.05) 54%, transparent 65%);
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  transform: translateX(-120%);
-  animation: sheenPass 4.8s infinite ease-in-out;
+  z-index: 1;
 }
 
-@keyframes sheenPass {
-  0%, 35% { transform: translateX(-120%); }
-  65%, 100% { transform: translateX(120%); }
-}
-
-.intro-stars {
+.intro-bow-img {
   position: absolute;
-  inset: 0;
-  z-index: 2;
+  top: 34.04%;
+  left: -13.23%;
+  width: 126.21%;
+  height: auto;
+  display: block;
   pointer-events: none;
-  overflow: hidden;
-}
-
-.intro-star {
-  position: absolute;
-  background-color: #ffffff;
-  border-radius: 50%;
-  animation: starPulse 3s infinite alternate ease-in-out;
-}
-
-@keyframes starPulse {
-  0% { transform: scale(0.6); opacity: 0.2; }
-  100% { transform: scale(1.3); opacity: 0.85; filter: drop-shadow(0 0 4px #ffffff); }
-}
-
-.tap-hint-container {
-  position: absolute;
-  bottom: 8%;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  pointer-events: none;
-  animation: tapHintBreathe 2.8s infinite ease-in-out;
-}
-
-@keyframes tapHintBreathe {
-  0%, 100% { opacity: 0.45; transform: translateY(0); }
-  50% { opacity: 0.9; transform: translateY(-3px); }
-}
-
-.tap-hint-text {
-  font-family: var(--font-the-seasons);
-  font-size: 15px;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.88);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
-  margin: 0;
-}
-
-.tap-hint-sub {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 0;
+  opacity: 1;
+  filter: none;
+  transform: none;
 }
 
 /* --------------------------------------------------------------------------
-   SLIDE 1: COVER WITH TYPEWRITER ANIMATION & BLUR-TO-CLEAR REVEAL
+   SLIDE 1 (TRANG 2): COVER WITH RIBBON1.PNG, SAO.PNG & CARDO TYPOGRAPHY
    -------------------------------------------------------------------------- */
 .slide-cover {
-  background-color: #131210;
+  background-color: #1d1a18;
+  overflow: hidden;
+}
+
+/* Background Ribbon Layer: ribbon1.png (opacity 41%, tilted -80deg in Canva, zoom animation) */
+.cover-ribbon-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.cover-ribbon-img {
+  position: absolute;
+  top: -24.8%;
+  left: -19.3%;
+  width: 112%;
+  height: auto;
+  display: block;
+  opacity: 0.41; /* Độ trong suốt 41% */
+  /* ribbon1.png đã xoay dọc sẵn (-90deg), nên góc nghiêng -80deg trên Canva tương ứng xoay bù +10deg..+13.15deg */
+  transform-origin: 50% 50%;
+  transform: rotate(13.15deg) scale(1.16);
+  will-change: transform, opacity;
+}
+
+.slide-cover.active .cover-ribbon-img {
+  animation:
+    coverRibbonZoomIn 1.9s var(--ease-cinematic) forwards,
+    coverRibbonZoomBreathe 6.5s 1.9s infinite alternate ease-in-out;
+}
+
+@keyframes coverRibbonZoomIn {
+  0% {
+    opacity: 0;
+    transform: rotate(13.15deg) scale(1.16);
+  }
+  100% {
+    opacity: 0.41;
+    transform: rotate(13.15deg) scale(1);
+  }
+}
+
+@keyframes coverRibbonZoomBreathe {
+  0% {
+    opacity: 0.41;
+    transform: rotate(13.15deg) scale(1);
+  }
+  100% {
+    opacity: 0.41;
+    transform: rotate(13.15deg) scale(1.06);
+  }
 }
 
 .cover-content-container {
@@ -293,148 +283,184 @@ html, body {
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 5;
   pointer-events: none;
 }
 
-/* Top-left Needle Radiant Starburst (Positioned above QUIET between Q and U, horizontal ray aligned with foot/baseline of T) */
+/* Star Sparkle (sao.png): độ trong suốt 81% */
 .cover-star-sparkle {
   position: absolute;
-  top: -12px; /* Thấp xuống tầm 2px (tâm ray y=19px nằm ngang chân chữ T) */
-  left: -1px;  /* Tâm ray x=30px chạm nhẹ vào chân chữ T */
-  width: 62px;  /* To hơn, sải cánh dài hơn */
-  height: 62px;
-  color: #ffffff; /* Sáng trắng rực rỡ */
+  top: -14px;
+  left: -16px;
+  width: 68px;
+  height: 68.7px;
   opacity: 0;
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.6));
-  transform: scale(0.6) rotate(-10deg);
-  transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  z-index: 1; /* Nằm ở layer phía dưới để chữ đè lên */
+  transform: scale(0.7);
+  transition: opacity 0.65s ease-out, transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 1; /* Nằm dưới lớp chữ THE & QUIET */
   pointer-events: none;
+}
+
+.cover-star-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .slide-cover.active .cover-star-sparkle {
-  opacity: 1; /* Sáng rõ rực rỡ */
-  filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.98)) drop-shadow(0 0 18px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 32px rgba(255, 255, 255, 0.45));
-  transform: scale(1) rotate(0deg);
+  opacity: 0.81; /* Độ trong suốt 81% */
+  transform: scale(1);
 }
 
 .cover-title-group {
   position: absolute;
-  top: 41.5%;
-  left: 20%;
+  top: 41.8%;
+  left: 18.1%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  z-index: 5; /* Layer chữ hiển thị đè lên trên ngôi sao */
+  z-index: 5;
 }
 
-/* "THE" - T to hơn, thụt vào trong đặt ngay phía trên chữ U của QUIET */
+/* Chữ THE: Cardo Regular 16.6 */
 .cover-lead-the {
-  font-family: var(--font-playfair);
-  font-size: 18.5px;
-  line-height: 1.15;
-  letter-spacing: 0.22em;
+  font-family: var(--font-cardo);
+  font-size: 16.6pt;
   font-weight: 400;
+  font-style: normal;
+  line-height: 1.05;
+  letter-spacing: 0.06em;
   color: #e5e3df;
-  margin-left: 32px; /* Thụt vào để chữ T nằm trên chữ U */
-  margin-bottom: 2px;
+  margin-left: 24px;
+  margin-bottom: 1px;
   position: relative;
   z-index: 5;
-  transform: translateX(-38px);
-  transition: transform 1.35s var(--ease-cinematic);
-  will-change: transform;
 }
 
-/* "QUIET STRENGTH" Heading */
+/* Heading: QUIET (Cardo Regular 30) & STRENGTH (Cardo Bold 30) */
 .cover-heading {
   margin: 0;
-  font-family: var(--font-the-seasons), var(--font-playfair);
-  font-size: 36px;
+  font-family: var(--font-cardo);
+  font-size: 30pt;
   font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: 0.04em;
+  line-height: 1.12;
+  letter-spacing: 0.03em;
   color: #ffffff;
   text-transform: uppercase;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
   position: relative;
   z-index: 5;
-  transform: translateX(-38px);
-  transition: transform 1.35s var(--ease-cinematic);
-  will-change: transform;
-}
-
-.slide-cover.active .cover-lead-the,
-.slide-cover.active .cover-heading {
-  transform: translateX(0);
 }
 
 .title-line {
   display: block;
 }
 
+/* Chữ QUIET: Cardo Regular 30 */
 .title-line.title-quiet {
-  margin-left: 0; /* Q bắt đầu sát lề trái */
+  font-family: var(--font-cardo);
+  font-size: 30pt;
+  font-weight: 400;
+  font-style: normal;
+  margin-left: 0;
 }
 
-/* Chữ S của STRENGTH thụt vào bắt đầu bên dưới chữ U của QUIET */
+/* Chữ STRENGTH: Cardo Bold 30 */
 .title-line.title-strength {
-  margin-left: 32px; /* Thụt vào thẳng hàng dưới chữ U */
+  font-family: var(--font-cardo);
+  font-size: 30pt;
+  font-weight: 700;
+  font-style: normal;
+  margin-left: 32px;
 }
 
-/* Hiệu ứng Rõ nét ngẫu nhiên kết hợp chuyển động trượt từ trái vào */
+/* Hiệu ứng Rõ nét từ giữa lan ra hai bên (Center-outward blur-to-clear) */
 .clarity-char {
   display: inline-block;
   opacity: 0;
   filter: blur(14px);
-  transform: translateX(-6px);
-  transition: opacity 0.95s var(--ease-cinematic), filter 1.1s ease-out, transform 0.95s var(--ease-cinematic);
+  transform: scale(0.95);
+  transition: opacity 0.9s var(--ease-cinematic), filter 1.05s ease-out, transform 0.9s var(--ease-cinematic);
   will-change: opacity, filter, transform;
 }
 
-/* Các ký tự sắc nét sớm ở mỗi chữ xuất hiện rõ nét trước */
+/* Các ký tự ở tâm xuất hiện rõ nét trước */
 .clarity-char.char-lead {
-  filter: blur(6px);
-  transition: opacity 0.58s var(--ease-cinematic), filter 0.68s ease-out, transform 0.58s var(--ease-cinematic);
+  filter: blur(8px);
+  transition: opacity 0.62s var(--ease-cinematic), filter 0.72s ease-out, transform 0.62s var(--ease-cinematic);
 }
 
-.slide-cover.active .clarity-char {
+.slide-cover.active:not(.exiting-title) .clarity-char {
   opacity: 1;
   filter: blur(0px);
-  transform: translate(0, 0);
+  transform: scale(1);
 }
 
-/* Staggered transition delays: chậm xíu nữa để chữ tan dần từ mờ ảo sang sắc nét thật sang trọng */
-/* THE */
-.cover-lead-the .clarity-char:nth-child(1) { transition-delay: 0.08s; } /* T - rõ nét trước */
-.cover-lead-the .clarity-char:nth-child(2) { transition-delay: 0.72s; } /* H */
-.cover-lead-the .clarity-char:nth-child(3) { transition-delay: 0.35s; } /* E */
+/* Staggered transition delays KHI XUẤT HIỆN: Từ chữ ở giữa lan sang trái - phải */
+/* THE: H (giữa) -> T (trái) & E (phải) */
+.slide-cover.active:not(.exiting-title) .cover-lead-the .clarity-char:nth-child(2) { transition-delay: 0.08s; } /* H - giữa */
+.slide-cover.active:not(.exiting-title) .cover-lead-the .clarity-char:nth-child(1) { transition-delay: 0.42s; } /* T - trái */
+.slide-cover.active:not(.exiting-title) .cover-lead-the .clarity-char:nth-child(3) { transition-delay: 0.54s; } /* E - phải */
 
-/* QUIET: Q và E xuất hiện rõ nét trước; U, I, T từ mờ sang rõ nét dần */
-.title-quiet .clarity-char:nth-child(1) { transition-delay: 0.08s; } /* Q - rõ nét trước */
-.title-quiet .clarity-char:nth-child(2) { transition-delay: 0.90s; } /* U */
-.title-quiet .clarity-char:nth-child(3) { transition-delay: 0.45s; } /* I */
-.title-quiet .clarity-char:nth-child(4) { transition-delay: 0.15s; } /* E - rõ nét trước */
-.title-quiet .clarity-char:nth-child(5) { transition-delay: 0.80s; } /* T */
+/* QUIET: I (giữa) -> U (trái) & E (phải) -> Q (ngoài trái) & T (ngoài phải) */
+.slide-cover.active:not(.exiting-title) .title-quiet .clarity-char:nth-child(3) { transition-delay: 0.08s; } /* I - giữa */
+.slide-cover.active:not(.exiting-title) .title-quiet .clarity-char:nth-child(2) { transition-delay: 0.38s; } /* U - trái */
+.slide-cover.active:not(.exiting-title) .title-quiet .clarity-char:nth-child(4) { transition-delay: 0.50s; } /* E - phải */
+.slide-cover.active:not(.exiting-title) .title-quiet .clarity-char:nth-child(1) { transition-delay: 0.78s; } /* Q - ngoài trái */
+.slide-cover.active:not(.exiting-title) .title-quiet .clarity-char:nth-child(5) { transition-delay: 0.90s; } /* T - ngoài phải */
 
-/* STRENGTH: S và E xuất hiện rõ nét trước; các ký tự còn lại từ mờ chuyển sang rõ nét dần */
-.title-strength .clarity-char:nth-child(1) { transition-delay: 0.08s; } /* S - rõ nét trước */
-.title-strength .clarity-char:nth-child(2) { transition-delay: 1.12s; } /* T */
-.title-strength .clarity-char:nth-child(3) { transition-delay: 0.55s; } /* R */
-.title-strength .clarity-char:nth-child(4) { transition-delay: 0.18s; } /* E - rõ nét trước */
-.title-strength .clarity-char:nth-child(5) { transition-delay: 0.98s; } /* N */
-.title-strength .clarity-char:nth-child(6) { transition-delay: 0.42s; } /* G */
-.title-strength .clarity-char:nth-child(7) { transition-delay: 1.25s; } /* T */
-.title-strength .clarity-char:nth-child(8) { transition-delay: 0.65s; } /* H */
+/* STRENGTH: E & N (giữa) -> R & G -> T & T -> S & H (ngoài cùng) */
+.slide-cover.active:not(.exiting-title) .title-strength .clarity-char:nth-child(4) { transition-delay: 0.08s; } /* E - giữa */
+.slide-cover.active:not(.exiting-title) .title-strength .clarity-char:nth-child(5) { transition-delay: 0.18s; } /* N - giữa */
+.slide-cover.active:not(.exiting-title) .title-strength .clarity-char:nth-child(3) { transition-delay: 0.42s; } /* R - trái */
+.slide-cover.active:not(.exiting-title) .title-strength .clarity-char:nth-child(6) { transition-delay: 0.52s; } /* G - phải */
+.slide-cover.active:not(.exiting-title) .title-strength .clarity-char:nth-child(2) { transition-delay: 0.76s; } /* T - trái */
+.slide-cover.active:not(.exiting-title) .title-strength .clarity-char:nth-child(7) { transition-delay: 0.86s; } /* T - phải */
+.slide-cover.active:not(.exiting-title) .title-strength .clarity-char:nth-child(1) { transition-delay: 1.08s; } /* S - ngoài trái */
+.slide-cover.active:not(.exiting-title) .title-strength .clarity-char:nth-child(8) { transition-delay: 1.18s; } /* H - ngoài phải */
 
-/* Typewriter Subtitle for "Graduation Ceremony" - Bắt đầu dưới chữ S của STRENGTH, chếch lên nghiêng nhẹ */
+/* Staggered transition delays KHI BIẾN MẤT (chuyển trang): Mờ dần từ giữa lan ra hai bên giống khi xuất hiện */
+.slide-cover.exiting-title .clarity-char {
+  opacity: 0;
+  filter: blur(14px);
+  transform: scale(0.95);
+  transition: opacity 0.46s var(--ease-cinematic), filter 0.5s ease-in, transform 0.46s var(--ease-cinematic);
+}
+
+/* THE biến mất: H -> T & E */
+.slide-cover.exiting-title .cover-lead-the .clarity-char:nth-child(2) { transition-delay: 0.02s; } /* H */
+.slide-cover.exiting-title .cover-lead-the .clarity-char:nth-child(1) { transition-delay: 0.18s; } /* T */
+.slide-cover.exiting-title .cover-lead-the .clarity-char:nth-child(3) { transition-delay: 0.24s; } /* E */
+
+/* QUIET biến mất: I -> U & E -> Q & T */
+.slide-cover.exiting-title .title-quiet .clarity-char:nth-child(3) { transition-delay: 0.02s; } /* I */
+.slide-cover.exiting-title .title-quiet .clarity-char:nth-child(2) { transition-delay: 0.16s; } /* U */
+.slide-cover.exiting-title .title-quiet .clarity-char:nth-child(4) { transition-delay: 0.22s; } /* E */
+.slide-cover.exiting-title .title-quiet .clarity-char:nth-child(1) { transition-delay: 0.34s; } /* Q */
+.slide-cover.exiting-title .title-quiet .clarity-char:nth-child(5) { transition-delay: 0.40s; } /* T */
+
+/* STRENGTH biến mất: E & N -> R & G -> T & T -> S & H */
+.slide-cover.exiting-title .title-strength .clarity-char:nth-child(4) { transition-delay: 0.02s; } /* E */
+.slide-cover.exiting-title .title-strength .clarity-char:nth-child(5) { transition-delay: 0.06s; } /* N */
+.slide-cover.exiting-title .title-strength .clarity-char:nth-child(3) { transition-delay: 0.16s; } /* R */
+.slide-cover.exiting-title .title-strength .clarity-char:nth-child(6) { transition-delay: 0.22s; } /* G */
+.slide-cover.exiting-title .title-strength .clarity-char:nth-child(2) { transition-delay: 0.30s; } /* T */
+.slide-cover.exiting-title .title-strength .clarity-char:nth-child(7) { transition-delay: 0.36s; } /* T */
+.slide-cover.exiting-title .title-strength .clarity-char:nth-child(1) { transition-delay: 0.44s; } /* S */
+.slide-cover.exiting-title .title-strength .clarity-char:nth-child(8) { transition-delay: 0.50s; } /* H */
+
+/* Chữ Graduation Ceremony: Beautifully Delicious Script Regular 28.9pt (tăng 1pt và đẩy cao lên chút nữa)
+   Chữ G nằm thẳng dưới chữ S của STRENGTH (margin-left: 32px), độ dài dòng gần bằng STRENGTH */
 .cover-script-subtitle {
   font-family: 'Beautifully Delicious Script Regular', 'Beautifully Delicious Script', var(--font-script);
-  font-size: 34px;
-  letter-spacing: 0.025em;
-  color: #ece8e1;
+  font-size: 28.9pt;
+  font-weight: 400;
   font-style: normal;
-  margin-top: -6px;
-  margin-left: 8px; /* Cho về bên trái một chút: không dưới chữ S (32px), cũng không dưới chữ Q (0px) */
+  letter-spacing: 0.012em;
+  color: #ece8e1;
+  margin-top: -10px;
+  margin-left: 32px; /* Đặt chữ G thẳng dưới chữ S của STRENGTH */
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -466,10 +492,10 @@ html, body {
   50% { opacity: 0; }
 }
 
-/* Nguyen Thi Diem Phuong & Quote - Appear softly out of atmospheric blur */
+/* Nguyen Thi Diem Phuong & Quote */
 .cover-footer-meta {
   position: absolute;
-  bottom: 18.5%;
+  bottom: 19%;
   left: 0;
   right: 0;
   text-align: center;
@@ -486,37 +512,73 @@ html, body {
   transform: translateY(0);
 }
 
+/* Nguyen Thi Diem Phuong: Cardo Regular 8.9 */
 .author-name {
   font-family: var(--font-cardo);
-  font-size: 14.5px;
-  letter-spacing: 0.06em;
+  font-size: 8.9pt;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0.04em;
   color: #f1efeb;
   margin-bottom: 6px;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
 }
 
+/* Some journeys are not linear, but still lead to something beautiful.: in nghiêng, Cardo Regular 7.9 */
 .author-quote {
   font-family: var(--font-cardo);
-  font-size: 11.5px;
+  font-size: 7.9pt;
+  font-weight: 400;
   font-style: italic;
-  line-height: 1.55;
+  line-height: 1.5;
   color: #aba9a4;
   letter-spacing: 0.02em;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
 }
 
 /* --------------------------------------------------------------------------
-   SLIDE 2: WARM INVITATION WITH SEQUENTIAL BLUR-TO-CLEAR REVEAL
+   SLIDE 2 (TRANG 3): WARM INVITATION (ribbon2.png + sao.png + Playfair 3.2s Blur-In)
    -------------------------------------------------------------------------- */
 .slide-invite {
-  background-color: #121210;
+  background-color: #1d1a18;
+  overflow: hidden;
+}
+
+.invite-ribbon-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.invite-ribbon-img {
+  position: absolute;
+  top: 0;
+  left: -13.5%;
+  width: 113.5%;
+  height: auto;
+  display: block;
+  opacity: 0;
+  filter: blur(18px);
+  transform: scale(1.03);
+  transition: opacity 1.8s var(--ease-cinematic), filter 1.8s ease-out, transform 1.8s var(--ease-cinematic);
+  will-change: opacity, filter, transform;
+}
+
+.slide-invite.active .invite-ribbon-img {
+  opacity: 1;
+  filter: blur(0px);
+  transform: scale(1);
 }
 
 .invite-content-container {
   position: absolute;
-  top: 48%;
+  top: 47.5%;
   left: 0;
   right: 0;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -525,68 +587,116 @@ html, body {
   pointer-events: none;
 }
 
+/* Hiệu ứng mờ khi xuất hiện tầm 3.2s */
 .invite-line {
   opacity: 0;
-  filter: blur(10px);
-  transform: translateY(8px);
-  transition: opacity 0.85s var(--ease-cinematic), filter 0.85s ease-out, transform 0.85s var(--ease-cinematic);
+  filter: blur(14px);
+  transform: translateY(6px);
+  transition: opacity 3.2s var(--ease-cinematic), filter 3.2s ease-out, transform 3.2s var(--ease-cinematic);
+  will-change: opacity, filter, transform;
 }
 
 .invite-line.revealed {
   opacity: 1;
-  filter: blur(0);
+  filter: blur(0px);
   transform: translateY(0);
 }
 
+/* You are warmly invited: Playfair Display Trung bình, Bold, 14.9pt */
 .invite-line.line-1 {
-  font-family: var(--font-cardo);
-  font-size: 18.5px;
-  letter-spacing: 0.06em;
-  color: #ebe9e3;
+  font-family: var(--font-playfair);
+  font-size: 14.9pt;
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: 0.02em;
+  color: #f4f2ec;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
 }
 
+/* to my graduation ceremony: Playfair Display Thông thường, 11.9pt */
 .invite-line.line-2 {
-  font-family: var(--font-the-seasons);
-  font-size: 22px;
+  font-family: var(--font-playfair);
+  font-size: 11.9pt;
   font-weight: 400;
-  letter-spacing: 0.03em;
-  color: #fbf9f4;
-  margin: 5px 0;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: #d6d3cb;
+  margin-top: 8px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
 }
 
-.invite-line.line-3 {
-  font-family: var(--font-cardo);
-  font-size: 16.5px;
-  letter-spacing: 0.04em;
-  color: #cccac3;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
-}
-
+/* Ngôi sao sao.png rõ dần cùng thời điểm với ribbon2 */
 .invite-star-sparkle {
-  width: 24px;
-  height: 24px;
-  margin-top: 26px;
-  color: #ffffff;
+  width: 46px;
+  height: 46px;
+  margin-top: 95px;
   opacity: 0;
-  filter: blur(8px) drop-shadow(0 0 6px #ffffff);
-  transform: scale(0.6) rotate(-15deg);
-  transition: opacity 0.9s var(--ease-cinematic), filter 0.9s ease-out, transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: blur(14px);
+  transform: scale(0.75);
+  transition: opacity 1.8s var(--ease-cinematic), filter 1.8s ease-out, transform 1.8s var(--ease-cinematic);
+  will-change: opacity, filter, transform;
 }
 
-.invite-star-sparkle.revealed {
-  opacity: 1;
-  filter: blur(0) drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 18px rgba(255, 255, 255, 0.5));
-  transform: scale(1) rotate(0deg);
-  animation: starTwinklePulse 3.4s infinite ease-in-out;
+.invite-star-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.slide-invite.active .invite-star-sparkle {
+  opacity: 0.9;
+  filter: blur(0px);
+  transform: scale(1);
+}
+
+/* Khi chuyển trang ở Slide 2: ribbon2 và sao có hiệu ứng biến mất, dòng chữ giữ nguyên */
+.slide-invite.exiting-invite .invite-ribbon-img {
+  opacity: 0;
+  filter: blur(16px);
+  transform: scale(0.97);
+  transition: opacity 0.55s ease-in, filter 0.55s ease-in, transform 0.55s ease-in;
+}
+
+.slide-invite.exiting-invite .invite-star-sparkle {
+  opacity: 0;
+  filter: blur(12px);
+  transform: scale(0.65);
+  transition: opacity 0.55s ease-in, filter 0.55s ease-in, transform 0.55s ease-in;
+}
+
+.slide-invite.exiting-invite .invite-line {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: translateY(0) !important;
 }
 
 /* --------------------------------------------------------------------------
-   SLIDE 3: UNIFIED STAR TIMELINE (LINE DRAWING + BLUR-TO-CLEAR MILESTONES)
+   SLIDE 3 (TRANG 4): STAR TIMELINE (núi1.png + rotated sao.png + Playfair)
    -------------------------------------------------------------------------- */
 .slide-timeline {
-  background-color: #111113;
+  background-color: #1d1a18;
+  overflow: hidden;
+}
+
+.timeline-mountain-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.timeline-mountain-img {
+  position: absolute;
+  top: 0;
+  left: 73.28%;
+  width: 39.44%;
+  height: 100.7%;
+  object-fit: cover;
+  object-position: left top;
+  display: block;
 }
 
 .timeline-container {
@@ -594,9 +704,11 @@ html, body {
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 5;
   pointer-events: none;
 }
 
+/* A journey of small steps and big dreams: Playfair Display Trung bình, Bold, 18.9pt, hiệu ứng đánh chữ */
 .timeline-heading {
   position: absolute;
   top: 13.8%;
@@ -604,42 +716,38 @@ html, body {
   display: flex;
   flex-direction: column;
   font-family: var(--font-playfair);
-  font-size: 21px;
-  font-weight: 500;
-  line-height: 1.35;
-  letter-spacing: 0.02em;
+  font-size: 18.9pt;
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: 0.015em;
   color: #f4f3ef;
-  opacity: 0;
-  filter: blur(8px);
-  transform: translateY(6px);
-  transition: opacity 0.8s ease-out, filter 0.8s ease-out, transform 0.8s ease-out;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
 }
 
-.slide-timeline.active .timeline-heading {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateY(0);
+.timeline-type-line {
+  display: block;
+  min-height: 1.32em;
 }
 
 .timeline-track-wrapper {
   position: absolute;
-  top: 31%;
-  left: 48px;
-  right: 32px;
-  bottom: 12%;
+  top: 34.5%;
+  left: 44px;
+  right: 28%;
+  bottom: 26%;
 }
 
-/* Glowing Drawn Vertical Line (Only One Continuous Line from Top to Bottom Star) */
+/* Nét nối liền các ngôi sao: điểm đầu và điểm cuối dư chút 1 đoạn ngắn (~14px - 20px) */
 .timeline-vertical-line {
   position: absolute;
-  left: 11px;
-  top: 10px;
+  left: 13.25px;
+  top: 0px;
   width: 1.5px;
   height: 0%;
-  background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 70%, rgba(255, 255, 255, 0.45) 100%);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 16px rgba(255, 255, 255, 0.4);
-  transition: height 2.4s var(--ease-soft);
+  max-height: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.88) 75%, rgba(255, 255, 255, 0.7) 100%);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.65);
+  transition: height 2.8s var(--ease-soft);
   z-index: 1;
 }
 
@@ -649,225 +757,694 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 82%;
+  height: 100%;
 }
 
+/* Các dòng cột mốc: hiệu ứng rõ dần khi xuất hiện tốc độ chậm */
 .milestone-item {
   display: flex;
   align-items: center;
   opacity: 0;
-  filter: blur(8px);
-  transform: translateX(-8px);
-  transition: opacity 0.75s var(--ease-cinematic), filter 0.75s ease-out, transform 0.75s var(--ease-cinematic);
+  filter: blur(12px);
+  transform: translateX(-6px);
+  transition: opacity 2.2s var(--ease-cinematic), filter 2.2s ease-out, transform 2.2s var(--ease-cinematic);
+  will-change: opacity, filter, transform;
 }
 
 .milestone-item.revealed {
   opacity: 1;
-  filter: blur(0);
+  filter: blur(0px);
   transform: translateX(0);
 }
 
 .milestone-star {
   position: relative;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
 }
 
-.milestone-star svg {
-  width: 22px;
-  height: 22px;
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
-  transform: scale(0.7) rotate(0deg);
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* Ngôi sao sao.png căn đúng tâm sáng (56.2%, 42.4%) trùng lên trục dọc (14px, 14px) và xoay nhiều góc khác nhau */
+.milestone-star-img {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  left: -7.35px;
+  top: -2.12px;
+  object-fit: contain;
+  display: block;
+  transform-origin: 56.19% 42.42%;
 }
 
-.milestone-item.revealed .milestone-star svg {
-  transform: scale(1);
-  animation: starMilestoneTwinkle 3.6s infinite ease-in-out;
+.milestone-star-img.star-rot-1 {
+  transform: rotate(-18deg) scale(0.95);
 }
 
-@keyframes starMilestoneTwinkle {
-  0%, 100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 0.9;
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
-  }
-  50% {
-    transform: scale(1.15) rotate(10deg);
-    opacity: 1;
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
-  }
+.milestone-star-img.star-rot-2 {
+  transform: rotate(34deg) scale(1);
+}
+
+.milestone-star-img.star-rot-3 {
+  transform: rotate(-42deg) scale(0.92);
+}
+
+.milestone-star-img.star-rot-4 {
+  transform: rotate(15deg) scale(1);
 }
 
 .milestone-text {
-  padding-left: 22px;
+  padding-left: 20px;
 }
 
+/* Các dòng còn lại: Playfair Display Thông thường, 11.9pt */
 .milestone-title {
-  font-family: var(--font-cardo);
-  font-size: 15px;
-  line-height: 1.45;
-  letter-spacing: 0.03em;
+  font-family: var(--font-playfair);
+  font-size: 11.9pt;
+  font-weight: 400;
+  line-height: 1.38;
+  letter-spacing: 0.02em;
   color: #eeebe5;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
 }
 
 /* --------------------------------------------------------------------------
-   SLIDE 4: CEREMONY DETAILS (The/6.png) & INTERACTIVE HOTSPOTS
+   SLIDE 4 (TRANG 5): CEREMONY DETAILS (thư.png + sao.png + Cardo & Playfair)
+   Vị trí chuẩn tham chiếu file The/6.png (Left 17%, top %)
    -------------------------------------------------------------------------- */
-.custom-guest-overlay {
+.slide-ceremony {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.ceremony-container {
   position: absolute;
-  top: 24.8%;
-  left: 16.5%;
-  width: 50%;
-  height: 2.8%;
-  display: flex;
-  align-items: center;
-  background: #fbfaf6;
-  border-radius: 2px;
-  z-index: 10;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 
-.guest-text {
-  font-family: var(--font-script);
-  font-size: 21px;
-  color: #2b2b2e;
+.ceremony-star-wrapper {
+  position: absolute;
+  top: 14.2%;
+  left: 17%;
+  width: 25px;
+  height: 25px;
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(0.8);
+  transition: opacity 1.2s var(--ease-cinematic), filter 1.2s ease-out, transform 1.2s var(--ease-cinematic);
+}
+
+.slide-ceremony.active .ceremony-star-wrapper {
+  opacity: 0.85;
+  filter: blur(0px);
+  transform: scale(1);
+  transition-delay: 0.05s;
+}
+
+/* Các dòng chữ lần lượt xuất hiện từ từ khi dòng trước được 1/2 hiệu ứng (thời lượng 1.4s, bước nhảy 0.7s) */
+.ceremony-line {
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(6px);
+  transition: opacity 1.4s var(--ease-cinematic), filter 1.4s ease-out, transform 1.4s var(--ease-cinematic);
+  will-change: opacity, filter, transform;
+}
+
+.slide-ceremony.active .ceremony-line {
+  opacity: 1;
+  filter: blur(0px);
+  transform: translateY(0);
+}
+
+/* Dòng 1: Dear Name. */
+.slide-ceremony.active .ceremony-guest {
+  transition-delay: 0.15s;
+}
+
+/* Dòng 2: You are invited to (sau dòng 1 được 1/2 hiệu ứng: 0.15 + 0.7 = 0.85s) */
+.slide-ceremony.active .ceremony-intro {
+  transition-delay: 0.85s;
+}
+
+/* Dòng 3: Phuong’s Graduation Ceremony (sau dòng 2 được 1/2 hiệu ứng: 0.85 + 0.7 = 1.55s) */
+.slide-ceremony.active .ceremony-title {
+  transition-delay: 1.55s;
+}
+
+/* Dòng 4: SUN, NOV 8, 2026 / 08:00AM - 11:30AM (1.55 + 0.7 = 2.25s) */
+.slide-ceremony.active .ceremony-datetime {
+  transition-delay: 2.25s;
+}
+
+/* Dòng 5: FPT UNIVERSITY HCMC / Hall A, Campus (2.25 + 0.7 = 2.95s) */
+.slide-ceremony.active .ceremony-venue {
+  transition-delay: 2.95s;
+}
+
+/* Dear Name: Playfair Display Italic 11.9pt, Name in đậm */
+.ceremony-guest {
+  position: absolute;
+  top: 25.4%;
+  left: 17%;
+  right: 12%;
+  font-family: var(--font-playfair);
   font-style: italic;
+  font-weight: 400;
+  font-size: 11.9pt;
+  color: #353432;
+  letter-spacing: 0.01em;
+}
+
+.guest-name-bold {
+  font-weight: 700;
+  font-style: italic;
+  color: #1e1d1b;
+}
+
+/* You are invited to: Playfair Display Regular Italic 12.9pt */
+.ceremony-intro {
+  position: absolute;
+  top: 33.6%;
+  left: 17%;
+  right: 12%;
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 12.9pt;
+  color: #353432;
+  letter-spacing: 0.01em;
+}
+
+/* Phuong’s Graduation Ceremony: Playfair Display Bold 17.9pt */
+.ceremony-title {
+  position: absolute;
+  top: 37.0%;
+  left: 17%;
+  right: 12%;
+  font-family: var(--font-playfair);
+  font-weight: 700;
+  font-size: 17.9pt;
+  color: #1e1d1b;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+}
+
+/* Sun, Nov 8, 2026 / 08:00AM - 11:30AM: Cardo Regular 15.9pt */
+.ceremony-datetime {
+  position: absolute;
+  top: 48.6%;
+  left: 17%;
+  right: 12%;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.datetime-date, .datetime-time {
+  font-family: var(--font-cardo);
+  font-weight: 400;
+  font-size: 15.9pt;
+  color: #2a2927;
+  line-height: 1.32;
   letter-spacing: 0.02em;
 }
 
-.hotspot {
+/* FPT University HCMC (Cardo Regular 13.9pt), Hall A, Campus (Cardo Regular 15.9pt) */
+.ceremony-venue {
   position: absolute;
+  top: 59.2%;
+  left: 17%;
+  right: 12%;
   cursor: pointer;
-  z-index: 15;
+  pointer-events: auto;
 }
 
-.hotspot-datetime {
-  top: 48.0%;
-  left: 16%;
-  width: 60%;
-  height: 6%;
+.venue-uni {
+  font-family: var(--font-cardo);
+  font-weight: 400;
+  font-size: 13.9pt;
+  color: #2a2927;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
 }
 
-.hotspot-venue {
-  top: 58.5%;
-  left: 16%;
-  width: 65%;
-  height: 11%;
+.venue-hall {
+  font-family: var(--font-cardo);
+  font-weight: 400;
+  font-size: 15.9pt;
+  color: #2a2927;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+}
+
+/* Thanh gạt chậm từ trái sang phải khi xuất hiện trang */
+.ceremony-divider-wrapper {
+  position: absolute;
+  top: 68.9%;
+  left: 17%;
+  width: 88px;
+  height: 1.5px;
+  overflow: hidden;
+}
+
+.ceremony-divider-line {
+  width: 88px;
+  height: 1.5px;
+  background: linear-gradient(90deg, #2b2a28 0%, rgba(43, 42, 40, 0.25) 100%);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 1.4s var(--ease-cinematic);
+}
+
+.slide-ceremony.active .ceremony-divider-line {
+  transform: scaleX(1);
+  transition-delay: 3.65s;
+}
+
+/* Dòng 7: Your prescence means a lot of me. (sau khi thanh gạt được 1/2 hiệu ứng: 3.65 + 0.7 = 4.35s) */
+.slide-ceremony.active .ceremony-quote {
+  transition-delay: 4.35s;
+}
+
+/* Your prescence means a lot of me: Playfair Display Italic 9.9pt */
+.ceremony-quote {
+  position: absolute;
+  top: 79.5%;
+  left: 17%;
+  right: 12%;
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 9.9pt;
+  color: #444341;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }
 
 /* --------------------------------------------------------------------------
-   SLIDE 5: RSVP (The/7.png) CHOICE HOTSPOTS
+   SLIDE 5 (TRANG 6): RSVP (thư.png + sao.png + Playfair Display)
+   Vị trí chuẩn tham chiếu file The/7.png (Left 17%, top %)
    -------------------------------------------------------------------------- */
-.choice-yes {
-  position: absolute;
-  top: 42.0%;
-  left: 15.5%;
-  width: 7.8%;
-  height: 4.5%;
-  z-index: 15;
+.slide-rsvp {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
 }
 
-.choice-no {
+.rsvp-content-container {
   position: absolute;
-  top: 42.0%;
-  left: 23.8%;
-  width: 7.8%;
-  height: 4.5%;
-  z-index: 15;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
-.hotspot-choice {
+.rsvp-star-wrapper {
+  position: absolute;
+  top: 14.9%;
+  left: 17%;
+  width: 25px;
+  height: 25px;
+  opacity: 0.85;
+}
+
+.rsvp-star-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.rsvp-line {
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(6px);
+  transition: opacity 2.2s var(--ease-cinematic), filter 2.2s ease-out, transform 2.2s var(--ease-cinematic);
+  will-change: opacity, filter, transform;
+}
+
+.slide-rsvp.active .rsvp-line {
+  opacity: 1;
+  filter: blur(0px);
+  transform: translateY(0);
+}
+
+/* RSVP: Playfair Display Bold 17.9pt */
+.rsvp-heading {
+  position: absolute;
+  top: 23.9%;
+  left: 17%;
+  font-family: var(--font-playfair);
+  font-weight: 700;
+  font-size: 17.9pt;
+  color: #1e1d1b;
+  letter-spacing: 0.02em;
+}
+
+/* Initial Question Block */
+.rsvp-flow-initial {
+  position: absolute;
+  top: 34.9%;
+  left: 17%;
+  right: 12%;
+  transition: opacity 0.5s var(--ease-cinematic), filter 0.5s ease-out;
+}
+
+.rsvp-flow-initial.hidden-flow {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Will you join the ceremony?: Playfair Display Regular 12.9pt */
+.rsvp-question {
+  font-family: var(--font-playfair);
+  font-weight: 400;
+  font-size: 12.9pt;
+  color: #353432;
+  letter-spacing: 0.01em;
+}
+
+.rsvp-divider-wrapper {
+  margin-top: 12px;
+  width: 92px;
+  height: 1.5px;
+  overflow: hidden;
+}
+
+.rsvp-divider-line {
+  width: 92px;
+  height: 1.5px;
+  background: linear-gradient(90deg, #2b2a28 0%, rgba(43, 42, 40, 0.25) 100%);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 2.8s var(--ease-cinematic);
+}
+
+.slide-rsvp.active .rsvp-divider-line {
+  transform: scaleX(1);
+}
+
+/* Yes / No Choice Buttons: Playfair Display Regular 12.9pt, NO underline */
+.rsvp-choices-group {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-playfair);
+  font-size: 12.9pt;
+  color: #353432;
+  pointer-events: auto;
+}
+
+.btn-rsvp-opt {
+  font-family: var(--font-playfair);
+  font-size: 12.9pt;
+  font-weight: 400;
+  color: #353432;
   background: transparent;
   border: none;
   cursor: pointer;
+  padding: 4px 6px;
   border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s ease-out;
 }
 
-.choice-halo {
+.btn-rsvp-opt:hover {
+  color: #0c0c0e;
+  font-weight: 700;
+}
+
+.btn-rsvp-opt.selected {
+  color: #0c0c0e;
+  font-weight: 700;
+  background: rgba(29, 26, 24, 0.08);
+}
+
+.rsvp-choice-slash {
+  font-family: var(--font-playfair);
+  font-size: 12.9pt;
+  color: #777570;
+}
+
+/* Interactive Inline Step (Same background, no separate window/modal) */
+.rsvp-inline-step {
   position: absolute;
-  inset: 0;
-  border-radius: 4px;
-  border: 1.5px solid transparent;
+  top: 34.9%;
+  left: 17%;
+  right: 14%;
+  pointer-events: auto;
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(6px);
+  transition: opacity 0.8s var(--ease-cinematic), filter 0.8s ease-out, transform 0.8s var(--ease-cinematic);
+}
+
+.rsvp-inline-step.revealed {
+  opacity: 1;
+  filter: blur(0px);
+  transform: translateY(0);
+}
+
+.rsvp-step-prompt {
+  font-family: var(--font-playfair);
+  font-size: 12.5pt;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #2a2927;
+  margin-bottom: 14px;
+}
+
+.rsvp-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rsvp-inline-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(43, 40, 37, 0.22);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: var(--font-playfair);
+  font-size: 11.5pt;
+  color: #1e1d1b;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.rsvp-inline-textarea:focus {
+  border-color: #1e1d1b;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.btn-rsvp-inline-submit {
+  align-self: flex-start;
+  font-family: var(--font-playfair);
+  font-size: 11.9pt;
+  font-weight: 600;
+  color: #f7f6f2;
+  background: #2a2724;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
   transition: all 0.2s;
 }
 
-.hotspot-choice:hover .choice-halo,
-.hotspot-choice:active .choice-halo,
-.hotspot-choice.selected .choice-halo {
-  border-color: #1b1b1e;
-  background: rgba(25, 25, 30, 0.08);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.btn-rsvp-inline-submit:hover {
+  background: #121110;
 }
 
-.rsvp-status-badge {
+/* Inline Final Confirmation Message after Submit */
+.rsvp-inline-feedback {
   position: absolute;
-  top: 52%;
-  left: 16%;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: rgba(20, 20, 25, 0.88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #ffffff;
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 500;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-  z-index: 15;
-  pointer-events: none;
-  animation: badgeSlideUp 0.35s ease-out;
+  top: 37%;
+  left: 17%;
+  right: 14%;
+  pointer-events: auto;
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 0.8s var(--ease-cinematic), filter 0.8s ease-out;
 }
 
-@keyframes badgeSlideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+.rsvp-inline-feedback.revealed {
+  opacity: 1;
+  filter: blur(0px);
+}
+
+.rsvp-inline-feedback .feedback-msg {
+  font-family: var(--font-playfair);
+  font-size: 13.5pt;
+  line-height: 1.5;
+  color: #1e1d1b;
 }
 
 /* --------------------------------------------------------------------------
-   SLIDE 6: THANK YOU & SIGNATURE (The/8.png)
+   SLIDE 6 (TRANG 7): THANK YOU & SIGNATURE (núi2.png + sao.png + sign.png)
    -------------------------------------------------------------------------- */
-.star-sparkle-overlay {
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='%23ffffff'%3E%3Ccircle cx='10' cy='11' r='0.6' opacity='0.65'/%3E%3Ccircle cx='30' cy='10.5' r='0.55' opacity='0.55'/%3E%3Ccircle cx='10.5' cy='29.5' r='0.55' opacity='0.55'/%3E%3Ccircle cx='29.5' cy='29.5' r='0.6' opacity='0.6'/%3E%3Cg transform='rotate(45 20 20)'%3E%3Cpath d='M20 8.5 C20 17.2 19 19.6 8.5 20 C19 20.4 20 22.8 20 31.5 C20 22.8 21 20.4 31.5 20 C21 19.6 20 17.2 20 8.5 Z' opacity='0.85'/%3E%3C/g%3E%3Cpath d='M20 0 C20 17 18.8 19.6 0 20 C18.8 20.4 20 23 20 40 C20 23 21.2 20.4 40 20 C21.2 19.6 20 17 20 0 Z'/%3E%3Ccircle cx='20' cy='20' r='1.3' fill='%23ffffff'/%3E%3C/svg%3E");
-  background-size: contain;
+.slide-thankyou {
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
-  animation: starTwinklePulse 3.2s infinite ease-in-out;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95));
+  overflow: hidden;
 }
 
-@keyframes starTwinklePulse {
-  0%, 100% { transform: scale(0.9) rotate(0deg); opacity: 0.6; }
-  50% { transform: scale(1.25) rotate(45deg); opacity: 1; filter: drop-shadow(0 0 10px #ffffff); }
+.thankyou-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
-.star-ceremony {
-  top: 14.8%;
+/* 1. Text lines: Playfair Display Regular 15pt, left-aligned at left 19%, top 39.5% (The/8.png) */
+.thankyou-text-box {
+  position: absolute;
+  top: 39.5%;
+  left: 19%;
+  right: 14%;
+  text-align: left;
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(6px);
+  transition: opacity 1.2s var(--ease-cinematic), filter 1.2s ease-out, transform 1.2s var(--ease-cinematic);
+  will-change: opacity, filter, transform;
+}
+
+.thankyou-text-box.revealed {
+  opacity: 1;
+  filter: blur(0px);
+  transform: translateY(0);
+}
+
+.thankyou-line {
+  font-family: var(--font-playfair);
+  font-weight: 400;
+  font-size: 15pt;
+  line-height: 1.42;
+  color: #f4f3ee;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
+}
+
+/* 2. Star: sao.png tại vị trí bên dưới text (left 19.5%, top 65%) */
+.thankyou-star-wrapper {
+  position: absolute;
+  top: 65%;
+  left: 19.5%;
+  width: 25px;
+  height: 25px;
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(0.8);
+  transition: opacity 1.1s var(--ease-cinematic), filter 1.1s ease-out, transform 1.1s var(--ease-cinematic);
+  will-change: opacity, filter, transform;
+}
+
+.thankyou-star-wrapper.revealed {
+  opacity: 0.95;
+  filter: blur(0px);
+  transform: scale(1);
+}
+
+.thankyou-star-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* 3. Signature: sign.png tại vị trí bên dưới sao (left 17.5%, top 76%) với cọ vẽ đường cong */
+.thankyou-sign-wrapper {
+  position: absolute;
+  top: 76%;
   left: 17.5%;
+  width: 140px;
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: left center;
 }
 
-.star-rsvp {
-  top: 14.8%;
-  left: 17.5%;
+.thankyou-sign-wrapper.revealed {
+  animation: brushCurveDraw 2.0s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-.star-thankyou {
-  top: 66%;
-  left: 23%;
+.thankyou-sign-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: brightness(1.2) contrast(1.1);
+}
+
+@keyframes brushCurveDraw {
+  0% {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+    opacity: 0;
+    transform: scale(0.96) rotate(-2deg);
+  }
+  20% {
+    opacity: 1;
+  }
+  50% {
+    clip-path: polygon(0 0, 58% 18%, 42% 100%, 0 100%);
+  }
+  100% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Khi chạm vào màn hình để qua trang khác: dòng chữ mất trước, ngôi sao và sign mất sau rồi chuyển trang */
+.slide-thankyou.exiting-step1 .thankyou-text-box {
+  opacity: 0;
+  filter: blur(10px);
+  transform: translateY(-6px);
+  transition: opacity 0.4s ease-in, filter 0.4s ease-in, transform 0.4s ease-in;
+}
+
+.slide-thankyou.exiting-step2 .thankyou-star-wrapper {
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(0.75);
+  transition: opacity 0.4s ease-in, filter 0.4s ease-in, transform 0.4s ease-in;
+}
+
+.slide-thankyou.exiting-step2 .thankyou-sign-wrapper {
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(0.95);
+  transition: opacity 0.4s ease-in, filter 0.4s ease-in, transform 0.4s ease-in;
 }
 
 /* --------------------------------------------------------------------------
-   SLIDE 7: SHORT VIDEO (The/9.png) & MODAL
+   SLIDE 7 (TRANG 8): SHORT VIDEO (núi2.png background)
    -------------------------------------------------------------------------- */
+.slide-video {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.video-overlay-tint {
+  position: absolute;
+  inset: 0;
+  background: rgba(29, 26, 24, 0.42);
+  pointer-events: none;
+}
+
 .video-trigger-hotspot {
   position: absolute;
   top: 50%;
@@ -948,11 +1525,6 @@ html, body {
   animation: fadeIn 0.3s ease-out;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 .video-modal-box {
   position: relative;
   width: 100%;
@@ -991,16 +1563,78 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   SLIDE 8: OUTRO & CONTACT (The/10.png)
+   SLIDE 8 (TRANG 9): OUTRO (Tương tự Trang 2, Thank you Cardo Italic 18.9pt & Contact 8.9pt)
    -------------------------------------------------------------------------- */
-.hotspot-phone {
-  position: absolute;
-  top: 75.0%;
-  left: 16%;
-  width: 65%;
-  height: 6%;
+.slide-outro {
+  background-color: #1d1a18;
   cursor: pointer;
-  z-index: 15;
+  overflow: hidden;
+}
+
+.outro-ribbon-img {
+  animation: coverRibbonZoom 20s infinite alternate ease-in-out;
+}
+
+.outro-star-img {
+  animation: starBreathe 4s infinite ease-in-out;
+}
+
+.outro-script-subtitle {
+  margin-top: -10px;
+  margin-left: 32px;
+}
+
+.outro-footer-meta {
+  position: absolute;
+  bottom: 19%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 0 32px;
+  opacity: 0;
+  filter: blur(14px);
+  transform: translateY(10px);
+  transition: opacity 1.5s var(--ease-cinematic), filter 1.6s ease-out, transform 1.5s var(--ease-cinematic);
+}
+
+.outro-footer-meta.revealed {
+  opacity: 1;
+  filter: blur(0px);
+  transform: translateY(0);
+}
+
+/* Thank you: Cardo Regular 18.9pt Italic */
+.outro-thankyou-text {
+  font-family: var(--font-cardo);
+  font-size: 18.9pt;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: #f1efeb;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* Contact: Cardo Regular 8.9pt */
+.outro-contact-text {
+  font-family: var(--font-cardo);
+  font-size: 8.9pt;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  color: #aba9a4;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.outro-contact-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.outro-contact-link:hover {
+  color: #ffffff;
 }
 
 .replay-story-hotspot {

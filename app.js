@@ -45,52 +45,60 @@
     coverSubtitle: document.getElementById('coverSubtitle'),
     coverFooterMeta: document.getElementById('coverFooterMeta'),
 
-    // Slide 2 (Invite): Sequential Blur-to-Clear Elements
+    // Slide 2 (Invite): Ribbon, Stars & Invitation Lines
+    inviteRibbonImg: document.querySelector('.slide-invite .invite-ribbon-img'),
+    inviteStarSparkle: document.querySelector('.slide-invite .invite-star-sparkle'),
     inviteLines: [
-      document.querySelector('.invite-line.line-1'),
-      document.querySelector('.invite-line.line-2'),
-      document.querySelector('.invite-line.line-3'),
-      document.querySelector('.invite-star-sparkle')
+      document.querySelector('.slide-invite .invite-line.line-1'),
+      document.querySelector('.slide-invite .invite-line.line-2')
     ],
 
-    // Slide 3 (Timeline): Vertical Line & 4 Star Milestones
+    // Slide 3 (Timeline): Typewriter Heading, Vertical Line & 4 Star Milestones
+    timelineTypeLines: [
+      document.getElementById('timelineTypeLine1'),
+      document.getElementById('timelineTypeLine2'),
+      document.getElementById('timelineTypeLine3')
+    ],
     timelineVerticalLine: document.getElementById('timelineVerticalLine'),
     milestoneItems: Array.from(document.querySelectorAll('.milestone-item')),
 
-    // Slide 4 (Ceremony - The/6.png): Personalization & Hotspots
+    // Slide 4 (Ceremony - thư.png): Personalization, Hotspots & Divider Line
     customGuestOverlay: document.getElementById('customGuestOverlay'),
     customGuestText: document.getElementById('customGuestText'),
+    ceremonyDividerLine: document.getElementById('ceremonyDividerLine'),
     hotspotDateTime: document.getElementById('hotspotDateTime'),
     hotspotVenue: document.getElementById('hotspotVenue'),
 
-    // Slide 5 (RSVP - The/7.png): Yes/No Hotspots & Sheet
+    // Slide 5 (RSVP - thư.png): Yes/No Hotspots, Divider & Inline Step
     btnRsvpYes: document.getElementById('btnRsvpYes'),
     btnRsvpNo: document.getElementById('btnRsvpNo'),
-    rsvpStatusBadge: document.getElementById('rsvpStatusBadge'),
-    rsvpBadgeText: document.getElementById('rsvpBadgeText'),
-    rsvpSheet: document.getElementById('rsvpSheet'),
-    sheetBackdrop: document.getElementById('sheetBackdrop'),
-    sheetTitle: document.getElementById('sheetTitle'),
-    sheetSub: document.getElementById('sheetSub'),
-    sheetRsvpForm: document.getElementById('sheetRsvpForm'),
-    rsvpInputName: document.getElementById('rsvpInputName'),
-    rsvpGuestCountGroup: document.getElementById('rsvpGuestCountGroup'),
-    rsvpInputCount: document.getElementById('rsvpInputCount'),
-    rsvpInputMessage: document.getElementById('rsvpInputMessage'),
-    btnCancelSheet: document.getElementById('btnCancelSheet'),
-    btnSubmitSheet: document.getElementById('btnSubmitSheet'),
-    sheetSuccessState: document.getElementById('sheetSuccessState'),
-    successDetailText: document.getElementById('successDetailText'),
-    btnCloseSuccess: document.getElementById('btnCloseSuccess'),
+    rsvpFlowInitial: document.getElementById('rsvpFlowInitial'),
+    rsvpInlineStep: document.getElementById('rsvpInlineStep'),
+    rsvpStepPrompt: document.getElementById('rsvpStepPrompt'),
+    rsvpInlineMessage: document.getElementById('rsvpInlineMessage'),
+    btnRsvpInlineSubmit: document.getElementById('btnRsvpInlineSubmit'),
+    rsvpInlineFeedback: document.getElementById('rsvpInlineFeedback'),
+    rsvpFeedbackMsg: document.getElementById('rsvpFeedbackMsg'),
+    rsvpDividerLine: document.getElementById('rsvpDividerLine'),
 
-    // Slide 7 (Video - The/9.png): Play Trigger & Modal
+    // Slide 6 (Thank you - núi2.png): Star, Text Box, Signature
+    thankyouStarWrapper: document.getElementById('thankyouStarWrapper'),
+    thankyouTextBox: document.getElementById('thankyouTextBox'),
+    thankyouSignWrapper: document.getElementById('thankyouSignWrapper'),
+
+    // Slide 7 (Video - núi2.png): Play Trigger & Modal
     btnTriggerVideo: document.getElementById('btnTriggerVideo'),
     videoModal: document.getElementById('videoModal'),
     memoryVideo: document.getElementById('memoryVideo'),
     btnCloseVideo: document.getElementById('btnCloseVideo'),
 
-    // Slide 8 (Outro - The/10.png): Phone & Replay
-    hotspotPhone: document.getElementById('hotspotPhone'),
+    // Slide 8 (Outro - Trang 9): Title, Typewriter Script, Meta & Replay
+    outroLeadThe: document.getElementById('outroLeadThe'),
+    outroHeading: document.getElementById('outroHeading'),
+    outroTypewriterScriptText: document.getElementById('outroTypewriterScriptText'),
+    outroTypewriterCursor: document.getElementById('outroTypewriterCursor'),
+    outroSubtitle: document.getElementById('outroSubtitle'),
+    outroFooterMeta: document.getElementById('outroFooterMeta'),
     btnReplayStory: document.getElementById('btnReplayStory'),
     toastBox: document.getElementById('toastBox')
   };
@@ -107,17 +115,24 @@
     touchStartY: 0
   };
 
-  // Timers
+  // Timers & Transition Locks
   let typewriterTimers = [];
   let inviteTimers = [];
   let timelineTimers = [];
+  let thankyouTimers = [];
+  let outroTimers = [];
+  let coverExitTimer = null;
+  let inviteExitTimer = null;
+  let thankyouExitTimer = null;
+  let isTransitioningCover = false;
+  let isTransitioningInvite = false;
+  let isTransitioningThankyou = false;
 
   // ========================================================================
   // INITIALIZATION
   // ========================================================================
   function init() {
     setupGuestPersonalization();
-    createIntroStars();
     bindEvents();
     checkStoredRsvp();
   }
@@ -131,16 +146,13 @@
 
     if (customName && customName.trim() !== '') {
       STATE.guestName = customName.trim();
-
-      // Show customized greeting overlay on Ceremony slide (Slide index 4)
-      if (DOM.customGuestOverlay && DOM.customGuestText) {
-        DOM.customGuestText.textContent = `Dear ${STATE.guestName}.`;
-        DOM.customGuestOverlay.classList.remove('hidden');
-      }
+    } else {
+      STATE.guestName = "Name";
     }
 
-    if (DOM.rsvpInputName) {
-      DOM.rsvpInputName.value = STATE.guestName !== CONFIG.defaultGuestName ? STATE.guestName : '';
+    // Hiển thị ở Trang 5: Dear [Name]. (Tên in đậm, toàn dòng in nghiêng)
+    if (DOM.customGuestText) {
+      DOM.customGuestText.innerHTML = `Dear <strong class="guest-name-bold">${escapeHtml(STATE.guestName)}</strong>.`;
     }
   }
 
@@ -267,34 +279,50 @@
     typewriterTimers.push(setTimeout(typeNextChar, 35));
   }
 
-  // --- Slide 2: Sequential Blur-to-Clear for Invitation Lines ---
+  // --- Slide 2 (Trang 3): Ribbon2 & Sao xuất hiện trước; sau 1/2 thời gian (900ms), chữ mới xuất hiện ---
   function startInviteAnimation() {
     inviteTimers.forEach(t => clearTimeout(t));
     inviteTimers = [];
+
+    const slide2 = DOM.slides[2];
+    if (slide2) {
+      slide2.classList.remove('exiting-invite');
+    }
 
     DOM.inviteLines.forEach(el => {
       if (el) el.classList.remove('revealed');
     });
 
-    const delays = [200, 600, 1050, 1500];
-    DOM.inviteLines.forEach((el, idx) => {
-      if (!el) return;
-      inviteTimers.push(setTimeout(() => {
-        if (STATE.currentSlideIndex !== 2) return;
-        el.classList.add('revealed');
-      }, delays[idx]));
-    });
+    // Sau khi ribbon2 và sao hiển thị được 1/2 thời gian (1.8s / 2 = 900ms), các dòng chữ mới bắt đầu xuất hiện
+    inviteTimers.push(setTimeout(() => {
+      if (STATE.currentSlideIndex !== 2) return;
+      if (DOM.inviteLines[0]) DOM.inviteLines[0].classList.add('revealed');
+    }, 900));
+
+    inviteTimers.push(setTimeout(() => {
+      if (STATE.currentSlideIndex !== 2) return;
+      if (DOM.inviteLines[1]) DOM.inviteLines[1].classList.add('revealed');
+    }, 1250));
   }
 
-  // --- Slide 3: Unified Star Timeline (Glowing Line Drawing + Star Pulse & Blur-to-Clear) ---
+  // --- Slide 3 (Trang 4): Typewriter Heading + Non-overhanging Line + Slow Blur-In Milestones ---
   function startTimelineAnimation() {
     timelineTimers.forEach(t => clearTimeout(t));
     timelineTimers = [];
 
     const lineEl = DOM.timelineVerticalLine;
     const milestones = DOM.milestoneItems;
+    const typeLines = DOM.timelineTypeLines || [];
+    const headingTexts = [
+      "A journey",
+      "of small steps",
+      "and big dreams"
+    ];
 
     // Reset initial state
+    typeLines.forEach(el => {
+      if (el) el.textContent = '';
+    });
     if (lineEl) {
       lineEl.style.transition = 'none';
       lineEl.style.height = '0%';
@@ -304,19 +332,45 @@
     // Force DOM reflow
     if (lineEl) void lineEl.offsetHeight;
 
-    // Start line drawing downward from top star to bottom star
+    // 1. Typewriter effect for "A journey / of small steps / and big dreams"
+    let lineIdx = 0;
+    let charIdx = 0;
+    function typeNextTimelineChar() {
+      if (STATE.currentSlideIndex !== 3) return;
+      if (lineIdx >= headingTexts.length) return;
+
+      const currentLineEl = typeLines[lineIdx];
+      const currentText = headingTexts[lineIdx];
+      charIdx++;
+      if (currentLineEl) {
+        currentLineEl.textContent = currentText.slice(0, charIdx);
+      }
+
+      if (charIdx < currentText.length) {
+        timelineTimers.push(setTimeout(typeNextTimelineChar, 42));
+      } else {
+        lineIdx++;
+        charIdx = 0;
+        if (lineIdx < headingTexts.length) {
+          timelineTimers.push(setTimeout(typeNextTimelineChar, 90));
+        }
+      }
+    }
+    timelineTimers.push(setTimeout(typeNextTimelineChar, 80));
+
+    // 2. Start line drawing downward with short overhang past Star 4 (~14px to 20px)
     timelineTimers.push(setTimeout(() => {
       if (STATE.currentSlideIndex !== 3) return;
       if (lineEl) {
-        lineEl.style.transition = 'height 2.4s cubic-bezier(0.25, 1, 0.5, 1)';
-        lineEl.style.height = '100%';
+        lineEl.style.transition = 'height 2.8s cubic-bezier(0.25, 1, 0.5, 1)';
+        lineEl.style.height = 'calc(100% + 6px)';
       }
-    }, 120));
+    }, 250));
 
-    // As line travels down, each star lights up and its milestone text reveals from blur to clear
-    const milestoneDelays = [260, 860, 1460, 2060];
+    // 3. Slow blur-to-clear reveal for each milestone
+    const milestoneDelays = [350, 980, 1620, 2260];
     milestones.forEach((item, idx) => {
-      const delay = milestoneDelays[idx] || (idx * 600 + 300);
+      const delay = milestoneDelays[idx] || (idx * 640 + 350);
       timelineTimers.push(setTimeout(() => {
         if (STATE.currentSlideIndex !== 3) return;
         item.classList.add('revealed');
@@ -324,40 +378,233 @@
     });
   }
 
+  // --- Slide 6 (Trang 7): Nền núi2.png trước -> Sao sao.png -> Dòng chữ -> Chữ ký sign.png ---
+  function startThankyouAnimation() {
+    thankyouTimers.forEach(t => clearTimeout(t));
+    thankyouTimers = [];
+
+    const star = DOM.thankyouStarWrapper;
+    const text = DOM.thankyouTextBox;
+    const sign = DOM.thankyouSignWrapper;
+
+    const slide6 = DOM.slides[6];
+    if (slide6) {
+      slide6.classList.remove('exiting-step1', 'exiting-step2');
+    }
+
+    if (star) star.classList.remove('revealed');
+    if (text) text.classList.remove('revealed');
+    if (sign) {
+      sign.classList.remove('revealed');
+      sign.style.animation = 'none';
+      void sign.offsetHeight;
+      sign.style.animation = '';
+    }
+
+    // 1. Nền núi2.png hiển thị ngay khi trang kích hoạt (t = 0)
+    // 2. Ngôi sao sao.png với hiệu ứng xuất hiện tiếp theo (350ms)
+    thankyouTimers.push(setTimeout(() => {
+      if (STATE.currentSlideIndex !== 6) return;
+      if (star) star.classList.add('revealed');
+    }, 350));
+
+    // 3. Tiếp theo các dòng chữ xuất hiện (Playfair Display Regular 15pt) (1050ms)
+    thankyouTimers.push(setTimeout(() => {
+      if (STATE.currentSlideIndex !== 6) return;
+      if (text) text.classList.add('revealed');
+    }, 1050));
+
+    // 4. Cuối cùng sign mới xuất hiện với hiệu ứng cọ vẽ kiểu dáng đường cong (2100ms)
+    thankyouTimers.push(setTimeout(() => {
+      if (STATE.currentSlideIndex !== 6) return;
+      if (sign) sign.classList.add('revealed');
+    }, 2100));
+  }
+
+  // --- Slide 8 (Trang 9): Typewriter "Graduation Ceremony" + Blur Meta (Thank you & Contact) ---
+  function startOutroTypewriter() {
+    outroTimers.forEach(t => clearTimeout(t));
+    outroTimers = [];
+
+    const scriptTextEl = DOM.outroTypewriterScriptText;
+    const cursorEl = DOM.outroTypewriterCursor;
+    const footerMeta = DOM.outroFooterMeta;
+
+    if (!scriptTextEl) return;
+
+    // Reset initial state
+    scriptTextEl.textContent = '';
+    if (cursorEl) {
+      cursorEl.style.display = 'inline-block';
+      cursorEl.style.opacity = '1';
+    }
+    if (footerMeta) footerMeta.classList.remove('revealed');
+
+    // Typewriter for "Graduation Ceremony" (giữ nguyên hiệu ứng như Trang 2)
+    const fullText = "Graduation Ceremony";
+    let charIndex = 0;
+
+    function typeNextChar() {
+      if (STATE.currentSlideIndex !== 8) return;
+
+      charIndex++;
+      scriptTextEl.textContent = fullText.slice(0, charIndex);
+
+      if (charIndex < fullText.length) {
+        outroTimers.push(setTimeout(typeNextChar, 48));
+      } else {
+        if (cursorEl) {
+          cursorEl.style.display = 'none';
+        }
+
+        // Sau khi hoàn tất gõ chữ, hiển thị 2 dòng dưới (Thank you Cardo Italic 18.9pt & Contact 8.9pt)
+        outroTimers.push(setTimeout(() => {
+          if (STATE.currentSlideIndex !== 8) return;
+          if (footerMeta) footerMeta.classList.add('revealed');
+        }, 320));
+      }
+    }
+
+    outroTimers.push(setTimeout(typeNextChar, 35));
+  }
+
   // ========================================================================
   // 5. MANUAL SCREEN-TAP NAVIGATION (100% CANVA CROSS-DISSOLVE)
   // ========================================================================
-  function goToSlide(index) {
-    if (index < 0 || index >= STATE.totalSlides) return;
-
-    // Untie flourish when transitioning from Slide 0 (Bow) to Slide 1 (Cover)
-    if (STATE.currentSlideIndex === 0 && index === 1) {
-      triggerUntieSparkles();
-    }
-
+  function performSlideSwitch(index) {
     STATE.currentSlideIndex = index;
 
     DOM.slides.forEach((slide, i) => {
       if (i === index) {
+        slide.classList.remove('exiting-title', 'exiting-invite', 'exiting-step1', 'exiting-step2');
         slide.classList.add('active');
       } else {
-        slide.classList.remove('active');
+        slide.classList.remove('active', 'exiting-title', 'exiting-invite', 'exiting-step1', 'exiting-step2');
       }
     });
 
     // Trigger per-slide animations
     if (index === 1) {
+      const ribbonImg = document.querySelector('.cover-ribbon-img');
+      if (ribbonImg) {
+        ribbonImg.style.animation = 'none';
+        void ribbonImg.offsetHeight;
+        ribbonImg.style.animation = '';
+      }
       startCoverTypewriter();
     } else if (index === 2) {
       startInviteAnimation();
     } else if (index === 3) {
       startTimelineAnimation();
+    } else if (index === 4) {
+      // Thanh gạt chậm từ trái sang phải trên Trang 5
+      if (DOM.ceremonyDividerLine) {
+        DOM.ceremonyDividerLine.style.animation = 'none';
+        void DOM.ceremonyDividerLine.offsetHeight;
+        DOM.ceremonyDividerLine.style.animation = '';
+      }
+    } else if (index === 5) {
+      // Thanh gạt chậm trên Trang 6
+      if (DOM.rsvpDividerLine) {
+        DOM.rsvpDividerLine.style.animation = 'none';
+        void DOM.rsvpDividerLine.offsetHeight;
+        DOM.rsvpDividerLine.style.animation = '';
+      }
+    } else if (index === 6) {
+      // Trang 7 (Thank you & Sign): Nền núi 2 -> sao -> dòng chữ -> sign
+      startThankyouAnimation();
+    } else if (index === 8) {
+      // Trang 9: Outro (Giữ nguyên bố cục & hiệu ứng như Trang 2)
+      const outroRibbon = document.querySelector('.outro-ribbon-img');
+      if (outroRibbon) {
+        outroRibbon.style.animation = 'none';
+        void outroRibbon.offsetHeight;
+        outroRibbon.style.animation = '';
+      }
+      startOutroTypewriter();
     }
 
     // If leaving video slide (Slide index 7), close video player
     if (index !== 7 && DOM.videoModal && !DOM.videoModal.classList.contains('hidden')) {
       closeVideoModal();
     }
+  }
+
+  function goToSlide(index) {
+    if (index < 0 || index >= STATE.totalSlides) return;
+    if (isTransitioningCover || isTransitioningInvite || isTransitioningThankyou) return;
+
+    // 1. Khi chuyển từ Trang 2 (index 1) sang trang sau (index > 1):
+    // Cho dòng THE QUIET STRENGTH mờ dần biến mất từ giữa ra hai bên trước,
+    // các dòng chữ khác giữ nguyên rồi chuyển cùng với trang
+    if (STATE.currentSlideIndex === 1 && index > 1) {
+      const coverSlide = DOM.slides[1];
+      if (coverSlide) {
+        isTransitioningCover = true;
+        coverSlide.classList.add('exiting-title');
+        clearTimeout(coverExitTimer);
+        coverExitTimer = setTimeout(() => {
+          isTransitioningCover = false;
+          performSlideSwitch(index);
+        }, 620);
+        return;
+      }
+    }
+
+    // 2. Khi chuyển từ Trang 3 (index 2) sang trang khác:
+    // sao và ribbon2 đều hiển thị hiệu ứng biến mất khi chuyển trang,
+    // chỉ có dòng chữ giữ nguyên cho đến khi chuyển hẳn sang trang khác
+    if (STATE.currentSlideIndex === 2 && index !== 2) {
+      const inviteSlide = DOM.slides[2];
+      if (inviteSlide) {
+        isTransitioningInvite = true;
+        inviteSlide.classList.add('exiting-invite');
+        clearTimeout(inviteExitTimer);
+        inviteExitTimer = setTimeout(() => {
+          isTransitioningInvite = false;
+          performSlideSwitch(index);
+        }, 580);
+        return;
+      }
+    }
+
+    // 3. Khi chuyển từ Trang 7 (index 6) sang trang khác:
+    // Dòng chữ mất trước, ngôi sao và sign mất sau rồi mới chuyển trang
+    if (STATE.currentSlideIndex === 6 && index !== 6) {
+      const thankyouSlide = DOM.slides[6];
+      if (thankyouSlide) {
+        isTransitioningThankyou = true;
+        // Bước 1: Dòng chữ mất trước
+        thankyouSlide.classList.add('exiting-step1');
+
+        clearTimeout(thankyouExitTimer);
+        thankyouExitTimer = setTimeout(() => {
+          // Bước 2: Ngôi sao và sign mất sau
+          thankyouSlide.classList.add('exiting-step2');
+
+          thankyouExitTimer = setTimeout(() => {
+            isTransitioningThankyou = false;
+            performSlideSwitch(index);
+          }, 420);
+        }, 380);
+        return;
+      }
+    }
+
+    // 4. Khi chuyển từ Trang 9 (index 8) về Trang 1 (replay):
+    if (STATE.currentSlideIndex === 8 && index === 0) {
+      const outroSlide = DOM.slides[8];
+      if (outroSlide) {
+        outroSlide.classList.add('exiting-title');
+        setTimeout(() => {
+          outroSlide.classList.remove('exiting-title');
+          performSlideSwitch(index);
+        }, 400);
+        return;
+      }
+    }
+
+    performSlideSwitch(index);
   }
 
   function nextSlide() {
@@ -380,7 +627,7 @@
     if (DOM.storyContainer) {
       DOM.storyContainer.addEventListener('click', (e) => {
         // Do NOT advance slide if clicking on an interactive button, input, hotspot, or modal
-        if (e.target.closest('button, a, input, select, textarea, .hotspot, .hotspot-choice, .video-trigger-hotspot, .rsvp-bottom-sheet, .video-modal-overlay, .replay-story-hotspot, .btn-close-video')) {
+        if (e.target.closest('button, a, input, select, textarea, .rsvp-inline-step, .hotspot, .hotspot-choice, .video-trigger-hotspot, .video-modal-overlay, .replay-story-hotspot, .btn-close-video')) {
           return;
         }
 
@@ -410,7 +657,7 @@
       }, { passive: true });
 
       DOM.storyContainer.addEventListener('touchend', (e) => {
-        if (e.target.closest('button, a, input, select, textarea, .rsvp-bottom-sheet, .video-modal-overlay')) return;
+        if (e.target.closest('button, a, input, select, textarea, .rsvp-inline-step, .video-modal-overlay')) return;
 
         const deltaX = e.changedTouches[0].clientX - STATE.touchStartX;
         const deltaY = e.changedTouches[0].clientY - STATE.touchStartY;
@@ -450,38 +697,22 @@
     if (DOM.btnRsvpYes) {
       DOM.btnRsvpYes.addEventListener('click', (e) => {
         e.stopPropagation();
-        openRsvpSheet('Yes');
+        handleRsvpChoice('Yes');
       });
     }
 
     if (DOM.btnRsvpNo) {
       DOM.btnRsvpNo.addEventListener('click', (e) => {
         e.stopPropagation();
-        openRsvpSheet('No');
+        handleRsvpChoice('No');
       });
     }
 
-    // Bottom sheet interactions
-    if (DOM.btnCancelSheet) {
-      DOM.btnCancelSheet.addEventListener('click', (e) => {
+    if (DOM.btnRsvpInlineSubmit) {
+      DOM.btnRsvpInlineSubmit.addEventListener('click', (e) => {
         e.stopPropagation();
-        closeRsvpSheet();
+        handleInlineRsvpSubmit();
       });
-    }
-    if (DOM.sheetBackdrop) {
-      DOM.sheetBackdrop.addEventListener('click', (e) => {
-        e.stopPropagation();
-        closeRsvpSheet();
-      });
-    }
-    if (DOM.btnCloseSuccess) {
-      DOM.btnCloseSuccess.addEventListener('click', (e) => {
-        e.stopPropagation();
-        closeRsvpSheet();
-      });
-    }
-    if (DOM.sheetRsvpForm) {
-      DOM.sheetRsvpForm.addEventListener('submit', handleRsvpSubmit);
     }
 
     // 6. Video Modal Hotspots (Slide index 7)
@@ -509,60 +740,58 @@
   }
 
   // ========================================================================
-  // 7. RSVP BOTTOM SHEET & GOOGLE SHEETS SUBMISSION
+  // 7. INLINE RSVP (NO POPUPS, SAME CARD & FONT, GOOGLE SHEETS)
   // ========================================================================
-  function openRsvpSheet(attendance) {
+  function handleRsvpChoice(attendance) {
     STATE.selectedAttendance = attendance;
 
     if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.toggle('selected', attendance === 'Yes');
     if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.toggle('selected', attendance === 'No');
 
-    if (attendance === 'Yes') {
-      DOM.sheetTitle.textContent = "RSVP: Yes, I will attend ✨";
-      DOM.sheetSub.textContent = "Phuong is so happy you'll join! Please confirm your details below:";
-      if (DOM.rsvpGuestCountGroup) DOM.rsvpGuestCountGroup.style.display = 'flex';
-    } else {
-      DOM.sheetTitle.textContent = "RSVP: Cannot Make It";
-      DOM.sheetSub.textContent = "Phuong will miss you! You can leave a warm wish or message:";
-      if (DOM.rsvpGuestCountGroup) DOM.rsvpGuestCountGroup.style.display = 'none';
+    // Chuyển từ câu hỏi ban đầu sang bước nhập lời nhắn/chúc trực tiếp trên thiệp
+    if (DOM.rsvpFlowInitial) {
+      DOM.rsvpFlowInitial.classList.add('hidden-flow');
     }
 
-    if (DOM.sheetRsvpForm) DOM.sheetRsvpForm.classList.remove('hidden');
-    if (DOM.sheetSuccessState) DOM.sheetSuccessState.classList.add('hidden');
-    if (DOM.rsvpSheet) DOM.rsvpSheet.classList.remove('hidden');
-  }
+    if (DOM.rsvpInlineStep && DOM.rsvpStepPrompt) {
+      DOM.rsvpInlineStep.classList.remove('hidden');
+      void DOM.rsvpInlineStep.offsetHeight;
+      DOM.rsvpInlineStep.classList.add('revealed');
 
-  function closeRsvpSheet() {
-    if (DOM.rsvpSheet) DOM.rsvpSheet.classList.add('hidden');
-  }
+      const isKnown = STATE.guestName && STATE.guestName !== 'Name';
+      const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
 
-  async function handleRsvpSubmit(e) {
-    e.preventDefault();
-
-    const guestName = DOM.rsvpInputName.value.trim() || STATE.guestName;
-    const attendance = STATE.selectedAttendance;
-    const guestCount = attendance === 'Yes' ? (DOM.rsvpInputCount.value || '1') : '0';
-    const message = DOM.rsvpInputMessage.value.trim();
-
-    if (!guestName) {
-      showToast('Please enter your name');
-      DOM.rsvpInputName.focus();
-      return;
+      if (attendance === 'Yes') {
+        DOM.rsvpStepPrompt.innerHTML = `Cảm ơn bạn${nameDisp}! Bạn có lời chúc hay điều gì muốn nhắn gửi đến Phương không?`;
+        if (DOM.btnRsvpInlineSubmit) {
+          DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Gửi lời nhắn';
+        }
+        if (DOM.rsvpInlineMessage) {
+          DOM.rsvpInlineMessage.placeholder = 'Nhập lời nhắn hoặc lời chúc của bạn...';
+          DOM.rsvpInlineMessage.focus();
+        }
+      } else {
+        DOM.rsvpStepPrompt.innerHTML = `Thật tiếc khi bạn${nameDisp} không thể đến chung vui... Bạn có thể để lại đôi lời chúc mừng cho Phương được không?`;
+        if (DOM.btnRsvpInlineSubmit) {
+          DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Gửi lời chúc';
+        }
+        if (DOM.rsvpInlineMessage) {
+          DOM.rsvpInlineMessage.placeholder = 'Gửi gắm đôi lời chúc mừng đến Phương...';
+          DOM.rsvpInlineMessage.focus();
+        }
+      }
     }
+  }
 
-    // Loading State
-    const submitBtn = DOM.btnSubmitSheet;
-    const btnText = submitBtn.querySelector('.btn-text');
-    const spinner = submitBtn.querySelector('.btn-spinner');
-    if (btnText) btnText.textContent = 'Sending...';
-    if (spinner) spinner.classList.remove('hidden');
-    submitBtn.disabled = true;
+  async function handleInlineRsvpSubmit() {
+    const attendance = STATE.selectedAttendance || 'Yes';
+    const message = DOM.rsvpInlineMessage ? DOM.rsvpInlineMessage.value.trim() : '';
+    const guestName = STATE.guestName || 'Name';
 
     const payload = {
       timestamp: new Date().toISOString(),
       guestName: guestName,
       attendance: attendance,
-      guestCount: guestCount,
       message: message,
       sourceUrl: window.location.href
     };
@@ -574,7 +803,7 @@
       console.warn(err);
     }
 
-    // Submit to Google Sheets Webhook
+    // Submit to Google Sheets webhook if configured
     if (CONFIG.googleSheetScriptUrl && CONFIG.googleSheetScriptUrl.startsWith('http')) {
       try {
         await fetch(CONFIG.googleSheetScriptUrl, {
@@ -588,29 +817,25 @@
       }
     }
 
-    setTimeout(() => {
-      submitBtn.disabled = false;
-      if (btnText) btnText.textContent = 'Submit RSVP';
-      if (spinner) spinner.classList.add('hidden');
+    // Ẩn form nhập và hiển thị lời cảm ơn trang nhã cuối cùng ngay trên nền thiệp
+    if (DOM.rsvpInlineStep) {
+      DOM.rsvpInlineStep.classList.remove('revealed');
+      DOM.rsvpInlineStep.classList.add('hidden');
+    }
 
-      // Show success in bottom sheet
-      if (DOM.sheetRsvpForm) DOM.sheetRsvpForm.classList.add('hidden');
-      if (DOM.sheetSuccessState) {
-        DOM.sheetSuccessState.classList.remove('hidden');
-        if (DOM.successDetailText) {
-          DOM.successDetailText.innerHTML = `<strong>${escapeHtml(guestName)}</strong>, your response has been saved to Google Sheets.<br>Thank you so much!`;
-        }
+    if (DOM.rsvpInlineFeedback && DOM.rsvpFeedbackMsg) {
+      DOM.rsvpInlineFeedback.classList.remove('hidden');
+      void DOM.rsvpInlineFeedback.offsetHeight;
+      DOM.rsvpInlineFeedback.classList.add('revealed');
+
+      const isKnown = STATE.guestName && STATE.guestName !== 'Name';
+      const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
+
+      if (attendance === 'Yes') {
+        DOM.rsvpFeedbackMsg.innerHTML = `Cảm ơn bạn${nameDisp} và hẹn gặp lại bạn tại buổi lễ tốt nghiệp nhé! ✨`;
+      } else {
+        DOM.rsvpFeedbackMsg.innerHTML = `Cảm ơn bạn${nameDisp} rất nhiều! Hẹn gặp lại bạn vào một dịp gần nhất nhé! 🤍`;
       }
-
-      // Update badge on slide
-      updateRsvpBadge(attendance, guestName);
-    }, 500);
-  }
-
-  function updateRsvpBadge(attendance, name) {
-    if (DOM.rsvpStatusBadge && DOM.rsvpBadgeText) {
-      DOM.rsvpBadgeText.textContent = `✓ ${name}: Responded ${attendance}`;
-      DOM.rsvpStatusBadge.classList.remove('hidden');
     }
   }
 
@@ -619,9 +844,22 @@
       const stored = localStorage.getItem('graduation_rsvp_data');
       if (stored) {
         const data = JSON.parse(stored);
-        updateRsvpBadge(data.attendance, data.guestName);
+        STATE.selectedAttendance = data.attendance;
         if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.toggle('selected', data.attendance === 'Yes');
         if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.toggle('selected', data.attendance === 'No');
+
+        if (DOM.rsvpFlowInitial) DOM.rsvpFlowInitial.classList.add('hidden-flow');
+        if (DOM.rsvpInlineFeedback && DOM.rsvpFeedbackMsg) {
+          DOM.rsvpInlineFeedback.classList.remove('hidden');
+          DOM.rsvpInlineFeedback.classList.add('revealed');
+          const isKnown = STATE.guestName && STATE.guestName !== 'Name';
+          const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
+          if (data.attendance === 'Yes') {
+            DOM.rsvpFeedbackMsg.innerHTML = `Cảm ơn bạn${nameDisp} và hẹn gặp lại bạn tại buổi lễ tốt nghiệp nhé! ✨`;
+          } else {
+            DOM.rsvpFeedbackMsg.innerHTML = `Cảm ơn bạn${nameDisp} rất nhiều! Hẹn gặp lại bạn vào một dịp gần nhất nhé! 🤍`;
+          }
+        }
       }
     } catch (e) {}
   }

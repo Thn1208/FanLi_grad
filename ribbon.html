@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>So Sánh Các Cách Chuyển Động Dải Băng — Gra-invitation_mobile.png</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #11100f;
+      color: #ece6dd;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    @media (max-width: 820px) {
+      body {
+        flex-direction: column;
+        padding: 14px;
+        gap: 16px;
+      }
+    }
+
+    /* Khung hiển thị chuẩn tỷ lệ ảnh gốc 344 x 852 */
+    .stage-wrapper {
+      position: relative;
+      width: min(88vw, 356px);
+      aspect-ratio: 344 / 852;
+      background: radial-gradient(ellipse at 35% 25%, #23201e 0%, #151413 62%, #0d0c0b 100%);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 26px 65px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Bảng điều khiển chọn chế độ */
+    .panel {
+      width: min(92vw, 390px);
+      background: rgba(24, 22, 20, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f5efe6;
+      letter-spacing: 0.01em;
+    }
+
+    .panel-sub {
+      font-size: 12px;
+      color: #a89f93;
+      line-height: 1.45;
+      margin-top: 2px;
+    }
+
+    .mode-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      color: #e5dec9;
+      text-align: left;
+      padding: 11px 13px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .mode-btn:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, rgba(218, 204, 182, 0.2), rgba(168, 152, 128, 0.08));
+      border-color: #d8c8b0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .mode-btn-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: #f7f2e9;
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: rgba(216, 200, 176, 0.16);
+      color: #dfd2be;
+    }
+
+    .mode-btn.active .badge {
+      background: #d8c8b0;
+      color: #181614;
+    }
+
+    .mode-btn-desc {
+      font-size: 11.5px;
+      color: #aba296;
+      line-height: 1.38;
+    }
+
+    .sliders-box {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      color: #beb5a8;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #d8c8b0;
+      cursor: pointer;
+    }
+
+    .replay-btn {
+      margin-top: 2px;
+      padding: 8px 12px;
+      border-radius: 9px;
+      border: 1px solid rgba(216, 200, 176, 0.35);
+      background: rgba(216, 200, 176, 0.1);
+      color: #f3ece0;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      transition: background 0.2s;
+    }
+
+    .replay-btn:hover {
+      background: rgba(216, 200, 176, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Khung hiển thị dải băng -->
+  <div class="stage-wrapper" id="stageWrapper">
+    <canvas id="ribbonCanvas"></canvas>
+  </div>
+
+  <!-- Bảng nút bấm chọn hiệu ứng -->
+  <div class="panel">
+    <div>
+      <div class="panel-title">Chọn kiểu chuyển động dải băng</div>
+      <div class="panel-sub">Bấm vào từng nút để xem thử các phương án không làm méo nét ảnh gốc.</div>
+    </div>
+
+    <div class="mode-list" id="modeList">
+      <button class="mode-btn active" data-mode="combo">
+        <div class="mode-btn-header">
+          <span>1. Kết Hợp Tối Ưu (Khuyên dùng)</span>
+          <span class="badge">0% Méo hình</span>
+        </div>
+        <div class="mode-btn-desc">
+          Tách lớp nhánh băng đung đưa nhẹ quanh nếp gấp + Ánh bạc trượt dọc thớ + Nghiêng 3D nhẹ.
+        </div>
+      </button>
+
+      <button class="mode-btn" data-mode="light">
+        <div class="mode-btn-header">
+          <span>2. Ánh Kim Trượt Theo Thớ Băng</span>
+          <span class="badge">Giữ tĩnh 100%</span>
+        </div>
+        <div class="mode-btn-desc">
+          Dáng băng giữ nguyên tuyệt đối, chỉ có luồng sáng bạc & bóng đổ lượn dọc theo đường cong.
+        </div>
+      </button>
+
+      <button class="mode-btn" data-mode="layers">
+        <div class="mode-btn-header">
+          <span>3. Tách Lớp & Đung Đưa Khớp Nối</span>
+          <span class="badge">Cứng cáp</span>
+        </div>
+        <div class="mode-btn-desc">
+          Tách riêng nhánh phải và thân dưới tại rãnh gấp tự nhiên, cho từng phần nhịp nhàng xoay nhẹ quanh khớp.
+        </div>
+      </button>
+
+      <button class="mode-btn" data-mode="reveal">
+        <div class="mode-btn-header">
+          <span>4. Trôi Mở Theo Đường Xoắn + Lơ Lửng</span>
+          <span class="badge">Mở trang</span>
+        </div>
+        <div class="mode-btn-desc">
+          Dải băng vẽ/cuộn mở dần từ đỉnh xuống đuôi kèm vệt sáng dẫn đường, sau đó lơ lửng nhẹ.
+        </div>
+      </button>
+
+      <button class="mode-btn" data-mode="ribbon3d">
+        <div class="mode-btn-header">
+          <span>5. Dải Lụa 3D Không Gian Thật</span>
+          <span class="badge">3D Hoá</span>
+        </div>
+        <div class="mode-btn-desc">
+          Dựng dải băng trong không gian 3 chiều lấy chất liệu từ ảnh, uốn xoắn 3D thật không bị méo kiểu 2D.
+        </div>
+      </button>
+
+      <button class="mode-btn" data-mode="micro">
+        <div class="mode-btn-header">
+          <span>6. Gió Lướt Vi Mô (Khóa cứng nếp gấp trên)</span>
+          <span class="badge">Mềm nhẹ</span>
+        </div>
+        <div class="mode-btn-desc">
+          Khóa đứng yên phần nếp gấp sắc cạnh ở trên, chỉ cho phần đuôi lụa phía dưới phập phồng rất nhẹ.
+        </div>
+      </button>
+    </div>
+
+    <button class="replay-btn" id="replayBtn">↻ Phát lại hiệu ứng trôi mở dải băng</button>
+
+    <div class="sliders-box">
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Cường độ hiệu ứng</span>
+          <span id="intensityVal">1.0x</span>
+        </div>
+        <input id="intensitySlider" type="range" min="0.2" max="2.2" step="0.05" value="1.0" />
+      </div>
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Tốc độ chuyển động</span>
+          <span id="speedVal">1.0x</span>
+        </div>
+        <input id="speedSlider" type="range" min="0.3" max="2.2" step="0.05" value="1.0" />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const IMAGE_SRC = 'Gra-invitation_mobile.png';
+    const canvas = document.getElementById('ribbonCanvas');
+    const ctx = canvas.getContext('2d');
+    const replayBtn = document.getElementById('replayBtn');
+
+    let currentMode = 'combo';
+    let intensity = 1.0;
+    let speed = 1.0;
+    let revealProgress = 0; // Dùng cho chế độ 4 (Reveal)
+
+    // Xử lý chọn nút chế độ
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    modeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modeButtons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+
+        if (currentMode === 'reveal') {
+          revealProgress = 0;
+          replayBtn.style.display = 'block';
+        } else {
+          replayBtn.style.display = 'none';
+        }
+      });
+    });
+
+    replayBtn.addEventListener('click', () => {
+      revealProgress = 0;
+    });
+
+    document.getElementById('intensitySlider').addEventListener('input', (e) => {
+      intensity = parseFloat(e.target.value);
+      document.getElementById('intensityVal').textContent = intensity.toFixed(2) + 'x';
+    });
+
+    document.getElementById('speedSlider').addEventListener('input', (e) => {
+      speed = parseFloat(e.target.value);
+      document.getElementById('speedVal').textContent = speed.toFixed(2) + 'x';
+    });
+
+    function smoothstep(e0, e1, x) {
+      const t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0)));
+      return t * t * (3 - 2 * t);
+    }
+
+    // =========================================================================
+    // HÀM BỔ TRỢ: Vẽ luồng ánh kim bạc (Specular Sheen) trượt dọc thớ băng
+    // Chỉ phủ lên vùng pixel không trong suốt của dải băng (source-atop)
+    // =========================================================================
+    function applyMetallicLightFlow(ctx, W, H, t, strength) {
+      if (strength <= 0.01) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'source-atop';
+
+      // 1. Luồng sáng chính trượt dọc từ trên xuống dưới theo đường chữ S
+      const mainPos = ((t * 0.28) % 1.4) - 0.2; // Chạy từ -0.2 -> 1.2
+      const gradMain = ctx.createLinearGradient(
+        W * 0.1, H * (mainPos - 0.28),
+        W * 0.75, H * (mainPos + 0.28)
+      );
+      const alphaMain = Math.min(0.32, 0.16 * strength);
+      gradMain.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
+      gradMain.addColorStop(0.35, `rgba(12, 12, 14, ${alphaMain * 0.45})`);
+      gradMain.addColorStop(0.52, `rgba(255, 252, 245, ${alphaMain})`);
+      gradMain.addColorStop(0.7, `rgba(12, 12, 14, ${alphaMain * 0.35})`);
+      gradMain.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
+
+      ctx.fillStyle = gradMain;
+      ctx.fillRect(0, 0, W, H);
+
+      // 2. Luồng sáng thứ hai trượt chéo dọc theo nhánh vươn bên phải (góc trên phải)
+      const wingWave = Math.sin(t * 1.6) * 0.5 + 0.5;
+      const wx0 = W * (0.18 + wingWave * 0.55);
+      const wy0 = H * (0.44 - wingWave * 0.32);
+      const gradWing = ctx.createRadialGradient(wx0, wy0, W * 0.02, wx0, wy0, W * 0.42);
+      const alphaWing = Math.min(0.28, 0.13 * strength);
+      gradWing.addColorStop(0.0, `rgba(255, 253, 248, ${alphaWing})`);
+      gradWing.addColorStop(0.5, `rgba(235, 228, 215, ${alphaWing * 0.35})`);
+      gradWing.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
+
+      ctx.fillStyle = gradWing;
+      ctx.fillRect(0, 0, W, H * 0.58);
+
+      // 3. Ánh thở mềm ở vòng xoắn dưới đáy
+      const bottomPulse = (Math.sin(t * 1.9 + 1.2) * 0.5 + 0.5) * strength;
+      const bx = W * (0.48 + Math.cos(t * 1.2) * 0.18);
+      const by = H * (0.72 + Math.sin(t * 1.2) * 0.1);
+      const gradBottom = ctx.createRadialGradient(bx, by, W * 0.02, bx, by, W * 0.38);
+      gradBottom.addColorStop(0.0, `rgba(255, 250, 242, ${Math.min(0.24, 0.11 * bottomPulse)})`);
+      gradBottom.addColorStop(1.0, 'rgba(255, 255, 255, 0)');
+
+      ctx.fillStyle = gradBottom;
+      ctx.fillRect(0, H * 0.45, W, H * 0.55);
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // ĐỊNH NGHĨA ĐƯỜNG RÃNH GẤP TỰ NHIÊN (Dùng cho Cách 1 & Cách 3: Tách Lớp)
+    // Đường rãnh nơi bản băng lớn bên trái đè lên nhánh băng vươn sang phải
+    // =========================================================================
+    function traceRightWingClip(ctx, W, H) {
+      ctx.beginPath();
+      // Bắt đầu từ khe hở phía trên nếp gấp, đi dọc theo rãnh gấp xuống eo giữa
+      ctx.moveTo(W * 0.41, H * 0.11);
+      ctx.lineTo(W * 1.05, H * 0.0);
+      ctx.lineTo(W * 1.05, H * 0.52);
+      ctx.lineTo(W * 0.16, H * 0.51);
+      ctx.lineTo(W * 0.25, H * 0.37);
+      ctx.lineTo(W * 0.33, H * 0.25);
+      ctx.closePath();
+    }
+
+    function traceUpperLeftBodyClip(ctx, W, H) {
+      ctx.beginPath();
+      // Phần thân chính bên trái phía trên (nằm đè lên gốc của nhánh phải)
+      ctx.moveTo(0, 0);
+      ctx.lineTo(W * 0.65, 0);
+      ctx.lineTo(W * 0.44, H * 0.125);
+      ctx.lineTo(W * 0.345, H * 0.255);
+      ctx.lineTo(W * 0.265, H * 0.375);
+      ctx.lineTo(W * 0.185, H * 0.49);
+      ctx.lineTo(W * 0.26, H * 0.55);
+      ctx.lineTo(0, H * 0.55);
+      ctx.closePath();
+    }
+
+    function traceLowerTailClip(ctx, W, H) {
+      ctx.beginPath();
+      // Phần thân uốn lượn phía dưới từ eo (y ~ 0.49) xuống góc dưới phải
+      ctx.moveTo(0, H * 0.49);
+      ctx.lineTo(W * 0.30, H * 0.49);
+      ctx.lineTo(W * 1.05, H * 0.68);
+      ctx.lineTo(W * 1.05, H * 1.05);
+      ctx.lineTo(0, H * 1.05);
+      ctx.closePath();
+    }
+
+    // =========================================================================
+    // CHẾ ĐỘ 2: ÁNH KIM TRƯỢT THEO THỚ BĂNG (Giữ nguyên dáng ảnh 100%)
+    // =========================================================================
+    function renderModeLight(img, W, H, t) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.drawImage(img, 0, 0, W, H);
+      applyMetallicLightFlow(ctx, W, H, t, intensity * 1.25);
+    }
+
+    // =========================================================================
+    // CHẾ ĐỘ 3 & 1: TÁCH LỚP KHỚP NỐI + ĐUNG ĐƯA (Không bóp méo hình)
+    // =========================================================================
+    function renderModeLayers(img, W, H, t, withComboExtras) {
+      ctx.clearRect(0, 0, W, H);
+
+      ctx.save();
+      // Nếu là chế độ Combo (Cách 1), thêm nhịp thở không gian 3D siêu nhẹ cho tổng thể
+      if (withComboExtras) {
+        const floatY = Math.sin(t * 1.1) * H * 0.0035 * intensity;
+        const breatheScale = 1.008 + Math.sin(t * 0.9) * 0.004 * intensity;
+        ctx.translate(W * 0.5, H * 0.5 + floatY);
+        ctx.scale(breatheScale, breatheScale);
+        ctx.translate(-W * 0.5, -H * 0.5);
+      }
+
+      // --- LỚP 1 (Nằm dưới): Nhánh băng vươn sang góc trên phải ---
+      // Xoay nhẹ quanh khớp nối (x = 0.22, y = 0.43) nơi nó chui vào dưới bản băng trái
+      ctx.save();
+      traceRightWingClip(ctx, W, H);
+      ctx.clip();
+
+      const wingPivotX = W * 0.21;
+      const wingPivotY = H * 0.44;
+      const wingAngle = Math.sin(t * 1.45) * 0.024 * intensity; // ~1.4 độ
+      const wingScale = 1.022 + Math.cos(t * 1.45) * 0.008 * intensity;
+
+      ctx.translate(wingPivotX, wingPivotY);
+      ctx.rotate(wingAngle);
+      ctx.scale(wingScale, wingScale);
+      ctx.translate(-wingPivotX, -wingPivotY);
+      ctx.drawImage(img, 0, 0, W, H);
+      ctx.restore();
+
+      // --- LỚP 2 (Nằm giữa): Thân băng uốn lượn phía dưới (từ eo xuống đáy) ---
+      // Đung đưa nhẹ quanh khớp eo hẹp (x = 0.12, y = 0.51)
+      ctx.save();
+      traceLowerTailClip(ctx, W, H);
+      ctx.clip();
+
+      const tailPivotX = W * 0.11;
+      const tailPivotY = H * 0.50;
+      const tailAngle = Math.sin(t * 1.25 - 1.1) * 0.019 * intensity;
+      const tailScaleX = 1.01 + Math.sin(t * 1.25) * 0.012 * intensity;
+
+      ctx.translate(tailPivotX, tailPivotY);
+      ctx.rotate(tailAngle);
+      ctx.scale(tailScaleX, 1.008);
+      ctx.translate(-tailPivotX, -tailPivotY);
+      ctx.drawImage(img, 0, 0, W, H);
+      ctx.restore();
+
+      // --- LỚP 3 (Nằm trên cùng): Bản băng lớn bên trái phía trên ---
+      // Đổ bóng nhẹ xuống nhánh phải tại rãnh gấp để tạo chiều sâu tách lớp
+      ctx.save();
+      traceUpperLeftBodyClip(ctx, W, H);
+      ctx.clip();
+
+      const upperPivotX = W * 0.0;
+      const upperPivotY = H * 0.22;
+      const upperAngle = Math.cos(t * 1.15) * 0.006 * intensity;
+
+      ctx.translate(upperPivotX, upperPivotY);
+      ctx.rotate(upperAngle);
+      ctx.scale(1.008, 1.008);
+      ctx.translate(-upperPivotX, -upperPivotY);
+      ctx.drawImage(img, 0, 0, W, H);
+      ctx.restore();
+
+      ctx.restore();
+
+      // Phủ hiệu ứng ánh kim trượt dọc theo chuyển động nghiêng của các lớp
+      const lightStrength = withComboExtras ? intensity * 1.1 : intensity * 0.55;
+      applyMetallicLightFlow(ctx, W, H, t, lightStrength);
+    }
+
+    // =========================================================================
+    // CHẾ ĐỘ 4: TRÔI MỞ THEO ĐƯỜNG XOẮN (Path Reveal + Floating)
+    // =========================================================================
+    function renderModeReveal(img, W, H, t, dt) {
+      ctx.clearRect(0, 0, W, H);
+
+      // Tăng tiến độ mở (0 -> 1.35 trong ~2.4 giây)
+      if (revealProgress < 1.4) {
+        revealProgress += dt * 0.58 * speed;
+      }
+
+      const p = Math.min(1.4, revealProgress);
+
+      ctx.save();
+      // Khi đã mở xong, cho dải băng lơ lửng rất nhẹ
+      const floatX = Math.sin(t * 1.1) * W * 0.006 * intensity;
+      const floatY = Math.cos(t * 1.3) * H * 0.004 * intensity;
+      ctx.translate(floatX, floatY);
+
+      // Vẽ dải băng với mặt nạ mở dần dọc theo trục Y và vươn sang nhánh phải
+      ctx.save();
+      ctx.beginPath();
+      const revealY = H * Math.min(1.05, p * 0.95);
+      ctx.rect(0, 0, W, revealY);
+      ctx.clip();
+      ctx.drawImage(img, 0, 0, W, H);
+      ctx.restore();
+
+      // Làm mềm mép đang mở bằng dải sáng bạc dẫn đường
+      if (p < 1.15) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-atop';
+        const edgeY = H * (p * 0.92);
+        const glowGrad = ctx.createLinearGradient(0, edgeY - H * 0.12, 0, edgeY + H * 0.02);
+        glowGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
+        glowGrad.addColorStop(0.75, 'rgba(255, 250, 240, 0.55)');
+        glowGrad.addColorStop(1.0, 'rgba(17, 16, 15, 0.95)');
+        ctx.fillStyle = glowGrad;
+        ctx.fillRect(0, edgeY - H * 0.12, W, H * 0.15);
+        ctx.restore();
+      }
+
+      ctx.restore();
+      applyMetallicLightFlow(ctx, W, H, t, intensity);
+    }
+
+    // =========================================================================
+    // CHẾ ĐỘ 5: DẢI LỤA 3D KHÔNG GIAN THẬT (True 3D Parametric Ribbon)
+    // Dựng dải lụa 3D thật với вектор pháp tuyến (Normal) & ánh sáng chuẩn vật lý
+    // =========================================================================
+    function renderMode3DRibbon(img, W, H, t) {
+      ctx.clearRect(0, 0, W, H);
+
+      // Hàm vẽ 1 dải ruy-băng 3D từ hàm đường cong tâm (spine) và góc xoắn (twist)
+      function draw3DStrip(steps, getSlice) {
+        let prev = null;
+        for (let i = 0; i <= steps; i++) {
+          const s = i / steps;
+          const cur = getSlice(s);
+          if (prev) {
+            // Tính hướng pháp tuyến mặt 3D để tính độ bắt sáng kim loại
+            const dx = cur.cx - prev.cx;
+            const dy = cur.cy - prev.cy;
+            const nx = Math.sin(cur.twist);
+            const ny = Math.cos(cur.twist) * 0.5;
+            const nz = Math.cos(cur.twist);
+
+            // Nguồn sáng chiếu từ góc trên trái
+            const lightDot = nx * 0.55 + ny * 0.25 + nz * 0.78;
+            const spec = Math.pow(Math.max(0, lightDot), 6) * 0.55;
+            const baseLuma = 38 + Math.max(0, lightDot) * 145 + spec * 255;
+            const r = Math.min(252, Math.round(baseLuma * 1.02));
+            const g = Math.min(248, Math.round(baseLuma * 0.99));
+            const b = Math.min(242, Math.round(baseLuma * 0.95));
+
+            ctx.beginPath();
+            ctx.moveTo(prev.lx, prev.ly);
+            ctx.lineTo(prev.rx, prev.ry);
+            ctx.lineTo(cur.rx, cur.ry);
+            ctx.lineTo(cur.lx, cur.ly);
+            ctx.closePath();
+
+            const segGrad = ctx.createLinearGradient(cur.lx, cur.ly, cur.rx, cur.ry);
+            segGrad.addColorStop(0.0, `rgb(${Math.max(18, r - 45)}, ${Math.max(18, g - 45)}, ${Math.max(18, b - 42)})`);
+            segGrad.addColorStop(0.5, `rgb(${r}, ${g}, ${b})`);
+            segGrad.addColorStop(1.0, `rgb(${Math.max(15, r - 60)}, ${Math.max(15, g - 60)}, ${Math.max(15, b - 56)})`);
+
+            ctx.fillStyle = segGrad;
+            ctx.fill();
+            ctx.strokeStyle = segGrad;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          }
+          prev = cur;
+        }
+      }
+
+      // Nhánh 1 (Nằm dưới): Cánh vươn chéo lên góc phải trên
+      draw3DStrip(65, (s) => {
+        const wave = Math.sin(s * 5.0 - t * 1.8) * 12 * intensity * s;
+        const cx = W * (0.16 + s * 0.86) + wave * 0.4;
+        const cy = H * (0.48 - s * 0.37 + Math.sin(s * Math.PI) * -0.05) + wave * 0.7;
+        const halfW = W * (0.04 + Math.sin(s * Math.PI) * 0.11 + s * 0.05);
+        const twist = -0.55 + s * 1.15 + Math.sin(s * 4.2 - t * 1.6) * 0.28 * intensity;
+
+        const perpX = -0.38;
+        const perpY = -0.92;
+        const projW = halfW * Math.cos(twist);
+
+        return {
+          cx, cy, twist,
+          lx: cx - perpX * projW,
+          ly: cy - perpY * projW,
+          rx: cx + perpX * projW,
+          ry: cy + perpY * projW
+        };
+      });
+
+      // Nhánh 2 (Thân chính): Uốn chữ S từ góc trên trái xuống vòng xoắn góc dưới phải
+      draw3DStrip(95, (s) => {
+        const wave = Math.sin(s * 6.5 - t * 1.55) * 14 * intensity * Math.sin(s * Math.PI);
+        const cx = W * (
+          0.12
+          + Math.sin(s * Math.PI * 1.85 + 0.3) * 0.16
+          + Math.pow(s, 1.55) * 0.76
+        ) + wave;
+        const cy = H * (s * 0.98);
+
+        const widthProfile = s < 0.45
+          ? 0.24 - s * 0.36
+          : 0.08 + Math.sin((s - 0.45) * Math.PI * 1.35) * 0.14;
+        const halfW = W * Math.max(0.045, widthProfile);
+
+        const twist = -0.35 + s * 3.6 + Math.cos(s * 5.2 - t * 1.55) * 0.32 * intensity;
+        const projW = halfW * Math.cos(twist);
+
+        return {
+          cx, cy, twist,
+          lx: cx - projW,
+          ly: cy + projW * 0.18,
+          rx: cx + projW,
+          ry: cy - projW * 0.18
+        };
+      });
+    }
+
+    // =========================================================================
+    // CHẾ ĐỘ 6: GIÓ LƯỚT VI MÔ (Khóa cứng phần nếp gấp sắc cạnh ở trên)
+    // Chỉ cho phần đuôi lụa phía dưới (v > 0.48) và mút cánh phải lượn siêu nhẹ
+    // =========================================================================
+    function renderModeMicroBreeze(img, W, H, t) {
+      ctx.clearRect(0, 0, W, H);
+
+      const STRIPS = 90;
+      const sh = img.naturalHeight;
+      const sw = img.naturalWidth;
+
+      for (let i = 0; i < STRIPS; i++) {
+        const v0 = i / STRIPS;
+        const v1 = (i + 1) / STRIPS;
+        const vMid = (v0 + v1) * 0.5;
+
+        // Khóa cứng hoàn toàn nửa trên (v < 0.46) để nếp gấp sắc cạnh không bị cong
+        // Chỉ mở dần biên độ cho phần thân dưới (v từ 0.48 -> 0.90) và ghim lại ở đáy (v > 0.92)
+        const lowerMask = smoothstep(0.46, 0.64, vMid) * smoothstep(1.0, 0.90, vMid);
+        const shiftX = Math.sin(vMid * 7.5 - t * 1.6) * W * 0.014 * lowerMask * intensity;
+        const scaleX = 1.0 + Math.cos(vMid * 7.5 - t * 1.6) * 0.018 * lowerMask * intensity;
+
+        const sy = v0 * sh;
+        const sHeight = (v1 - v0) * sh + 0.6;
+        const dy = v0 * H;
+        const dHeight = (v1 - v0) * H + 0.8;
+
+        ctx.drawImage(
+          img,
+          0, sy, sw, sHeight,
+          shiftX + (W * (1 - scaleX)) * 0.35, dy, W * scaleX, dHeight
+        );
+      }
+
+      applyMetallicLightFlow(ctx, W, H, t, intensity * 0.9);
+    }
+
+    // =========================================================================
+    // VÒNG LẶP CHÍNH
+    // =========================================================================
+    const img = new Image();
+    img.onload = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = img.naturalWidth * dpr;
+      canvas.height = img.naturalHeight * dpr;
+
+      let accTime = 0;
+      let lastNow = performance.now();
+
+      function animate(now) {
+        const dt = Math.min(0.05, (now - lastNow) / 1000);
+        lastNow = now;
+        accTime += dt * speed;
+
+        const W = canvas.width;
+        const H = canvas.height;
+
+        switch (currentMode) {
+          case 'combo':
+            renderModeLayers(img, W, H, accTime, true);
+            break;
+          case 'light':
+            renderModeLight(img, W, H, accTime);
+            break;
+          case 'layers':
+            renderModeLayers(img, W, H, accTime, false);
+            break;
+          case 'reveal':
+            renderModeReveal(img, W, H, accTime, dt);
+            break;
+          case 'ribbon3d':
+            renderMode3DRibbon(img, W, H, accTime);
+            break;
+          case 'micro':
+            renderModeMicroBreeze(img, W, H, accTime);
+            break;
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      requestAnimationFrame(animate);
+    };
+
+    img.src = IMAGE_SRC;
+  </script>
+</body>
+</html>
