@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cardo:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Montserrat:wght@400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=25">
+  <link rel="stylesheet" href="style.css?v=27">
 
   <!-- Instant Viewport Scale Calculation to Prevent FOUC -->
   <script>
@@ -21,8 +21,16 @@
       function setScale() {
         var w = window.innerWidth || document.documentElement.clientWidth;
         var h = window.innerHeight || document.documentElement.clientHeight;
-        var s = Math.min(w / 393, h / 852);
-        document.documentElement.style.setProperty('--story-scale', s.toFixed(4));
+        var isDesktop = (w >= 800 && w > h) || w >= 1024;
+        if (isDesktop) {
+          document.documentElement.classList.add('is-desktop');
+          var s = Math.min(w / 1440, h / 900);
+          document.documentElement.style.setProperty('--story-scale', s.toFixed(4));
+        } else {
+          document.documentElement.classList.remove('is-desktop');
+          var s = Math.min(w / 393, h / 852);
+          document.documentElement.style.setProperty('--story-scale', s.toFixed(4));
+        }
       }
       setScale();
       window.addEventListener('resize', setScale, { passive: true });
@@ -42,14 +50,14 @@
   <div class="mobile-frame-wrapper" id="appWrapper">
     <main class="story-container" id="storyContainer" role="region" aria-label="Graduation Invitation">
 
-      <!-- Top Navigation Guidance Buttons (Previous / Next arrows in top 2 corners) -->
+      <!-- Navigation Guidance Buttons (Previous / Next chevrons centered vertically on sides) -->
       <nav class="story-nav-bar" id="storyNavBar" aria-label="Slide navigation">
-        <button type="button" class="btn-story-nav btn-nav-prev hidden-nav" id="btnNavPrev" aria-label="Trang trước" title="Trang trước">
+        <button type="button" class="btn-story-nav btn-nav-prev hidden-nav" id="btnNavPrev" aria-label="Previous slide" title="Previous">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
-        <button type="button" class="btn-story-nav btn-nav-next" id="btnNavNext" aria-label="Trang sau" title="Trang sau">
+        <button type="button" class="btn-story-nav btn-nav-next" id="btnNavNext" aria-label="Next slide" title="Next">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
@@ -216,12 +224,17 @@
               </div>
             </div>
 
-            <!-- Venue: FPT University (Cardo 13.9pt), Hall A (Cardo 15.9pt) (Chỉ bấm trực tiếp vào dòng chữ mới mở Maps) -->
+            <!-- Venue: FPT University (Cardo 13.9pt), Hall A (Cardo 15.9pt) with directions icon on same line -->
             <div class="ceremony-line ceremony-venue">
-              <div class="ceremony-link-trigger" id="hotspotVenue" role="button" tabindex="0" title="Click to Open Google Maps">
-                <p class="venue-uni">FPT UNIVERSITY HCMC</p>
-                <p class="venue-hall">Hall A, Campus</p>
-              </div>
+              <p class="venue-uni">FPT UNIVERSITY HCMC</p>
+              <p class="venue-hall">
+                <span>Hall A, Campus</span>
+                <button type="button" class="venue-directions-btn" id="hotspotVenue" aria-label="Open directions on Google Maps" title="Open Google Maps">
+                  <svg viewBox="0 0 24 24" fill="currentColor" class="venue-directions-svg">
+                    <path d="M21.71 11.29l-9-9a1 1 0 0 0-1.42 0l-9 9a1 1 0 0 0 0 1.42l9 9a1 1 0 0 0 1.42 0l9-9a1 1 0 0 0 0-1.42zM14 14.5V12h-4v3H8v-4a1 1 0 0 1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
+                  </svg>
+                </button>
+              </p>
             </div>
 
             <!-- Thanh gạt chậm từ trái sang phải -->
@@ -268,19 +281,27 @@
 
             <!-- Interactive Inline Step (Same background, no separate window/modal) -->
             <div class="rsvp-inline-step hidden" id="rsvpInlineStep">
-              <p class="rsvp-step-prompt" id="rsvpStepPrompt">Cảm ơn bạn! Bạn có lời gì muốn gửi đến Phương không?</p>
+              <p class="rsvp-step-prompt" id="rsvpStepPrompt">Thank you! Would you like to leave a message for Phuong?</p>
               
               <div class="rsvp-input-wrapper">
-                <textarea class="rsvp-inline-textarea" id="rsvpInlineMessage" rows="3" placeholder="Viết vài lời nhắn gửi cho Phương..."></textarea>
-                <button type="button" class="btn-rsvp-inline-submit" id="btnRsvpInlineSubmit">
-                  <span>Gửi lời nhắn</span>
-                </button>
+                <textarea class="rsvp-inline-textarea" id="rsvpInlineMessage" rows="3" placeholder="Write a message for Phuong..."></textarea>
+                <div class="rsvp-btn-actions">
+                  <button type="button" class="btn-rsvp-back" id="btnRsvpBack" aria-label="Back to RSVP choice" title="Back">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <span>Back</span>
+                  </button>
+                  <button type="button" class="btn-rsvp-inline-submit" id="btnRsvpInlineSubmit">
+                    <span>Send</span>
+                  </button>
+                </div>
               </div>
             </div>
 
             <!-- Inline Final Confirmation Message after Submit -->
             <div class="rsvp-inline-feedback hidden" id="rsvpInlineFeedback">
-              <p class="feedback-msg" id="rsvpFeedbackMsg">Cảm ơn bạn và hẹn gặp lại tại buổi lễ tốt nghiệp nhé! ✨</p>
+              <p class="feedback-msg" id="rsvpFeedbackMsg">Thank you! Looking forward to celebrating with you at the ceremony! ✨</p>
             </div>
           </div>
         </article>
@@ -397,6 +418,6 @@
   <div class="toast-notification" id="toastBox" role="status" aria-live="polite"></div>
 
   <!-- Main JavaScript Logic -->
-  <script src="app.js?v=23"></script>
+  <script src="app.js?v=27"></script>
 </body>
 </html>

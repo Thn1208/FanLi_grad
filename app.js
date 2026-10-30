@@ -74,6 +74,7 @@
     btnRsvpNo: document.getElementById('btnRsvpNo'),
     rsvpFlowInitial: document.getElementById('rsvpFlowInitial'),
     rsvpInlineStep: document.getElementById('rsvpInlineStep'),
+    btnRsvpBack: document.getElementById('btnRsvpBack'),
     rsvpStepPrompt: document.getElementById('rsvpStepPrompt'),
     rsvpInlineMessage: document.getElementById('rsvpInlineMessage'),
     btnRsvpInlineSubmit: document.getElementById('btnRsvpInlineSubmit'),
@@ -133,15 +134,28 @@
   let isTransitioningThankyou = false;
 
   // ========================================================================
-  // RESPONSIVE ARTBOARD SCALING (393px x 852px base artboard)
+  // RESPONSIVE ARTBOARD SCALING (393x852 mobile artboard, 1440x900 desktop artboard)
   // ========================================================================
   function updateStoryScale() {
-    const baseW = 393;
-    const baseH = 852;
     const winW = window.innerWidth || document.documentElement.clientWidth;
     const winH = window.innerHeight || document.documentElement.clientHeight;
-    const scale = Math.min(winW / baseW, winH / baseH);
-    document.documentElement.style.setProperty('--story-scale', scale.toFixed(4));
+    const isDesktop = (winW >= 800 && winW > winH) || winW >= 1024;
+
+    if (isDesktop) {
+      document.body.classList.add('is-desktop');
+      document.documentElement.classList.add('is-desktop');
+      const baseW = 1440;
+      const baseH = 900;
+      const scale = Math.min(winW / baseW, winH / baseH);
+      document.documentElement.style.setProperty('--story-scale', scale.toFixed(4));
+    } else {
+      document.body.classList.remove('is-desktop');
+      document.documentElement.classList.remove('is-desktop');
+      const baseW = 393;
+      const baseH = 852;
+      const scale = Math.min(winW / baseW, winH / baseH);
+      document.documentElement.style.setProperty('--story-scale', scale.toFixed(4));
+    }
   }
 
   // ========================================================================
@@ -340,9 +354,16 @@
     typeLines.forEach(el => {
       if (el) el.textContent = '';
     });
+    const isDesktop = document.documentElement.classList.contains('is-desktop');
     if (lineEl) {
       lineEl.style.transition = 'none';
-      lineEl.style.height = '0%';
+      if (isDesktop) {
+        lineEl.style.width = '0%';
+        lineEl.style.height = '1.5px';
+      } else {
+        lineEl.style.height = '0%';
+        lineEl.style.width = '1.5px';
+      }
     }
     milestones.forEach(m => m.classList.remove('revealed'));
 
@@ -375,12 +396,17 @@
     }
     timelineTimers.push(setTimeout(typeNextTimelineChar, 80));
 
-    // 2. Start line drawing downward with extended overhang at both ends (~24px)
+    // 2. Start line drawing (horizontal on desktop, vertical on mobile)
     timelineTimers.push(setTimeout(() => {
       if (STATE.currentSlideIndex !== 3) return;
       if (lineEl) {
-        lineEl.style.transition = 'height 2.8s cubic-bezier(0.25, 1, 0.5, 1)';
-        lineEl.style.height = 'calc(100% + 48px)';
+        if (isDesktop) {
+          lineEl.style.transition = 'width 2.8s cubic-bezier(0.25, 1, 0.5, 1)';
+          lineEl.style.width = '100%';
+        } else {
+          lineEl.style.transition = 'height 2.8s cubic-bezier(0.25, 1, 0.5, 1)';
+          lineEl.style.height = 'calc(100% + 48px)';
+        }
       }
     }, 250));
 
@@ -499,6 +525,13 @@
         slide.classList.remove('active', 'exiting-title', 'exiting-invite', 'exiting-step1', 'exiting-step2');
       }
     });
+
+    // Theme toggling for seamless desktop widescreen backdrop (mountain background for slides 4-7)
+    if (index >= 4 && index <= 7) {
+      document.body.classList.add('slide-theme-mountain');
+    } else {
+      document.body.classList.remove('slide-theme-mountain');
+    }
 
     // Cập nhật trạng thái hiển thị của các nút mũi tên góc trên màn hình
     if (DOM.btnNavPrev) {
@@ -771,6 +804,13 @@
       });
     }
 
+    if (DOM.btnRsvpBack) {
+      DOM.btnRsvpBack.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetRsvpToInitial();
+      });
+    }
+
     if (DOM.btnRsvpInlineSubmit) {
       DOM.btnRsvpInlineSubmit.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -842,21 +882,21 @@
       const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
 
       if (attendance === 'Yes') {
-        DOM.rsvpStepPrompt.innerHTML = `Cảm ơn bạn${nameDisp}! Bạn có lời chúc hay điều gì muốn nhắn gửi đến Phương không?`;
+        DOM.rsvpStepPrompt.innerHTML = `Thank you${nameDisp}! Would you like to leave a wish or message for Phuong?`;
         if (DOM.btnRsvpInlineSubmit) {
-          DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Gửi lời nhắn';
+          DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Send Message';
         }
         if (DOM.rsvpInlineMessage) {
-          DOM.rsvpInlineMessage.placeholder = 'Nhập lời nhắn hoặc lời chúc của bạn...';
+          DOM.rsvpInlineMessage.placeholder = 'Write your wishes or message for Phuong...';
           DOM.rsvpInlineMessage.focus();
         }
       } else {
-        DOM.rsvpStepPrompt.innerHTML = `Thật tiếc khi bạn${nameDisp} không thể đến chung vui... Bạn có thể để lại đôi lời chúc mừng cho Phương được không?`;
+        DOM.rsvpStepPrompt.innerHTML = `So sorry you can't make it${nameDisp}! Would you like to leave a few warm words for Phuong?`;
         if (DOM.btnRsvpInlineSubmit) {
-          DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Gửi lời chúc';
+          DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Send Wishes';
         }
         if (DOM.rsvpInlineMessage) {
-          DOM.rsvpInlineMessage.placeholder = 'Gửi gắm đôi lời chúc mừng đến Phương...';
+          DOM.rsvpInlineMessage.placeholder = 'Write a few warm words for Phuong...';
           DOM.rsvpInlineMessage.focus();
         }
       }
@@ -912,9 +952,9 @@
       const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
 
       if (attendance === 'Yes') {
-        DOM.rsvpFeedbackMsg.innerHTML = `Cảm ơn bạn${nameDisp} và hẹn gặp lại bạn tại buổi lễ tốt nghiệp nhé! ✨`;
+        DOM.rsvpFeedbackMsg.innerHTML = `Thank you${nameDisp}! Looking forward to celebrating with you at the ceremony! ✨`;
       } else {
-        DOM.rsvpFeedbackMsg.innerHTML = `Cảm ơn bạn${nameDisp} rất nhiều! Hẹn gặp lại bạn vào một dịp gần nhất nhé! 🤍`;
+        DOM.rsvpFeedbackMsg.innerHTML = `Thank you so much${nameDisp}! Hope to see you on another lovely occasion! 🤍`;
       }
 
       // Tự động chuyển sang trang tiếp theo sau khi hiển thị lời cảm ơn
@@ -942,9 +982,9 @@
           const isKnown = STATE.guestName && STATE.guestName !== 'Name';
           const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
           if (data.attendance === 'Yes') {
-            DOM.rsvpFeedbackMsg.innerHTML = `Cảm ơn bạn${nameDisp} và hẹn gặp lại bạn tại buổi lễ tốt nghiệp nhé! ✨`;
+            DOM.rsvpFeedbackMsg.innerHTML = `Thank you${nameDisp}! Looking forward to celebrating with you at the ceremony! ✨`;
           } else {
-            DOM.rsvpFeedbackMsg.innerHTML = `Cảm ơn bạn${nameDisp} rất nhiều! Hẹn gặp lại bạn vào một dịp gần nhất nhé! 🤍`;
+            DOM.rsvpFeedbackMsg.innerHTML = `Thank you so much${nameDisp}! Hope to see you on another lovely occasion! 🤍`;
           }
         }
       }

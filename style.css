@@ -159,13 +159,14 @@ html, body {
 }
 
 /* --------------------------------------------------------------------------
-   TOP NAVIGATION GUIDANCE BUTTONS (Previous / Next arrows in top 2 corners)
+   NAVIGATION GUIDANCE BUTTONS (Previous / Next chevrons centered vertically on sides)
    -------------------------------------------------------------------------- */
 .story-nav-bar {
   position: absolute;
-  top: 18px;
-  left: 16px;
-  right: 16px;
+  top: 50%;
+  left: 6px;
+  right: 6px;
+  transform: translateY(-50%);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -174,44 +175,45 @@ html, body {
 }
 
 .btn-story-nav {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(29, 26, 24, 0.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.85);
+  width: 28px;
+  height: 48px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: rgba(255, 255, 255, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   pointer-events: auto;
-  transition: opacity 0.35s ease, transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  padding: 0;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 2px rgba(0, 0, 0, 0.95));
+  transition: opacity 0.3s ease, transform 0.2s ease, color 0.2s ease;
 }
 
 .btn-story-nav:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  color: #ffffff;
-  transform: scale(1.08);
+  color: rgba(255, 255, 255, 0.95);
+  transform: scale(1.18);
 }
 
 .btn-story-nav:active {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 .btn-story-nav svg {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 32px;
   stroke: currentColor;
+  stroke-width: 2.4;
 }
 
 .btn-story-nav.hidden-nav {
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.75);
+  transform: scale(0.7);
 }
 
 /* --------------------------------------------------------------------------
@@ -1013,7 +1015,7 @@ html, body {
   position: absolute;
   top: 59.2%;
   left: 17%;
-  width: fit-content;
+  right: 12%;
   pointer-events: none;
 }
 
@@ -1024,6 +1026,7 @@ html, body {
   color: #2a2927;
   line-height: 1.35;
   letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
 .venue-hall {
@@ -1033,9 +1036,50 @@ html, body {
   color: #2a2927;
   line-height: 1.35;
   letter-spacing: 0.02em;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Chỉ bấm trực tiếp vào dòng chữ mới mở link/action, chạm vùng trống vẫn chuyển trang bình thường */
+/* Icon đường đi Google Maps: nằm cùng dòng với Hall A, Campus */
+.venue-directions-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(43, 42, 40, 0.08);
+  border: 1px solid rgba(43, 42, 40, 0.22);
+  color: #2a2927;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+  padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.venue-directions-btn:hover {
+  background: rgba(43, 42, 40, 0.16);
+  border-color: #1e1d1b;
+  transform: scale(1.12);
+  color: #000000;
+}
+
+.venue-directions-btn:active {
+  transform: scale(0.92);
+}
+
+.venue-directions-svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+/* Date/Time link trigger */
 .ceremony-link-trigger {
   display: inline-block;
   width: fit-content;
@@ -1292,8 +1336,46 @@ html, body {
   background: rgba(255, 255, 255, 0.85);
 }
 
+.rsvp-btn-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-rsvp-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-playfair);
+  font-size: 11.9pt;
+  font-weight: 500;
+  color: #353432;
+  background: rgba(43, 40, 37, 0.08);
+  border: 1px solid rgba(43, 40, 37, 0.22);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-rsvp-back:hover {
+  background: rgba(43, 40, 37, 0.16);
+  color: #121110;
+}
+
+.btn-rsvp-back:active {
+  transform: scale(0.96);
+}
+
+.btn-rsvp-back svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
 .btn-rsvp-inline-submit {
-  align-self: flex-start;
   font-family: var(--font-playfair);
   font-size: 11.9pt;
   font-weight: 600;
@@ -1304,10 +1386,15 @@ html, body {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-rsvp-inline-submit:hover {
   background: #121110;
+}
+
+.btn-rsvp-inline-submit:active {
+  transform: scale(0.96);
 }
 
 /* Inline Final Confirmation Message after Submit */
@@ -1949,4 +2036,511 @@ html, body {
 
 .hidden {
   display: none !important;
+}
+
+/* ==========================================================================
+   DESKTOP & LAPTOP RESPONSIVE STYLES (Based on Gra-invitation_lap.mp4 & 1.png-9.png)
+   Base Artboard: 1440px x 900px (16:10 Canva Laptop Design)
+   ========================================================================== */
+@media (min-width: 800px) and (orientation: landscape), (min-width: 1024px) {
+  :root {
+    --desktop-base-w: 1440px;
+    --desktop-base-h: 900px;
+  }
+
+  /* Body & Wrapper full-screen desktop styling */
+  html, body {
+    overflow: hidden;
+    background-color: #1d1a18;
+  }
+
+  .mobile-frame-wrapper {
+    background-color: #1d1a18;
+    transition: background-image 0.8s ease, background-color 0.8s ease;
+  }
+
+  body.slide-theme-mountain .mobile-frame-wrapper {
+    background-image: url('bg_mountain_lap.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Main Artboard Canvas (1440px x 900px, scaled seamlessly to fit any laptop / desktop display) */
+  .story-container {
+    width: 1440px !important;
+    height: 900px !important;
+    border-radius: 0 !important;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.85) !important;
+  }
+
+  /* Desktop Floating Navigation Arrows (Side controls) */
+  .story-nav-bar {
+    top: 50%;
+    left: 28px;
+    right: 28px;
+    transform: translateY(-50%);
+  }
+
+  .btn-story-nav {
+    width: 48px;
+    height: 48px;
+    background: rgba(29, 26, 24, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .btn-story-nav svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* ------------------------------------------------------------------------
+     SLIDE 0 (TRANG 1): INTRO BOW (1.png)
+     ------------------------------------------------------------------------ */
+  .slide-intro .intro-bow-wrapper {
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide-intro .intro-bow-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1440px;
+    height: 900px;
+    object-fit: contain;
+  }
+
+  /* ------------------------------------------------------------------------
+     SLIDE 1 (TRANG 2): COVER (2.png)
+     ------------------------------------------------------------------------ */
+  .slide-cover .cover-ribbon-img,
+  .slide-outro .cover-ribbon-img {
+    position: absolute;
+    top: -460px;
+    left: 410px;
+    width: 620px;
+    height: auto;
+    opacity: 0.41;
+    transform-origin: 50% 50%;
+    transform: rotate(103deg);
+  }
+
+  .slide-cover.active .cover-ribbon-img {
+    animation:
+      coverRibbonZoomInDesktop 1.9s var(--ease-cinematic) forwards,
+      coverRibbonZoomBreatheDesktop 6.5s 1.9s infinite alternate ease-in-out;
+  }
+
+  .slide-outro.active .outro-ribbon-img {
+    animation: coverRibbonZoomDesktop 20s infinite alternate ease-in-out;
+  }
+
+  @keyframes coverRibbonZoomInDesktop {
+    0% {
+      opacity: 0;
+      transform: rotate(103deg) scale(1.15);
+    }
+    100% {
+      opacity: 0.41;
+      transform: rotate(103deg) scale(1);
+    }
+  }
+
+  @keyframes coverRibbonZoomBreatheDesktop {
+    0% {
+      opacity: 0.41;
+      transform: rotate(103deg) scale(1);
+    }
+    100% {
+      opacity: 0.41;
+      transform: rotate(103deg) scale(1.06);
+    }
+  }
+
+  @keyframes coverRibbonZoomDesktop {
+    0% {
+      opacity: 0.41;
+      transform: rotate(103deg) scale(1);
+    }
+    100% {
+      opacity: 0.41;
+      transform: rotate(103deg) scale(1.07);
+    }
+  }
+
+  /* Top Meta on Desktop: Quote on Top-Left, Author on Top-Right */
+  .cover-footer-meta {
+    position: absolute;
+    top: 90px;
+    left: 90px;
+    right: 90px;
+    bottom: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0;
+    text-align: left;
+  }
+
+  .cover-footer-meta .author-quote {
+    order: 1;
+    text-align: left;
+    font-family: var(--font-cardo);
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #c8cad0;
+    margin: 0;
+    max-width: 400px;
+  }
+
+  .cover-footer-meta .author-name {
+    order: 2;
+    text-align: right;
+    font-family: var(--font-cardo);
+    font-style: normal;
+    font-size: 16px;
+    color: #c8cad0;
+    letter-spacing: 0.02em;
+    margin: 0;
+  }
+
+  /* Center Title Group */
+  .cover-title-group {
+    position: absolute;
+    top: 380px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 750px;
+    padding: 0;
+  }
+
+  .cover-star-sparkle {
+    position: absolute;
+    top: -26px;
+    left: 200px;
+    width: 85px;
+    height: 85px;
+  }
+
+  .cover-lead-the {
+    font-family: var(--font-cardo);
+    font-size: 24px;
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+  }
+
+  .cover-heading {
+    font-family: var(--font-cardo);
+    font-size: 62px;
+    line-height: 1.08;
+    letter-spacing: 0.08em;
+  }
+
+  .title-quiet {
+    font-weight: 400;
+  }
+
+  .title-strength {
+    font-weight: 700;
+  }
+
+  .cover-script-subtitle {
+    font-family: var(--font-script);
+    font-size: 46px;
+    margin-top: -6px;
+    margin-left: 20px;
+  }
+
+  /* ------------------------------------------------------------------------
+     SLIDE 2 (TRANG 3): WARM INVITATION (3.png)
+     ------------------------------------------------------------------------ */
+  .slide-invite .invite-content-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .slide-invite .invite-star-sparkle {
+    order: -1;
+    margin-top: 0;
+    margin-bottom: 28px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .slide-invite .invite-line.line-1 {
+    font-size: 32px;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+  }
+
+  .slide-invite .invite-line.line-2 {
+    font-size: 25px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    margin-top: 14px;
+  }
+
+  /* ------------------------------------------------------------------------
+     SLIDE 3 (TRANG 4): TIMELINE HORIZONTAL (4.png)
+     ------------------------------------------------------------------------ */
+  .slide-timeline .timeline-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+
+  .slide-timeline .timeline-mountain-layer {
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 128px;
+    background-image: url('mountain_lap_bottom.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    z-index: 2;
+  }
+
+  .slide-timeline .timeline-mountain-img {
+    display: none;
+  }
+
+  .slide-timeline .timeline-heading {
+    position: absolute;
+    top: 250px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 30px;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.35em;
+    z-index: 5;
+    padding: 0;
+  }
+
+  .slide-timeline .timeline-type-line {
+    display: inline-block;
+  }
+
+  .slide-timeline .timeline-track-wrapper {
+    position: absolute;
+    top: 436px;
+    left: 118px;
+    width: 1204px;
+    height: 150px;
+    z-index: 5;
+  }
+
+  .slide-timeline .timeline-vertical-line {
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 0%;
+    height: 1.5px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.70) 75%, rgba(255, 255, 255, 0.52) 100%);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+    z-index: 1;
+  }
+
+  .slide-timeline .timeline-milestones {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    height: auto;
+  }
+
+  .slide-timeline .milestone-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 220px;
+    margin: 0;
+  }
+
+  .slide-timeline .milestone-star {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 22px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide-timeline .milestone-star-img {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 44px;
+    height: 44px;
+  }
+
+  .slide-timeline .milestone-text {
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .slide-timeline .milestone-title {
+    font-size: 16px;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  /* ------------------------------------------------------------------------
+     SLIDES 4 & 5 (TRANG 5 & 6): CEREMONY & RSVP CARDS (5.png & 6.png)
+     ------------------------------------------------------------------------ */
+  .slide-ceremony,
+  .slide-rsvp {
+    background-image: url('bg_mountain_lap.png') !important;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .ceremony-container,
+  .rsvp-content-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 444px;
+    height: 684px;
+    background-image: url('thư.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  /* ------------------------------------------------------------------------
+     SLIDE 6 (TRANG 7): THANK YOU & SIGNATURE (7.png)
+     ------------------------------------------------------------------------ */
+  .slide-thankyou {
+    background-image: url('bg_mountain_lap.png') !important;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .thankyou-container {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .thankyou-star-wrapper {
+    position: static;
+    margin-bottom: 28px;
+    width: 48px;
+    height: 48px;
+    transform: scale(0.85);
+  }
+
+  .thankyou-star-wrapper.revealed {
+    transform: scale(1);
+  }
+
+  .thankyou-text-box {
+    position: static;
+    text-align: center;
+    margin-bottom: 38px;
+    width: 700px;
+    transform: translateY(6px);
+  }
+
+  .thankyou-text-box.revealed {
+    transform: translateY(0);
+  }
+
+  .thankyou-line {
+    font-size: 26px;
+    line-height: 1.55;
+    text-align: center;
+  }
+
+  .thankyou-sign-wrapper {
+    position: static;
+    width: 175px;
+    height: auto;
+    margin-top: 10px;
+  }
+
+  /* ------------------------------------------------------------------------
+     SLIDE 7 (TRANG 8): VIDEO (8.png)
+     ------------------------------------------------------------------------ */
+  .slide-video {
+    background-image: url('bg_mountain_lap.png') !important;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .video-modal-box {
+    max-width: 440px;
+    aspect-ratio: 9 / 16;
+    border-radius: 16px;
+  }
+
+  /* ------------------------------------------------------------------------
+     SLIDE 8 (TRANG 9): OUTRO (9.png)
+     ------------------------------------------------------------------------ */
+  .outro-footer-meta {
+    position: absolute;
+    bottom: 80px;
+    top: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+  }
+
+  .outro-thankyou-text {
+    font-size: 32px;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 4px;
+  }
+
+  .outro-contact-text {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .replay-story-hotspot {
+    bottom: 26px;
+  }
 }
