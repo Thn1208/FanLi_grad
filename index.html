@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>The Quiet Strength — Phuong's Graduation Ceremony</title>
+  <title>Graduation Invitation | Frany</title>
   <meta name="description" content="Graduation Ceremony Invitation — Nguyen Thi Diem Phuong. Sun, Nov 8, 2026 at FPT University HCMC.">
   
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cardo:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Montserrat:wght@400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=27">
+  <link rel="stylesheet" href="style.css?v=31">
 
   <!-- Instant Viewport Scale Calculation to Prevent FOUC -->
   <script>
@@ -21,16 +21,16 @@
       function setScale() {
         var w = window.innerWidth || document.documentElement.clientWidth;
         var h = window.innerHeight || document.documentElement.clientHeight;
-        var isDesktop = (w >= 800 && w > h) || w >= 1024;
-        if (isDesktop) {
-          document.documentElement.classList.add('is-desktop');
-          var s = Math.min(w / 1440, h / 900);
-          document.documentElement.style.setProperty('--story-scale', s.toFixed(4));
-        } else {
-          document.documentElement.classList.remove('is-desktop');
-          var s = Math.min(w / 393, h / 852);
-          document.documentElement.style.setProperty('--story-scale', s.toFixed(4));
+        var baseW = 393;
+        var baseH = 852;
+        var availW = w;
+        var availH = h;
+        if (w > 600 && h > 500) {
+          availW = w * 0.92;
+          availH = h * 0.92;
         }
+        var s = Math.min(availW / baseW, availH / baseH);
+        document.documentElement.style.setProperty('--story-scale', s.toFixed(4));
       }
       setScale();
       window.addEventListener('resize', setScale, { passive: true });
@@ -69,11 +69,12 @@
       <!-- ============================================== -->
       <div class="slides-wrapper" id="slidesWrapper">
 
-        <!-- SLIDE 0 (TRANG 1): INTRO RIBBON BOW (Nơ.png on #1d1a18, no effects or text) -->
+        <!-- SLIDE 0 (TRANG 1): INTRO RIBBON BOW (Nơ.png on #1d1a18) -->
         <article class="slide-item active slide-intro" data-index="0" aria-label="Tap to open invitation">
           <div class="intro-bow-wrapper" aria-hidden="true">
             <img src="Nơ.png" alt="" class="intro-bow-img" id="introBowImg" draggable="false">
           </div>
+          <p class="intro-tap-hint" id="introTapHint">Tap to open</p>
         </article>
 
         <!-- SLIDE 1 (TRANG 2): COVER WITH RIBBON1.PNG, SAO.PNG, CARDO & SCRIPT TYPOGRAPHY -->
@@ -224,17 +225,14 @@
               </div>
             </div>
 
-            <!-- Venue: FPT University (Cardo 13.9pt), Hall A (Cardo 15.9pt) with directions icon on same line -->
+            <!-- Venue: FPT University (Cardo 13.9pt) + Underlined '>>> Google maps' Link -->
             <div class="ceremony-line ceremony-venue">
               <p class="venue-uni">FPT UNIVERSITY HCMC</p>
-              <p class="venue-hall">
-                <span>Hall A, Campus</span>
-                <button type="button" class="venue-directions-btn" id="hotspotVenue" aria-label="Open directions on Google Maps" title="Open Google Maps">
-                  <svg viewBox="0 0 24 24" fill="currentColor" class="venue-directions-svg">
-                    <path d="M21.71 11.29l-9-9a1 1 0 0 0-1.42 0l-9 9a1 1 0 0 0 0 1.42l9 9a1 1 0 0 0 1.42 0l9-9a1 1 0 0 0 0-1.42zM14 14.5V12h-4v3H8v-4a1 1 0 0 1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
-                  </svg>
-                </button>
-              </p>
+              <div class="venue-maps-row">
+                <a href="https://maps.app.goo.gl/F1LVCkgJ4KDwRs2bA" target="_blank" rel="noopener noreferrer" class="venue-maps-link" id="hotspotVenue" title="Open Google Maps">
+                  <span class="maps-chevrons">&gt;&gt;&gt;</span> <span class="maps-text">Google maps</span>
+                </a>
+              </div>
             </div>
 
             <!-- Thanh gạt chậm từ trái sang phải -->
@@ -284,7 +282,17 @@
               <p class="rsvp-step-prompt" id="rsvpStepPrompt">Thank you! Would you like to leave a message for Phuong?</p>
               
               <div class="rsvp-input-wrapper">
-                <textarea class="rsvp-inline-textarea" id="rsvpInlineMessage" rows="3" placeholder="Write a message for Phuong..."></textarea>
+                <!-- Yes inputs: Gmail + Note/Message -->
+                <div class="rsvp-fields-group" id="rsvpFieldsYes">
+                  <input type="email" class="rsvp-inline-input" id="rsvpInlineEmail" placeholder="Your Gmail address (optional)" autocomplete="email">
+                  <textarea class="rsvp-inline-textarea" id="rsvpInlineMessage" rows="2" placeholder="Write your note or message for Phuong... (Optional)"></textarea>
+                </div>
+
+                <!-- No input: Wish -->
+                <div class="rsvp-fields-group hidden" id="rsvpFieldsNo">
+                  <textarea class="rsvp-inline-textarea" id="rsvpInlineWish" rows="3" placeholder="Write your warm wishes for Phuong... (Optional)"></textarea>
+                </div>
+
                 <div class="rsvp-btn-actions">
                   <button type="button" class="btn-rsvp-back" id="btnRsvpBack" aria-label="Back to RSVP choice" title="Back">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -293,7 +301,7 @@
                     <span>Back</span>
                   </button>
                   <button type="button" class="btn-rsvp-inline-submit" id="btnRsvpInlineSubmit">
-                    <span>Send</span>
+                    <span>Send Wishes</span>
                   </button>
                 </div>
               </div>
@@ -394,7 +402,7 @@
             <div class="cover-footer-meta outro-footer-meta" id="outroFooterMeta">
               <p class="outro-thankyou-text">Thank you!</p>
               <p class="outro-contact-text">
-                <a href="tel:+84825497013" class="outro-contact-link" title="Tap to Call (+84)825 497 013">Contact: (+84)825 497 013</a>
+                <a href="tel:0367989880" class="outro-contact-link" title="Tap to Call 0367 989 880">Contact: 0367 989 880</a>
               </p>
             </div>
           </div>
@@ -418,6 +426,6 @@
   <div class="toast-notification" id="toastBox" role="status" aria-live="polite"></div>
 
   <!-- Main JavaScript Logic -->
-  <script src="app.js?v=27"></script>
+  <script src="app.js?v=31"></script>
 </body>
 </html>

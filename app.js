@@ -35,6 +35,7 @@
   const DOM = {
     storyContainer: document.getElementById('storyContainer'),
     introStars: document.getElementById('introStars'),
+    introTapHint: document.getElementById('introTapHint'),
     slides: Array.from(document.querySelectorAll('.slide-item')),
 
     // Slide 1 (Cover): Crisp Title, Typewriter Script & Blur Meta
@@ -74,9 +75,13 @@
     btnRsvpNo: document.getElementById('btnRsvpNo'),
     rsvpFlowInitial: document.getElementById('rsvpFlowInitial'),
     rsvpInlineStep: document.getElementById('rsvpInlineStep'),
+    rsvpFieldsYes: document.getElementById('rsvpFieldsYes'),
+    rsvpFieldsNo: document.getElementById('rsvpFieldsNo'),
     btnRsvpBack: document.getElementById('btnRsvpBack'),
     rsvpStepPrompt: document.getElementById('rsvpStepPrompt'),
+    rsvpInlineEmail: document.getElementById('rsvpInlineEmail'),
     rsvpInlineMessage: document.getElementById('rsvpInlineMessage'),
+    rsvpInlineWish: document.getElementById('rsvpInlineWish'),
     btnRsvpInlineSubmit: document.getElementById('btnRsvpInlineSubmit'),
     rsvpInlineFeedback: document.getElementById('rsvpInlineFeedback'),
     rsvpFeedbackMsg: document.getElementById('rsvpFeedbackMsg'),
@@ -116,6 +121,7 @@
     totalSlides: DOM.slides.length, // Exactly 9 slides (0 to 8)
     guestName: CONFIG.defaultGuestName,
     selectedAttendance: "Yes",
+    hasSubmittedRsvp: false,
     touchStartX: 0,
     touchStartY: 0
   };
@@ -129,33 +135,32 @@
   let coverExitTimer = null;
   let inviteExitTimer = null;
   let thankyouExitTimer = null;
+  let introHintTimer = null;
+  let navFlashTimer = null;
   let isTransitioningCover = false;
   let isTransitioningInvite = false;
   let isTransitioningThankyou = false;
 
   // ========================================================================
-  // RESPONSIVE ARTBOARD SCALING (393x852 mobile artboard, 1440x900 desktop artboard)
+  // RESPONSIVE ARTBOARD SCALING (393x852 mobile artboard, uniform on mobile & desktop)
   // ========================================================================
   function updateStoryScale() {
     const winW = window.innerWidth || document.documentElement.clientWidth;
     const winH = window.innerHeight || document.documentElement.clientHeight;
-    const isDesktop = (winW >= 800 && winW > winH) || winW >= 1024;
+    const baseW = 393;
+    const baseH = 852;
 
-    if (isDesktop) {
-      document.body.classList.add('is-desktop');
-      document.documentElement.classList.add('is-desktop');
-      const baseW = 1440;
-      const baseH = 900;
-      const scale = Math.min(winW / baseW, winH / baseH);
-      document.documentElement.style.setProperty('--story-scale', scale.toFixed(4));
-    } else {
-      document.body.classList.remove('is-desktop');
-      document.documentElement.classList.remove('is-desktop');
-      const baseW = 393;
-      const baseH = 852;
-      const scale = Math.min(winW / baseW, winH / baseH);
-      document.documentElement.style.setProperty('--story-scale', scale.toFixed(4));
+    let availW = winW;
+    let availH = winH;
+
+    // Trên màn hình rộng (desktop / laptop / tablet), căn giữa và thu phóng vừa vặn khung mobile
+    if (winW > 600 && winH > 500) {
+      availW = winW * 0.92;
+      availH = winH * 0.92;
     }
+
+    const scale = Math.min(availW / baseW, availH / baseH);
+    document.documentElement.style.setProperty('--story-scale', scale.toFixed(4));
   }
 
   // ========================================================================
@@ -166,6 +171,8 @@
     setupGuestPersonalization();
     bindEvents();
     checkStoredRsvp();
+    startIntroHintTimer();
+    flashNavArrows();
   }
 
   // ========================================================================
@@ -310,7 +317,7 @@
     typewriterTimers.push(setTimeout(typeNextChar, 35));
   }
 
-  // --- Slide 2 (Trang 3): Ribbon2 & Sao xuất hiện trước; sau 1/2 thời gian (900ms), chữ mới xuất hiện ---
+  // --- Slide 2 (Trang 3): Ribbon2 & Sao xuất hiện trước; sau đó các dòng chữ xuất hiện nhanh hơn ---
   function startInviteAnimation() {
     inviteTimers.forEach(t => clearTimeout(t));
     inviteTimers = [];
@@ -324,16 +331,16 @@
       if (el) el.classList.remove('revealed');
     });
 
-    // Sau khi ribbon2 và sao hiển thị được 1/2 thời gian (1.8s / 2 = 900ms), các dòng chữ mới bắt đầu xuất hiện
+    // Các dòng chữ xuất hiện nhanh hơn (450ms và 750ms)
     inviteTimers.push(setTimeout(() => {
       if (STATE.currentSlideIndex !== 2) return;
       if (DOM.inviteLines[0]) DOM.inviteLines[0].classList.add('revealed');
-    }, 900));
+    }, 450));
 
     inviteTimers.push(setTimeout(() => {
       if (STATE.currentSlideIndex !== 2) return;
       if (DOM.inviteLines[1]) DOM.inviteLines[1].classList.add('revealed');
-    }, 1250));
+    }, 750));
   }
 
   // --- Slide 3 (Trang 4): Typewriter Heading + Non-overhanging Line + Slow Blur-In Milestones ---
@@ -354,16 +361,10 @@
     typeLines.forEach(el => {
       if (el) el.textContent = '';
     });
-    const isDesktop = document.documentElement.classList.contains('is-desktop');
     if (lineEl) {
       lineEl.style.transition = 'none';
-      if (isDesktop) {
-        lineEl.style.width = '0%';
-        lineEl.style.height = '1.5px';
-      } else {
-        lineEl.style.height = '0%';
-        lineEl.style.width = '1.5px';
-      }
+      lineEl.style.height = '0%';
+      lineEl.style.width = '1.5px';
     }
     milestones.forEach(m => m.classList.remove('revealed'));
 
@@ -396,17 +397,12 @@
     }
     timelineTimers.push(setTimeout(typeNextTimelineChar, 80));
 
-    // 2. Start line drawing (horizontal on desktop, vertical on mobile)
+    // 2. Start vertical line drawing
     timelineTimers.push(setTimeout(() => {
       if (STATE.currentSlideIndex !== 3) return;
       if (lineEl) {
-        if (isDesktop) {
-          lineEl.style.transition = 'width 2.8s cubic-bezier(0.25, 1, 0.5, 1)';
-          lineEl.style.width = '100%';
-        } else {
-          lineEl.style.transition = 'height 2.8s cubic-bezier(0.25, 1, 0.5, 1)';
-          lineEl.style.height = 'calc(100% + 48px)';
-        }
+        lineEl.style.transition = 'height 2.8s cubic-bezier(0.25, 1, 0.5, 1)';
+        lineEl.style.height = 'calc(100% + 48px)';
       }
     }, 250));
 
@@ -514,6 +510,39 @@
   // ========================================================================
   // 5. MANUAL SCREEN-TAP NAVIGATION (100% CANVA CROSS-DISSOLVE)
   // ========================================================================
+
+  // Gợi ý chạm màn hình sau 3 giây trên Trang 1 (Nơ.png) nếu không có tương tác
+  function startIntroHintTimer() {
+    clearTimeout(introHintTimer);
+    if (DOM.introTapHint) {
+      DOM.introTapHint.classList.remove('revealed');
+    }
+    introHintTimer = setTimeout(() => {
+      if (STATE.currentSlideIndex === 0 && DOM.introTapHint) {
+        DOM.introTapHint.classList.add('revealed');
+      }
+    }, 3000);
+  }
+
+  // Mũi tên navigation <> chỉ hiển thị 1 lần lúc đầu rồi ẩn đi (sau 2.2s)
+  function flashNavArrows() {
+    clearTimeout(navFlashTimer);
+    if (DOM.btnNavPrev && !DOM.btnNavPrev.classList.contains('hidden-nav')) {
+      DOM.btnNavPrev.classList.add('nav-visible');
+    }
+    if (DOM.btnNavNext && !DOM.btnNavNext.classList.contains('hidden-nav')) {
+      DOM.btnNavNext.classList.add('nav-visible');
+    }
+    navFlashTimer = setTimeout(() => {
+      if (DOM.btnNavPrev && !DOM.btnNavPrev.matches(':hover')) {
+        DOM.btnNavPrev.classList.remove('nav-visible');
+      }
+      if (DOM.btnNavNext && !DOM.btnNavNext.matches(':hover')) {
+        DOM.btnNavNext.classList.remove('nav-visible');
+      }
+    }, 2200);
+  }
+
   function performSlideSwitch(index) {
     STATE.currentSlideIndex = index;
 
@@ -526,17 +555,11 @@
       }
     });
 
-    // Theme toggling for seamless desktop widescreen backdrop (mountain background for slides 4-7)
-    if (index >= 4 && index <= 7) {
-      document.body.classList.add('slide-theme-mountain');
-    } else {
-      document.body.classList.remove('slide-theme-mountain');
-    }
-
     // Cập nhật trạng thái hiển thị của các nút mũi tên góc trên màn hình
     if (DOM.btnNavPrev) {
       if (index === 0) {
         DOM.btnNavPrev.classList.add('hidden-nav');
+        DOM.btnNavPrev.classList.remove('nav-visible');
       } else {
         DOM.btnNavPrev.classList.remove('hidden-nav');
       }
@@ -544,8 +567,22 @@
     if (DOM.btnNavNext) {
       if (index === STATE.totalSlides - 1) {
         DOM.btnNavNext.classList.add('hidden-nav');
+        DOM.btnNavNext.classList.remove('nav-visible');
       } else {
         DOM.btnNavNext.classList.remove('hidden-nav');
+      }
+    }
+
+    // Hiển thị chớp nhoáng mũi tên dẫn hướng khi vừa đổi slide
+    flashNavArrows();
+
+    // Quản lý gợi ý chạm màn hình ở Trang 1
+    if (index === 0) {
+      startIntroHintTimer();
+    } else {
+      clearTimeout(introHintTimer);
+      if (DOM.introTapHint) {
+        DOM.introTapHint.classList.remove('revealed');
       }
     }
 
@@ -596,9 +633,29 @@
     }
   }
 
+  function highlightRsvpRequired() {
+    showToast("Please respond to RSVP before continuing ✨");
+    if (DOM.rsvpFlowInitial) {
+      DOM.rsvpFlowInitial.classList.remove('rsvp-shake');
+      void DOM.rsvpFlowInitial.offsetHeight;
+      DOM.rsvpFlowInitial.classList.add('rsvp-shake');
+    }
+    if (DOM.rsvpInlineStep && DOM.rsvpInlineStep.classList.contains('revealed')) {
+      DOM.rsvpInlineStep.classList.remove('rsvp-shake');
+      void DOM.rsvpInlineStep.offsetHeight;
+      DOM.rsvpInlineStep.classList.add('rsvp-shake');
+    }
+  }
+
   function goToSlide(index) {
     if (index < 0 || index >= STATE.totalSlides) return;
     if (isTransitioningCover || isTransitioningInvite || isTransitioningThankyou) return;
+
+    // Chặn chuyển sang trang sau nếu đang ở Slide 5 (RSVP) mà chưa trả lời Yes/No
+    if (STATE.currentSlideIndex === 5 && index > 5 && !STATE.hasSubmittedRsvp) {
+      highlightRsvpRequired();
+      return;
+    }
 
     // 1. Khi chuyển từ Trang 2 (index 1) sang trang sau (index > 1):
     // Cho dòng THE QUIET STRENGTH mờ dần biến mất từ giữa ra hai bên trước,
@@ -695,6 +752,16 @@
         e.stopPropagation();
         prevSlide();
       });
+      ['mouseenter', 'touchstart'].forEach(evt => {
+        DOM.btnNavPrev.addEventListener(evt, () => {
+          if (!DOM.btnNavPrev.classList.contains('hidden-nav')) {
+            DOM.btnNavPrev.classList.add('nav-visible');
+          }
+        }, { passive: true });
+      });
+      DOM.btnNavPrev.addEventListener('mouseleave', () => {
+        DOM.btnNavPrev.classList.remove('nav-visible');
+      });
     }
 
     if (DOM.btnNavNext) {
@@ -702,17 +769,48 @@
         e.stopPropagation();
         nextSlide();
       });
+      ['mouseenter', 'touchstart'].forEach(evt => {
+        DOM.btnNavNext.addEventListener(evt, () => {
+          if (!DOM.btnNavNext.classList.contains('hidden-nav')) {
+            DOM.btnNavNext.classList.add('nav-visible');
+          }
+        }, { passive: true });
+      });
+      DOM.btnNavNext.addEventListener('mouseleave', () => {
+        DOM.btnNavNext.classList.remove('nav-visible');
+      });
+    }
+
+    // Hiển thị mũi tên dẫn hướng khi rê chuột vào khu vực gần 2 mép có mũi tên
+    if (DOM.storyContainer) {
+      DOM.storyContainer.addEventListener('mousemove', (e) => {
+        const rect = DOM.storyContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const isNearLeft = x <= 65;
+        const isNearRight = x >= (rect.width - 65);
+
+        if (isNearLeft && DOM.btnNavPrev && !DOM.btnNavPrev.classList.contains('hidden-nav')) {
+          DOM.btnNavPrev.classList.add('nav-visible');
+        } else if (!isNearLeft && DOM.btnNavPrev && !DOM.btnNavPrev.matches(':hover')) {
+          DOM.btnNavPrev.classList.remove('nav-visible');
+        }
+
+        if (isNearRight && DOM.btnNavNext && !DOM.btnNavNext.classList.contains('hidden-nav')) {
+          DOM.btnNavNext.classList.add('nav-visible');
+        } else if (!isNearRight && DOM.btnNavNext && !DOM.btnNavNext.matches(':hover')) {
+          DOM.btnNavNext.classList.remove('nav-visible');
+        }
+      }, { passive: true });
     }
 
     // 1. Click anywhere on screen to manually navigate slides
     if (DOM.storyContainer) {
       DOM.storyContainer.addEventListener('click', (e) => {
-        // Trang 6 (RSVP): Khi đang hiển thị khung nhập lời nhắn mà chạm ra màn hình bên ngoài -> hiển thị lại lựa chọn ban đầu
-        if (STATE.currentSlideIndex === 5 && DOM.rsvpInlineStep && DOM.rsvpInlineStep.classList.contains('revealed')) {
-          if (!e.target.closest('#rsvpInlineStep') && !e.target.closest('#btnRsvpYes') && !e.target.closest('#btnRsvpNo')) {
-            resetRsvpToInitial();
-            return;
-          }
+        // Trang 6 (RSVP): Khi bấm vào màn hình thì bình thường không có gì xảy ra,
+        // không tự reset, không chuyển slide; chỉ trở về khi bấm nút Back,
+        // và chỉ chuyển trang sau khi user bấm Yes/No và submit ghi nhận lời chúc.
+        if (STATE.currentSlideIndex === 5) {
+          return;
         }
 
         // Do NOT advance slide if clicking on an interactive button, input, hotspot, or modal
@@ -722,6 +820,8 @@
 
         // On Slide 0, clicking ANYWHERE unties the bow and opens Slide 1
         if (STATE.currentSlideIndex === 0) {
+          clearTimeout(introHintTimer);
+          if (DOM.introTapHint) DOM.introTapHint.classList.remove('revealed');
           nextSlide();
           return;
         }
@@ -753,6 +853,7 @@
       }, { passive: true });
 
       DOM.storyContainer.addEventListener('touchend', (e) => {
+        if (STATE.currentSlideIndex === 5) return; // Không swipe qua trang khác trên slide RSVP
         if (e.target.closest('button, a, input, select, textarea, .rsvp-inline-step, .ceremony-link-trigger, .video-modal-overlay')) return;
 
         const deltaX = e.changedTouches[0].clientX - STATE.touchStartX;
@@ -868,7 +969,7 @@
     if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.toggle('selected', attendance === 'Yes');
     if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.toggle('selected', attendance === 'No');
 
-    // Chuyển từ câu hỏi ban đầu sang bước nhập lời nhắn/chúc trực tiếp trên thiệp
+    // Chuyển từ câu hỏi ban đầu sang bước nhập thông tin trực tiếp trên thiệp
     if (DOM.rsvpFlowInitial) {
       DOM.rsvpFlowInitial.classList.add('hidden-flow');
     }
@@ -882,22 +983,28 @@
       const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
 
       if (attendance === 'Yes') {
-        DOM.rsvpStepPrompt.innerHTML = `Thank you${nameDisp}! Would you like to leave a wish or message for Phuong?`;
+        // Khi chọn Yes: 1 khung hỏi Gmail, 1 khung hỏi note/message
+        if (DOM.rsvpFieldsYes) DOM.rsvpFieldsYes.classList.remove('hidden');
+        if (DOM.rsvpFieldsNo) DOM.rsvpFieldsNo.classList.add('hidden');
+
+        DOM.rsvpStepPrompt.innerHTML = `Thank you${nameDisp}! Looking forward to seeing you at the ceremony. Would you like to leave a message for Phuong?`;
         if (DOM.btnRsvpInlineSubmit) {
-          DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Send Message';
+          DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Confirm & Send';
         }
-        if (DOM.rsvpInlineMessage) {
-          DOM.rsvpInlineMessage.placeholder = 'Write your wishes or message for Phuong...';
-          DOM.rsvpInlineMessage.focus();
+        if (DOM.rsvpInlineEmail) {
+          DOM.rsvpInlineEmail.focus();
         }
       } else {
-        DOM.rsvpStepPrompt.innerHTML = `So sorry you can't make it${nameDisp}! Would you like to leave a few warm words for Phuong?`;
+        // Khi chọn No: 1 khung gửi wish
+        if (DOM.rsvpFieldsYes) DOM.rsvpFieldsYes.classList.add('hidden');
+        if (DOM.rsvpFieldsNo) DOM.rsvpFieldsNo.classList.remove('hidden');
+
+        DOM.rsvpStepPrompt.innerHTML = `So sorry you can't make it${nameDisp}! Would you like to leave a wish for Phuong?`;
         if (DOM.btnRsvpInlineSubmit) {
           DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Send Wishes';
         }
-        if (DOM.rsvpInlineMessage) {
-          DOM.rsvpInlineMessage.placeholder = 'Write a few warm words for Phuong...';
-          DOM.rsvpInlineMessage.focus();
+        if (DOM.rsvpInlineWish) {
+          DOM.rsvpInlineWish.focus();
         }
       }
     }
@@ -905,19 +1012,27 @@
 
   async function handleInlineRsvpSubmit() {
     const attendance = STATE.selectedAttendance || 'Yes';
-    const message = DOM.rsvpInlineMessage ? DOM.rsvpInlineMessage.value.trim() : '';
+    const email = DOM.rsvpInlineEmail ? DOM.rsvpInlineEmail.value.trim() : '';
+    const message = attendance === 'Yes' 
+      ? (DOM.rsvpInlineMessage ? DOM.rsvpInlineMessage.value.trim() : '')
+      : (DOM.rsvpInlineWish ? DOM.rsvpInlineWish.value.trim() : '');
     const guestName = STATE.guestName || 'Name';
 
     const payload = {
       timestamp: new Date().toISOString(),
       guestName: guestName,
       attendance: attendance,
+      email: email,
       message: message,
       sourceUrl: window.location.href
     };
 
+    // Ghi nhận đã trả lời RSVP để cho phép chuyển sang trang tiếp theo
+    STATE.hasSubmittedRsvp = true;
+
     // Save to LocalStorage
     try {
+      localStorage.setItem('graduation_rsvp_submitted', 'true');
       localStorage.setItem('graduation_rsvp_data', JSON.stringify(payload));
     } catch (err) {
       console.warn(err);
@@ -968,7 +1083,13 @@
 
   function checkStoredRsvp() {
     try {
+      const isSubmitted = localStorage.getItem('graduation_rsvp_submitted');
       const stored = localStorage.getItem('graduation_rsvp_data');
+
+      if (isSubmitted === 'true' || stored) {
+        STATE.hasSubmittedRsvp = true;
+      }
+
       if (stored) {
         const data = JSON.parse(stored);
         STATE.selectedAttendance = data.attendance;
@@ -987,6 +1108,20 @@
             DOM.rsvpFeedbackMsg.innerHTML = `Thank you so much${nameDisp}! Hope to see you on another lovely occasion! 🤍`;
           }
         }
+      }
+
+      // Kiểm tra trạng thái RSVP từ Google Sheets nếu có cấu hình webhook
+      if (CONFIG.googleSheetScriptUrl && CONFIG.googleSheetScriptUrl.startsWith('http')) {
+        const guestQuery = encodeURIComponent(STATE.guestName || '');
+        fetch(`${CONFIG.googleSheetScriptUrl}?action=check&guest=${guestQuery}`)
+          .then(res => res.json())
+          .then(result => {
+            if (result && result.hasRsvp) {
+              STATE.hasSubmittedRsvp = true;
+              localStorage.setItem('graduation_rsvp_submitted', 'true');
+            }
+          })
+          .catch(() => {});
       }
     } catch (e) {}
   }

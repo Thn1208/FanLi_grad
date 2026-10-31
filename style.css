@@ -149,23 +149,30 @@ html, body {
 }
 
 @media (min-width: 600px) {
+  body {
+    background-color: #0b0a09;
+  }
+  .mobile-frame-wrapper {
+    background-color: transparent;
+  }
   .story-container {
     border-radius: 40px;
     box-shadow: 
       0 25px 70px -15px rgba(0, 0, 0, 0.95),
-      0 0 0 1px rgba(255, 255, 255, 0.1),
-      0 0 50px rgba(255, 255, 255, 0.05);
+      0 0 0 1px rgba(255, 255, 255, 0.12),
+      0 0 60px rgba(0, 0, 0, 0.85);
   }
 }
 
 /* --------------------------------------------------------------------------
    NAVIGATION GUIDANCE BUTTONS (Previous / Next chevrons centered vertically on sides)
+   Ẩn mặc định, chỉ hiện chớp nhoáng lúc đầu hoặc khi user chạm/rê chuột vào
    -------------------------------------------------------------------------- */
 .story-nav-bar {
   position: absolute;
   top: 50%;
-  left: 6px;
-  right: 6px;
+  left: 2px;
+  right: 2px;
   transform: translateY(-50%);
   display: flex;
   justify-content: space-between;
@@ -175,15 +182,15 @@ html, body {
 }
 
 .btn-story-nav {
-  width: 28px;
-  height: 48px;
+  width: 44px;
+  height: 80px;
   background: transparent;
   border: none;
   box-shadow: none;
   border-radius: 0;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.72);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,12 +198,24 @@ html, body {
   pointer-events: auto;
   padding: 0;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 2px rgba(0, 0, 0, 0.95));
-  transition: opacity 0.3s ease, transform 0.2s ease, color 0.2s ease;
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.4s ease, transform 0.25s ease, color 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-story-nav.nav-visible,
+.btn-story-nav:hover,
+.btn-story-nav:focus-visible {
+  opacity: 0.85;
+  transform: scale(1);
 }
 
 .btn-story-nav:hover {
-  color: rgba(255, 255, 255, 0.95);
-  transform: scale(1.18);
+  opacity: 1;
+  color: rgba(255, 255, 255, 0.98);
+  transform: scale(1.15);
 }
 
 .btn-story-nav:active {
@@ -204,16 +223,14 @@ html, body {
 }
 
 .btn-story-nav svg {
-  width: 22px;
-  height: 32px;
+  width: 24px;
+  height: 36px;
   stroke: currentColor;
-  stroke-width: 2.4;
+  stroke-width: 2.5;
 }
 
 .btn-story-nav.hidden-nav {
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.7);
+  display: none !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -280,6 +297,37 @@ html, body {
   opacity: 1;
   filter: none;
   transform: none;
+}
+
+/* Dòng chữ gợi ý chạm màn hình sau 3s (nằm dưới nơ, không đè lên nơ) */
+.intro-tap-hint {
+  position: absolute;
+  bottom: 48px;
+  top: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-size: 11.5pt;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 1.2s ease-out, filter 1.2s ease-out;
+}
+
+.intro-tap-hint.revealed {
+  opacity: 0.72;
+  filter: blur(0px);
+  animation: introHintBreathe 3s 1.2s infinite ease-in-out;
+}
+
+@keyframes introHintBreathe {
+  0%, 100% { opacity: 0.72; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.38; transform: translateX(-50%) scale(0.98); }
 }
 
 /* --------------------------------------------------------------------------
@@ -366,11 +414,88 @@ html, body {
   pointer-events: none;
 }
 
+/* Hiệu ứng ngôi sao lấp lánh nhẹ nhàng, chuyển đậm nhạt từ từ, êm dịu */
+@keyframes starSlowTwinkle {
+  0%, 100% {
+    opacity: 0.98;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6)) brightness(1.05);
+  }
+  50% {
+    opacity: 0.38;
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.15)) brightness(0.82);
+  }
+}
+
 .cover-star-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
+  animation: starSlowTwinkle 5.5s infinite ease-in-out;
+}
+
+.invite-star-img {
+  animation: starSlowTwinkle 5.5s 0.8s infinite ease-in-out;
+}
+
+.ceremony-star-img {
+  animation: starSlowTwinkle 5.5s infinite ease-in-out;
+}
+
+.rsvp-star-img {
+  animation: starSlowTwinkle 5.5s infinite ease-in-out;
+}
+
+.thankyou-star-img {
+  animation: starSlowTwinkle 5.5s 1.2s infinite ease-in-out;
+}
+
+/* Hiệu ứng 4 ngôi sao ở A journey phát sáng lần lượt theo thứ tự từ trên xuống dưới */
+@keyframes starJourneySequential {
+  0% {
+    opacity: 1;
+    filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.85)) brightness(1.18);
+  }
+  16% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7)) brightness(1.1);
+  }
+  30% {
+    opacity: 0.38;
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.15)) brightness(0.82);
+  }
+  75% {
+    opacity: 0.38;
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.15)) brightness(0.82);
+  }
+  90% {
+    opacity: 0.65;
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.35)) brightness(0.95);
+  }
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.85)) brightness(1.18);
+  }
+}
+
+.milestone-item:nth-child(1) .milestone-star-img,
+.milestone-item[data-step="1"] .milestone-star-img {
+  animation: starJourneySequential 5.2s 0s infinite ease-in-out;
+}
+
+.milestone-item:nth-child(2) .milestone-star-img,
+.milestone-item[data-step="2"] .milestone-star-img {
+  animation: starJourneySequential 5.2s -3.9s infinite ease-in-out;
+}
+
+.milestone-item:nth-child(3) .milestone-star-img,
+.milestone-item[data-step="3"] .milestone-star-img {
+  animation: starJourneySequential 5.2s -2.6s infinite ease-in-out;
+}
+
+.milestone-item:nth-child(4) .milestone-star-img,
+.milestone-item[data-step="4"] .milestone-star-img {
+  animation: starJourneySequential 5.2s -1.3s infinite ease-in-out;
 }
 
 .slide-cover.active .cover-star-sparkle {
@@ -652,12 +777,12 @@ html, body {
   pointer-events: none;
 }
 
-/* Hiệu ứng mờ khi xuất hiện tầm 3.2s */
+/* Hiệu ứng mờ khi xuất hiện nhanh hơn và mượt mà (~1.4s) */
 .invite-line {
   opacity: 0;
   filter: blur(14px);
   transform: translateY(6px);
-  transition: opacity 3.2s var(--ease-cinematic), filter 3.2s ease-out, transform 3.2s var(--ease-cinematic);
+  transition: opacity 1.4s var(--ease-cinematic), filter 1.4s ease-out, transform 1.4s var(--ease-cinematic);
   will-change: opacity, filter, transform;
 }
 
@@ -1010,7 +1135,7 @@ html, body {
   letter-spacing: 0.02em;
 }
 
-/* FPT University HCMC (Cardo Regular 13.9pt), Hall A, Campus (Cardo Regular 15.9pt) */
+/* FPT University HCMC (Cardo Regular 13.9pt) + Underlined '>>> Google maps' Link */
 .ceremony-venue {
   position: absolute;
   top: 59.2%;
@@ -1029,54 +1154,43 @@ html, body {
   white-space: nowrap;
 }
 
-.venue-hall {
-  font-family: var(--font-cardo);
-  font-weight: 400;
-  font-size: 15.9pt;
-  color: #2a2927;
-  line-height: 1.35;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.venue-maps-row {
+  margin-top: 6px;
+  pointer-events: auto;
 }
 
-/* Icon đường đi Google Maps: nằm cùng dòng với Hall A, Campus */
-.venue-directions-btn {
+.venue-maps-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(43, 42, 40, 0.08);
-  border: 1px solid rgba(43, 42, 40, 0.22);
-  color: #2a2927;
+  gap: 6px;
+  font-family: var(--font-cardo);
+  font-size: 13.5pt;
+  color: #2a2825;
+  text-decoration: none;
   cursor: pointer;
   pointer-events: auto;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  flex-shrink: 0;
-  padding: 0;
-  outline: none;
+  user-select: none;
   -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
 
-.venue-directions-btn:hover {
-  background: rgba(43, 42, 40, 0.16);
-  border-color: #1e1d1b;
-  transform: scale(1.12);
+.venue-maps-link:hover {
   color: #000000;
+  opacity: 0.85;
+  text-decoration: none;
 }
 
-.venue-directions-btn:active {
-  transform: scale(0.92);
+.maps-chevrons {
+  font-family: var(--font-playfair);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  color: #8b3a2b;
+  display: inline-block;
+  text-decoration: none !important;
 }
 
-.venue-directions-svg {
-  width: 14px;
-  height: 14px;
-  display: block;
+.maps-text {
+  text-decoration: none;
 }
 
 /* Date/Time link trigger */
@@ -1228,14 +1342,16 @@ html, body {
 .rsvp-divider-line {
   width: 92px;
   height: 1.5px;
-  background: linear-gradient(90deg, #2b2a28 0%, rgba(43, 42, 40, 0.25) 100%);
+  background: linear-gradient(90deg, rgba(43, 40, 37, 0.45) 0%, rgba(43, 40, 37, 0.15) 80%, transparent 100%);
   transform-origin: left center;
   transform: scaleX(0);
-  transition: transform 2.8s var(--ease-cinematic);
+  opacity: 0;
+  transition: transform 2.8s var(--ease-cinematic), opacity 2.8s ease-out;
 }
 
 .slide-rsvp.active .rsvp-divider-line {
   transform: scaleX(1);
+  opacity: 0.42;
 }
 
 /* Yes / No Choice Buttons: Playfair Display Regular 12.9pt, NO underline */
@@ -1312,7 +1428,49 @@ html, body {
 .rsvp-input-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+}
+
+.rsvp-fields-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.rsvp-inline-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(43, 40, 37, 0.22);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: var(--font-playfair);
+  font-size: 11pt;
+  color: #1e1d1b;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.rsvp-inline-input:focus {
+  border-color: #1e1d1b;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.rsvp-inline-input::placeholder {
+  color: rgba(30, 29, 27, 0.45);
+  font-style: italic;
+}
+
+.rsvp-shake {
+  animation: rsvpShakeAnim 0.55s ease-in-out;
+}
+
+@keyframes rsvpShakeAnim {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
 }
 
 .rsvp-inline-textarea {
@@ -1439,12 +1597,12 @@ html, body {
   pointer-events: none;
 }
 
-/* 1. Text lines: Playfair Display Regular 15pt, left-aligned at left 19%, top 39.5% (The/8.png) */
+/* 1. Text lines: Playfair Display Regular 15pt, left-aligned at left 16%, top 38.5% */
 .thankyou-text-box {
   position: absolute;
-  top: 39.5%;
-  left: 19%;
-  right: 14%;
+  top: 38.5%;
+  left: 16%;
+  width: 190px;
   text-align: left;
   opacity: 0;
   filter: blur(12px);
@@ -1469,13 +1627,13 @@ html, body {
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
 }
 
-/* 2. Star: sao.png tại vị trí bên dưới text (tham chiếu chuẩn The/8.png: 46px x 46px, left 16.3%, top 64%) */
+/* 2. Star: sao.png tại vị trí bên dưới text (top 59%, left 16%) */
 .thankyou-star-wrapper {
   position: absolute;
-  top: 64%;
-  left: 16.3%;
-  width: 50px;
-  height:50px;
+  top: 59%;
+  left: 16%;
+  width: 44px;
+  height: 44px;
   opacity: 0;
   filter: blur(8px);
   transform: scale(0.8);
@@ -1496,12 +1654,13 @@ html, body {
   display: block;
 }
 
-/* 3. Signature: sign.png tại vị trí bên dưới sao (left 17.5%, top 76%) với cọ vẽ đường cong */
+/* 3. Signature: sign.png ngang hàng với "thank for being..." (top 37.5%, right 6%, width 135px) */
 .thankyou-sign-wrapper {
   position: absolute;
-  top: 76%;
-  left: 17.5%;
-  width: 140px;
+  top: 37.5%;
+  right: 6%;
+  left: auto;
+  width: 135px;
   height: auto;
   opacity: 0;
   pointer-events: none;
@@ -2038,509 +2197,3 @@ html, body {
   display: none !important;
 }
 
-/* ==========================================================================
-   DESKTOP & LAPTOP RESPONSIVE STYLES (Based on Gra-invitation_lap.mp4 & 1.png-9.png)
-   Base Artboard: 1440px x 900px (16:10 Canva Laptop Design)
-   ========================================================================== */
-@media (min-width: 800px) and (orientation: landscape), (min-width: 1024px) {
-  :root {
-    --desktop-base-w: 1440px;
-    --desktop-base-h: 900px;
-  }
-
-  /* Body & Wrapper full-screen desktop styling */
-  html, body {
-    overflow: hidden;
-    background-color: #1d1a18;
-  }
-
-  .mobile-frame-wrapper {
-    background-color: #1d1a18;
-    transition: background-image 0.8s ease, background-color 0.8s ease;
-  }
-
-  body.slide-theme-mountain .mobile-frame-wrapper {
-    background-image: url('bg_mountain_lap.png');
-    background-size: cover;
-    background-position: center;
-  }
-
-  /* Main Artboard Canvas (1440px x 900px, scaled seamlessly to fit any laptop / desktop display) */
-  .story-container {
-    width: 1440px !important;
-    height: 900px !important;
-    border-radius: 0 !important;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.85) !important;
-  }
-
-  /* Desktop Floating Navigation Arrows (Side controls) */
-  .story-nav-bar {
-    top: 50%;
-    left: 28px;
-    right: 28px;
-    transform: translateY(-50%);
-  }
-
-  .btn-story-nav {
-    width: 48px;
-    height: 48px;
-    background: rgba(29, 26, 24, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-  }
-
-  .btn-story-nav svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  /* ------------------------------------------------------------------------
-     SLIDE 0 (TRANG 1): INTRO BOW (1.png)
-     ------------------------------------------------------------------------ */
-  .slide-intro .intro-bow-wrapper {
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .slide-intro .intro-bow-img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 1440px;
-    height: 900px;
-    object-fit: contain;
-  }
-
-  /* ------------------------------------------------------------------------
-     SLIDE 1 (TRANG 2): COVER (2.png)
-     ------------------------------------------------------------------------ */
-  .slide-cover .cover-ribbon-img,
-  .slide-outro .cover-ribbon-img {
-    position: absolute;
-    top: -460px;
-    left: 410px;
-    width: 620px;
-    height: auto;
-    opacity: 0.41;
-    transform-origin: 50% 50%;
-    transform: rotate(103deg);
-  }
-
-  .slide-cover.active .cover-ribbon-img {
-    animation:
-      coverRibbonZoomInDesktop 1.9s var(--ease-cinematic) forwards,
-      coverRibbonZoomBreatheDesktop 6.5s 1.9s infinite alternate ease-in-out;
-  }
-
-  .slide-outro.active .outro-ribbon-img {
-    animation: coverRibbonZoomDesktop 20s infinite alternate ease-in-out;
-  }
-
-  @keyframes coverRibbonZoomInDesktop {
-    0% {
-      opacity: 0;
-      transform: rotate(103deg) scale(1.15);
-    }
-    100% {
-      opacity: 0.41;
-      transform: rotate(103deg) scale(1);
-    }
-  }
-
-  @keyframes coverRibbonZoomBreatheDesktop {
-    0% {
-      opacity: 0.41;
-      transform: rotate(103deg) scale(1);
-    }
-    100% {
-      opacity: 0.41;
-      transform: rotate(103deg) scale(1.06);
-    }
-  }
-
-  @keyframes coverRibbonZoomDesktop {
-    0% {
-      opacity: 0.41;
-      transform: rotate(103deg) scale(1);
-    }
-    100% {
-      opacity: 0.41;
-      transform: rotate(103deg) scale(1.07);
-    }
-  }
-
-  /* Top Meta on Desktop: Quote on Top-Left, Author on Top-Right */
-  .cover-footer-meta {
-    position: absolute;
-    top: 90px;
-    left: 90px;
-    right: 90px;
-    bottom: auto;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0;
-    text-align: left;
-  }
-
-  .cover-footer-meta .author-quote {
-    order: 1;
-    text-align: left;
-    font-family: var(--font-cardo);
-    font-style: italic;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #c8cad0;
-    margin: 0;
-    max-width: 400px;
-  }
-
-  .cover-footer-meta .author-name {
-    order: 2;
-    text-align: right;
-    font-family: var(--font-cardo);
-    font-style: normal;
-    font-size: 16px;
-    color: #c8cad0;
-    letter-spacing: 0.02em;
-    margin: 0;
-  }
-
-  /* Center Title Group */
-  .cover-title-group {
-    position: absolute;
-    top: 380px;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    width: 750px;
-    padding: 0;
-  }
-
-  .cover-star-sparkle {
-    position: absolute;
-    top: -26px;
-    left: 200px;
-    width: 85px;
-    height: 85px;
-  }
-
-  .cover-lead-the {
-    font-family: var(--font-cardo);
-    font-size: 24px;
-    letter-spacing: 0.18em;
-    margin-bottom: 6px;
-  }
-
-  .cover-heading {
-    font-family: var(--font-cardo);
-    font-size: 62px;
-    line-height: 1.08;
-    letter-spacing: 0.08em;
-  }
-
-  .title-quiet {
-    font-weight: 400;
-  }
-
-  .title-strength {
-    font-weight: 700;
-  }
-
-  .cover-script-subtitle {
-    font-family: var(--font-script);
-    font-size: 46px;
-    margin-top: -6px;
-    margin-left: 20px;
-  }
-
-  /* ------------------------------------------------------------------------
-     SLIDE 2 (TRANG 3): WARM INVITATION (3.png)
-     ------------------------------------------------------------------------ */
-  .slide-invite .invite-content-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 800px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-  }
-
-  .slide-invite .invite-star-sparkle {
-    order: -1;
-    margin-top: 0;
-    margin-bottom: 28px;
-    width: 48px;
-    height: 48px;
-  }
-
-  .slide-invite .invite-line.line-1 {
-    font-size: 32px;
-    line-height: 1.35;
-    letter-spacing: 0.02em;
-  }
-
-  .slide-invite .invite-line.line-2 {
-    font-size: 25px;
-    line-height: 1.4;
-    letter-spacing: 0.02em;
-    margin-top: 14px;
-  }
-
-  /* ------------------------------------------------------------------------
-     SLIDE 3 (TRANG 4): TIMELINE HORIZONTAL (4.png)
-     ------------------------------------------------------------------------ */
-  .slide-timeline .timeline-container {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-  }
-
-  .slide-timeline .timeline-mountain-layer {
-    position: absolute;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 128px;
-    background-image: url('mountain_lap_bottom.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    background-position: bottom center;
-    z-index: 2;
-  }
-
-  .slide-timeline .timeline-mountain-img {
-    display: none;
-  }
-
-  .slide-timeline .timeline-heading {
-    position: absolute;
-    top: 250px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 30px;
-    font-weight: 700;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.35em;
-    z-index: 5;
-    padding: 0;
-  }
-
-  .slide-timeline .timeline-type-line {
-    display: inline-block;
-  }
-
-  .slide-timeline .timeline-track-wrapper {
-    position: absolute;
-    top: 436px;
-    left: 118px;
-    width: 1204px;
-    height: 150px;
-    z-index: 5;
-  }
-
-  .slide-timeline .timeline-vertical-line {
-    position: absolute;
-    left: 0;
-    top: 14px;
-    width: 0%;
-    height: 1.5px;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.70) 75%, rgba(255, 255, 255, 0.52) 100%);
-    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
-    z-index: 1;
-  }
-
-  .slide-timeline .timeline-milestones {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    height: auto;
-  }
-
-  .slide-timeline .milestone-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 220px;
-    margin: 0;
-  }
-
-  .slide-timeline .milestone-star {
-    width: 32px;
-    height: 32px;
-    margin-bottom: 22px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .slide-timeline .milestone-star-img {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: 44px;
-    height: 44px;
-  }
-
-  .slide-timeline .milestone-text {
-    padding-left: 0;
-    text-align: center;
-  }
-
-  .slide-timeline .milestone-title {
-    font-size: 16px;
-    line-height: 1.45;
-    text-align: center;
-  }
-
-  /* ------------------------------------------------------------------------
-     SLIDES 4 & 5 (TRANG 5 & 6): CEREMONY & RSVP CARDS (5.png & 6.png)
-     ------------------------------------------------------------------------ */
-  .slide-ceremony,
-  .slide-rsvp {
-    background-image: url('bg_mountain_lap.png') !important;
-    background-size: cover;
-    background-position: center;
-  }
-
-  .ceremony-container,
-  .rsvp-content-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 444px;
-    height: 684px;
-    background-image: url('thư.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  /* ------------------------------------------------------------------------
-     SLIDE 6 (TRANG 7): THANK YOU & SIGNATURE (7.png)
-     ------------------------------------------------------------------------ */
-  .slide-thankyou {
-    background-image: url('bg_mountain_lap.png') !important;
-    background-size: cover;
-    background-position: center;
-  }
-
-  .thankyou-container {
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .thankyou-star-wrapper {
-    position: static;
-    margin-bottom: 28px;
-    width: 48px;
-    height: 48px;
-    transform: scale(0.85);
-  }
-
-  .thankyou-star-wrapper.revealed {
-    transform: scale(1);
-  }
-
-  .thankyou-text-box {
-    position: static;
-    text-align: center;
-    margin-bottom: 38px;
-    width: 700px;
-    transform: translateY(6px);
-  }
-
-  .thankyou-text-box.revealed {
-    transform: translateY(0);
-  }
-
-  .thankyou-line {
-    font-size: 26px;
-    line-height: 1.55;
-    text-align: center;
-  }
-
-  .thankyou-sign-wrapper {
-    position: static;
-    width: 175px;
-    height: auto;
-    margin-top: 10px;
-  }
-
-  /* ------------------------------------------------------------------------
-     SLIDE 7 (TRANG 8): VIDEO (8.png)
-     ------------------------------------------------------------------------ */
-  .slide-video {
-    background-image: url('bg_mountain_lap.png') !important;
-    background-size: cover;
-    background-position: center;
-  }
-
-  .video-modal-box {
-    max-width: 440px;
-    aspect-ratio: 9 / 16;
-    border-radius: 16px;
-  }
-
-  /* ------------------------------------------------------------------------
-     SLIDE 8 (TRANG 9): OUTRO (9.png)
-     ------------------------------------------------------------------------ */
-  .outro-footer-meta {
-    position: absolute;
-    bottom: 80px;
-    top: auto;
-    left: 0;
-    right: 0;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 0;
-  }
-
-  .outro-thankyou-text {
-    font-size: 32px;
-    font-style: italic;
-    color: rgba(255, 255, 255, 0.85);
-    margin-bottom: 4px;
-  }
-
-  .outro-contact-text {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.65);
-  }
-
-  .replay-story-hotspot {
-    bottom: 26px;
-  }
-}
