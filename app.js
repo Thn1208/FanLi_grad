@@ -13,7 +13,7 @@
   // ========================================================================
   const CONFIG = {
     // Google Apps Script Web App URL to receive RSVPs in Google Sheets
-    googleSheetScriptUrl: "",
+    googleSheetScriptUrl: "https://script.google.com/macros/s/AKfycbxjTIPPNvQzvFMDm-C5YgkkFW4CflvkBw8kHRXWJIF4AhWLhlh_zFT7jtrmds-Qj-dN/exec",
 
     // Default guest name displayed on Slide 4 (Ceremony)
     defaultGuestName: "Ms. Thuy Linh",
