@@ -4,31 +4,19 @@
  * Lễ Tốt Nghiệp: The Quiet Strength — Nguyễn Thị Diễm Phương
  * ============================================================================
  *
- * CÁC CỘT TRONG GOOGLE SHEET CỦA BẠN:
- * Cột A: No.                (Số thứ tự: 1, 2, 3...)
- * Cột B: Name               (Tên khách mời: Minh Tuấn, Thùy Linh,...)
- * Cột C: Time               (Khung giờ mời: 08:00 AM – 11:30 AM)
- * Cột D: Nam/nữ             (Giới tính: Nam / Nữ)
- * Cột E: Status             (Trạng thái: Có tham gia / Không tham gia)
- * Cột F: Note               (Lời nhắn / Lời chúc của khách gửi Phương)
- * Cột G: Email              (Email của khách để tự động gửi thư cảm ơn)
- * Cột H: Link Thiệp Mời     (Đường link thiệp mời cá nhân hóa)
- * Cột I: Thời gian phản hồi (Ngày giờ khách bấm gửi RSVP)
+ * CẤU TRÚC BẢNG TÍNH GOOGLE SHEET KHUYÊN DÙNG (Hàng 1):
+ * Cột A (1): No.                         (Số thứ tự: 1, 2, 3...)
+ * Cột B (2): Name                        (Tên khách mời: Minh Tuấn, Thùy Linh,...)
+ * Cột C (3): Time                        (Khung giờ mời: 08:00 AM – 11:30 AM)
+ * Cột D (4): Nam/nữ                      (Giới tính: Nam / Nữ để thiệp xưng hô Mr./Ms.)
+ * Cột E (5): Status                      (Trạng thái: Có tham gia / Không tham gia)
+ * Cột F (6): Note                        (Ghi chú nội bộ riêng của Phương - KHÔNG BỊ GHI ĐÈ)
+ * Cột G (7): Email                       (Email của khách để tự động gửi thư xác nhận)
+ * Cột H (8): Message                     (Nội dung phản hồi: Lời nhắn khi Yes hoặc Lời chúc khi No)
+ * Cột I (9): Thời gian phản hồi          (Ngày giờ khách bấm gửi RSVP)
  *
- * ============================================================================
- * HƯỚNG DẪN CÀI ĐẶT 4 BƯỚC:
- * 1. Mở file Google Sheet chứa danh sách khách mời của bạn.
- * 2. Vào menu "Tiện ích mở rộng" (Extensions) -> chọn "Apps Script".
- * 3. Xoá hết mã cũ, dán toàn bộ đoạn mã trong file này vào rồi bấm Lưu (Ctrl + S).
- * 4. Bấm nút "Triển khai" (Deploy) ở góc trên bên phải:
- *    - Chọn "Quản lý việc triển khai" hoặc "Tạo mới việc triển khai" (New deployment).
- *    - Chọn loại: "Ứng dụng web" (Web app).
- *    - Mô tả: "RSVP & Auto Email Confirmation".
- *    - Thực thi dưới dạng (Execute as): "Tôi" (Me).
- *    - Ai có quyền truy cập (Who has access): "Bất kỳ ai" (Anyone). -> RẤT QUAN TRỌNG!
- *    - Bấm "Triển khai" (Deploy) -> Cấp quyền cho Google Tài khoản của bạn.
- *    - Sao chép đường link Web App (dạng: https://script.google.com/macros/s/.../exec).
- *    - Dán đường link này vào biến `googleSheetScriptUrl` trong file app.js!
+ * (LƯU Ý: Nếu bạn muốn tách riêng 2 cột: Cột H là "Message (Khi Yes)" và Cột I là "Wish (Khi No)"
+ *  thì script vẫn TỰ ĐỘNG NHẬN DIỆN thông minh theo tên tiêu đề cột mà không lo bị lỗi!)
  * ============================================================================
  */
 
@@ -42,12 +30,215 @@ var EVENT_CONFIG = {
   venueAddress: "Đường D1, Khu Công nghệ cao, P. Long Thạnh Mỹ, TP. Thủ Đức, TP.HCM",
   mapsUrl: "https://maps.app.goo.gl/F1LVCkgJ4KDwRs2bA",
   contactPhone: "0367 989 880",
-  // Link website thiệp mời chính của bạn (thay thế bằng link GitHub Pages thực tế nếu có)
-  websiteUrl: "https://your-domain.github.io/FanLi_grad/"
+  websiteUrl: "https://franynguyen.id.vn/"
 };
 
 // ----------------------------------------------------------------------------
-// 1. XỬ LÝ POST REQUEST: NHẬN RSVP VÀ GỬI EMAIL TỰ ĐỘNG
+// 1. TỰ ĐỘNG TÌM VỊ TRÍ CỘT THEO TÊN TIÊU ĐỀ (DYNAMIC COLUMN MAPPING)
+// ----------------------------------------------------------------------------
+function getSheetColumnIndexes(headers) {
+  var cols = {
+    no: -1,
+    name: -1,
+    time: -1,
+    gender: -1,
+    status: -1,
+    note: -1,
+    email: -1,
+    message: -1,
+    wish: -1,
+    link: -1,
+    timestamp: -1
+  };
+
+  for (var i = 0; i < headers.length; i++) {
+    var h = (headers[i] || "").toString().toLowerCase().trim();
+    if (!h) continue;
+
+    if (h === "no" || h === "no." || h === "stt") {
+      cols.no = i;
+    } else if (h === "name" || h === "tên" || h === "họ và tên" || h === "khách mời") {
+      cols.name = i;
+    } else if (h === "nam/nữ" || h === "nam/nu" || h === "giới tính" || h === "gender" || h === "phái") {
+      cols.gender = i;
+    } else if (h === "status" || h === "trạng thái" || h === "xác nhận" || h === "rsvp") {
+      cols.status = i;
+    } else if (h === "email" || h === "e-mail" || h === "mail") {
+      cols.email = i;
+    } else if (h.indexOf("wish") !== -1 || h.indexOf("lời chúc") !== -1) {
+      cols.wish = i;
+    } else if (h.indexOf("message") !== -1 || h.indexOf("lời nhắn") !== -1 || h.indexOf("phản hồi") !== -1) {
+      cols.message = i;
+    } else if (h === "note" || h === "ghi chú" || h === "notes") {
+      cols.note = i;
+    } else if (h.indexOf("thời gian") !== -1 || h.indexOf("timestamp") !== -1 || h.indexOf("ngày gửi") !== -1) {
+      cols.timestamp = i;
+    } else if (h.indexOf("link") !== -1 || h.indexOf("url") !== -1 || h.indexOf("thiệp") !== -1) {
+      cols.link = i;
+    } else if (h === "time" || h === "giờ" || h === "khung giờ") {
+      cols.time = i;
+    }
+  }
+
+  // Dự phòng mặc định nếu không khớp tiêu đề
+  if (cols.no === -1) cols.no = 0;       // Cột A
+  if (cols.name === -1) cols.name = 1;   // Cột B
+  if (cols.time === -1) cols.time = 2;   // Cột C
+  if (cols.gender === -1) cols.gender = 3; // Cột D
+  if (cols.status === -1) cols.status = 4; // Cột E
+  if (cols.note === -1 && headers.length > 5) cols.note = 5; // Cột F
+
+  return cols;
+}
+
+// ----------------------------------------------------------------------------
+// 2. HÀM TEST GỬI EMAIL NHANH TRỰC TIẾP TRONG APPS SCRIPT
+// ----------------------------------------------------------------------------
+function testSendMail() {
+  var myEmail = Session.getActiveUser().getEmail();
+  Logger.log("Đang gửi email test xác nhận đến: " + myEmail);
+  
+  // Gửi email mẫu xác nhận cho khách
+  sendConfirmationEmail(
+    myEmail,
+    "Diễm Phương (Chủ Tiệc)",
+    "Yes",
+    "Đây là lời nhắn kiểm tra quyền gửi thư tự động từ hệ thống thiệp mời!",
+    EVENT_CONFIG.websiteUrl
+  );
+
+  // Gửi email mẫu thông báo cho chủ tiệc
+  sendHostNotificationEmail(
+    "Diễm Phương (Khách Mẫu)",
+    "Yes",
+    myEmail,
+    "Hẹn gặp Phương tại Lễ tốt nghiệp! Rất hào hứng chờ đợi buổi lễ.",
+    new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
+  );
+
+  Logger.log("Đã gửi cả 2 email test thành công đến: " + myEmail);
+}
+
+// ----------------------------------------------------------------------------
+// 3. XỬ LÝ GET REQUEST: LẤY THÔNG TIN KHÁCH TỪ GOOGLE SHEET VỀ THIỆP MỜI
+// ----------------------------------------------------------------------------
+function doGet(e) {
+  var action = (e && e.parameter && e.parameter.action) || "getGuest";
+
+  if (action === "getGuest" || action === "check") {
+    var guestParam = (e.parameter.name || e.parameter.guest || e.parameter.to || "").trim();
+    var noParam = (e.parameter.no || e.parameter.id || "").trim();
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = sheet.getDataRange().getValues();
+
+    if (data.length <= 1) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        found: false,
+        hasRsvp: false
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var headers = data[0];
+    var cols = getSheetColumnIndexes(headers);
+
+    function cleanName(str) {
+      return (str || "")
+        .toString()
+        .toLowerCase()
+        .replace(/^(mr\.?|ms\.?|miss\.?|mrs\.?|anh|chị|em|bạn)\s+/i, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    var cleanQuery = cleanName(guestParam);
+    var foundGuest = null;
+
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
+      var rowNo = (cols.no !== -1 && row[cols.no] !== undefined) ? row[cols.no].toString().trim() : "";
+      var rowName = (cols.name !== -1 && row[cols.name] !== undefined) ? row[cols.name].toString().trim() : "";
+      var cleanRowName = cleanName(rowName);
+
+      var isMatch = false;
+      if (noParam && rowNo === noParam) {
+        isMatch = true;
+      } else if (cleanQuery && cleanRowName && (cleanRowName === cleanQuery || cleanQuery.indexOf(cleanRowName) !== -1 || cleanRowName.indexOf(cleanQuery) !== -1)) {
+        isMatch = true;
+      }
+
+      if (isMatch) {
+        var statusRaw = cols.status !== -1 ? (row[cols.status] || "").toString().trim() : "";
+        var normalizedStatus = "";
+        if (/yes|có/i.test(statusRaw)) {
+          normalizedStatus = "Yes";
+        } else if (/no|không/i.test(statusRaw)) {
+          normalizedStatus = "No";
+        }
+
+        // Lấy nội dung phản hồi (ưu tiên cột Message hoặc Wish)
+        var msg = "";
+        if (cols.message !== -1 && row[cols.message]) {
+          msg = row[cols.message].toString().trim();
+        } else if (cols.wish !== -1 && row[cols.wish]) {
+          msg = row[cols.wish].toString().trim();
+        } else if (cols.note !== -1 && cols.message === -1 && row[cols.note]) {
+          // Chỉ fallback vào Note nếu sheet chưa có cột Message
+          msg = row[cols.note].toString().trim();
+        }
+
+        var wishVal = (cols.wish !== -1 && row[cols.wish]) ? row[cols.wish].toString().trim() : msg;
+
+        foundGuest = {
+          no: rowNo,
+          name: rowName,
+          time: cols.time !== -1 ? (row[cols.time] || "").toString().trim() : "",
+          gender: cols.gender !== -1 ? (row[cols.gender] || "").toString().trim() : "",
+          status: normalizedStatus, // "Yes", "No", hoặc rỗng
+          rawStatus: statusRaw,
+          email: cols.email !== -1 ? (row[cols.email] || "").toString().trim() : "",
+          message: msg,
+          wish: wishVal,
+          internalNote: cols.note !== -1 ? (row[cols.note] || "").toString().trim() : ""
+        };
+        break;
+      }
+    }
+
+    if (foundGuest) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        found: true,
+        hasRsvp: (foundGuest.status === "Yes" || foundGuest.status === "No"),
+        guest: foundGuest
+      })).setMimeType(ContentService.MimeType.JSON);
+    } else {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        found: false,
+        hasRsvp: false
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  // Test gửi email nhanh từ trình duyệt: ?testEmail=dia_chi_mail@gmail.com
+  if (e && e.parameter && e.parameter.testEmail) {
+    try {
+      sendConfirmationEmail(e.parameter.testEmail, "Khách Quý (Test)", "Yes", "Chúc mừng Phương tốt nghiệp rực rỡ!", EVENT_CONFIG.websiteUrl);
+      return ContentService.createTextOutput("Đã gửi email thử nghiệm thành công đến: " + e.parameter.testEmail);
+    } catch (testErr) {
+      return ContentService.createTextOutput("Lỗi khi test gửi mail: " + testErr.toString());
+    }
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "active",
+    message: "Google Apps Script Web App đang hoạt động tốt cho Lễ tốt nghiệp Diễm Phương!"
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ----------------------------------------------------------------------------
+// 4. XỬ LÝ POST REQUEST: LƯU PHẢN HỒI VÀO SHEET & TỰ ĐỘNG GỬI MAIL
 // ----------------------------------------------------------------------------
 function doPost(e) {
   var lock = LockService.getScriptLock();
@@ -74,7 +265,7 @@ function doPost(e) {
     var message = (payload.message || "").trim();
     var timestamp = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
 
-    // HÀNH ĐỘNG 1: THÊM KHÁCH MỜI MỚI TỪ FORM TẠO LINK (action: "addGuest")
+    // HÀNH ĐỘNG 1: THÊM KHÁCH MỚI TỪ FORM TẠO LINK (NẾU CÓ)
     if (action === "addGuest") {
       var nextNo = sheet.getLastRow();
       sheet.appendRow([
@@ -95,25 +286,52 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // HÀNH ĐỘNG 2: XỬ LÝ PHẢN HỒI RSVP TỪ KHÁCH MỜI (action: "rsvp")
+    // HÀNH ĐỘNG 2: XỬ LÝ PHẢN HỒI RSVP
     var data = sheet.getDataRange().getValues();
+    var headers = data.length > 0 ? data[0] : [];
+    var cols = getSheetColumnIndexes(headers);
+
+    // Tự động bổ sung các cột còn thiếu trên Hàng 1 nếu chưa có
+    var currentHeaderLen = headers.length;
+    var needHeaderUpdate = false;
+
+    if (cols.email === -1) {
+      currentHeaderLen++;
+      sheet.getRange(1, currentHeaderLen).setValue("Email");
+      cols.email = currentHeaderLen - 1;
+      needHeaderUpdate = true;
+    }
+
+    if (cols.message === -1 && cols.wish === -1) {
+      currentHeaderLen++;
+      sheet.getRange(1, currentHeaderLen).setValue("Message (Lời nhắn/Lời chúc)");
+      cols.message = currentHeaderLen - 1;
+      needHeaderUpdate = true;
+    }
+
+    if (cols.timestamp === -1) {
+      currentHeaderLen++;
+      sheet.getRange(1, currentHeaderLen).setValue("Thời gian phản hồi");
+      cols.timestamp = currentHeaderLen - 1;
+      needHeaderUpdate = true;
+    }
+
+    // Tìm dòng tương ứng với tên khách trong cột Name
     var targetRow = -1;
 
-    // Hàm chuẩn hóa tên để so sánh (loại bỏ các tiền tố danh xưng Mr., Ms., Anh, Chị)
     function cleanName(str) {
       return (str || "")
         .toString()
         .toLowerCase()
-        .replace(/^(mr\.?|ms\.?|anh|chị|em|bạn)\s+/i, "")
+        .replace(/^(mr\.?|ms\.?|miss\.?|mrs\.?|anh|chị|em|bạn)\s+/i, "")
         .replace(/\s+/g, " ")
         .trim();
     }
 
     var normalizedGuest = cleanName(guestName);
 
-    // Tìm dòng tương ứng với tên khách trong Cột B (index 1)
     for (var i = 1; i < data.length; i++) {
-      var rowName = cleanName(data[i][1]);
+      var rowName = cleanName(data[i][cols.name]);
       if (rowName && normalizedGuest && (rowName === normalizedGuest || normalizedGuest.indexOf(rowName) !== -1 || rowName.indexOf(normalizedGuest) !== -1)) {
         targetRow = i + 1; // 1-based index trong Google Sheet
         break;
@@ -123,44 +341,82 @@ function doPost(e) {
     var statusText = attendance === "Yes" ? "Có tham gia (Yes)" : "Không thể tham gia (No)";
 
     if (targetRow > 0) {
-      // Cập nhật dòng đã có sẵn trong danh sách
-      sheet.getRange(targetRow, 5).setValue(statusText); // Cột E: Status
-      sheet.getRange(targetRow, 6).setValue(message);    // Cột F: Note / Lời chúc
-      if (email) {
-        sheet.getRange(targetRow, 7).setValue(email);   // Cột G: Email
+      // 1. Cập nhật Trạng thái (Status)
+      if (cols.status !== -1) {
+        sheet.getRange(targetRow, cols.status + 1).setValue(statusText);
       }
-      sheet.getRange(targetRow, 9).setValue(timestamp); // Cột I: Thời gian phản hồi
+
+      // 2. Cập nhật Email (khi có nhập)
+      if (cols.email !== -1 && email) {
+        sheet.getRange(targetRow, cols.email + 1).setValue(email);
+      }
+
+      // 3. Cập nhật Lời nhắn / Lời chúc (Message / Wish)
+      // KHÔNG BAO GIỜ ghi đè lên Cột Note riêng của Phương nếu đã có cột Message/Wish
+      if (attendance === "Yes") {
+        if (cols.message !== -1) {
+          sheet.getRange(targetRow, cols.message + 1).setValue(message);
+        } else if (cols.note !== -1) {
+          sheet.getRange(targetRow, cols.note + 1).setValue(message);
+        }
+      } else {
+        // Khi No: nếu có cột Wish riêng thì ghi vào Wish, nếu không thì ghi vào Message
+        if (cols.wish !== -1) {
+          sheet.getRange(targetRow, cols.wish + 1).setValue(message);
+        } else if (cols.message !== -1) {
+          sheet.getRange(targetRow, cols.message + 1).setValue(message);
+        } else if (cols.note !== -1) {
+          sheet.getRange(targetRow, cols.note + 1).setValue(message);
+        }
+      }
+
+      // 4. Cập nhật Thời gian phản hồi
+      if (cols.timestamp !== -1) {
+        sheet.getRange(targetRow, cols.timestamp + 1).setValue(timestamp);
+      }
+
     } else {
       // Nếu khách chưa có trong danh sách -> Thêm 1 dòng mới vào cuối
       var newNo = sheet.getLastRow();
-      sheet.appendRow([
-        newNo,
-        guestName,
-        EVENT_CONFIG.timeText,
-        "",
-        statusText,
-        message,
-        email,
-        payload.sourceUrl || "",
-        timestamp
-      ]);
+      var newRow = [];
+      var maxCols = Math.max(headers.length, 9);
+      for (var c = 0; c < maxCols; c++) newRow.push("");
+
+      if (cols.no !== -1) newRow[cols.no] = newNo;
+      if (cols.name !== -1) newRow[cols.name] = guestName;
+      if (cols.time !== -1) newRow[cols.time] = EVENT_CONFIG.timeText;
+      if (cols.status !== -1) newRow[cols.status] = statusText;
+      if (cols.email !== -1) newRow[cols.email] = email;
+      if (cols.message !== -1) newRow[cols.message] = message;
+      else if (cols.wish !== -1 && attendance === "No") newRow[cols.wish] = message;
+      if (cols.timestamp !== -1) newRow[cols.timestamp] = timestamp;
+
+      sheet.appendRow(newRow);
     }
 
-    // TỰ ĐỘNG GỬI EMAIL XÁC NHẬN NẾU CÓ ĐỊA CHỈ EMAIL
-    var emailSent = false;
+    // 1. TỰ ĐỘNG GỬI EMAIL XÁC NHẬN CHO KHÁCH (NẾU CÓ EMAIL HỢP LỆ VÀ CHỌN YES)
+    var emailSentToGuest = false;
     if (email && email.indexOf("@") !== -1 && email.indexOf(".") !== -1) {
       try {
         sendConfirmationEmail(email, guestName, attendance, message, payload.sourceUrl);
-        emailSent = true;
+        emailSentToGuest = true;
       } catch (mailError) {
-        console.warn("Lỗi gửi email xác nhận:", mailError);
+        console.warn("Lỗi gửi email xác nhận cho khách:", mailError);
       }
+    }
+
+    // 2. TỰ ĐỘNG GỬI EMAIL THÔNG BÁO VỀ GMAIL CỦA CHỦ TIỆC (DIỄM PHƯƠNG)
+    // Để bạn nhận được thông báo ngay trên điện thoại khi có khách RSVP!
+    try {
+      sendHostNotificationEmail(guestName, attendance, email, message, timestamp);
+    } catch (hostMailErr) {
+      console.warn("Lỗi gửi thông báo cho chủ tiệc:", hostMailErr);
     }
 
     return ContentService.createTextOutput(JSON.stringify({
       status: "success",
       message: "Đã ghi nhận phản hồi RSVP thành công!",
-      emailSent: emailSent
+      emailSent: emailSentToGuest
     })).setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
@@ -175,63 +431,7 @@ function doPost(e) {
 }
 
 // ----------------------------------------------------------------------------
-// 2. XỬ LÝ GET REQUEST: KIỂM TRA TRẠNG THÁI RSVP & TEST EMAIL
-// ----------------------------------------------------------------------------
-function doGet(e) {
-  var action = (e && e.parameter && e.parameter.action) || "";
-
-  // 2.1 Kiểm tra trạng thái đã phản hồi: ?action=check&guest=...
-  if (action === "check") {
-    var guest = (e.parameter.guest || "").trim();
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = sheet.getDataRange().getValues();
-
-    function cleanName(str) {
-      return (str || "").toString().toLowerCase().replace(/^(mr\.?|ms\.?|anh|chị|em|bạn)\s+/i, "").replace(/\s+/g, " ").trim();
-    }
-
-    var normalizedGuest = cleanName(guest);
-    var hasRsvp = false;
-    var recordedStatus = "";
-
-    for (var i = 1; i < data.length; i++) {
-      var rowName = cleanName(data[i][1]);
-      if (rowName && normalizedGuest && (rowName === normalizedGuest || normalizedGuest.indexOf(rowName) !== -1)) {
-        var statusVal = (data[i][4] || "").toString().trim(); // Cột E: Status
-        if (statusVal !== "" && statusVal !== "Chờ phản hồi") {
-          hasRsvp = true;
-          recordedStatus = statusVal;
-          break;
-        }
-      }
-    }
-
-    return ContentService.createTextOutput(JSON.stringify({
-      status: "success",
-      hasRsvp: hasRsvp,
-      recordedStatus: recordedStatus
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // 2.2 Test gửi email nhanh từ trình duyệt: ?testEmail=dia_chi_mail_cua_ban@gmail.com
-  if (e && e.parameter && e.parameter.testEmail) {
-    try {
-      sendConfirmationEmail(e.parameter.testEmail, "Khách Quý (Test)", "Yes", "Chúc mừng Phương tốt nghiệp rực rỡ!", EVENT_CONFIG.websiteUrl);
-      return ContentService.createTextOutput("Đã gửi email thử nghiệm thành công đến: " + e.parameter.testEmail);
-    } catch (testErr) {
-      return ContentService.createTextOutput("Lỗi khi test gửi mail: " + testErr.toString());
-    }
-  }
-
-  // Mặc định: Trả về trạng thái hoạt động của Web App
-  return ContentService.createTextOutput(JSON.stringify({
-    status: "active",
-    message: "Google Apps Script Web App đang hoạt động tốt cho Lễ tốt nghiệp Diễm Phương!"
-  })).setMimeType(ContentService.MimeType.JSON);
-}
-
-// ----------------------------------------------------------------------------
-// 3. HÀM TỰ ĐỘNG GỬI EMAIL XÁC NHẬN VỚI GIAO DIỆN HTML SANG TRỌNG
+// 5. HÀM GỬI EMAIL XÁC NHẬN CHO KHÁCH MỜI
 // ----------------------------------------------------------------------------
 function sendConfirmationEmail(recipientEmail, guestName, attendance, message, cardUrl) {
   var isAttending = attendance === "Yes";
@@ -240,7 +440,6 @@ function sendConfirmationEmail(recipientEmail, guestName, attendance, message, c
     : "[Cảm ơn lời chúc] Lễ tốt nghiệp Diễm Phương — The Quiet Strength 🤍";
 
   var displayCardUrl = cardUrl || EVENT_CONFIG.websiteUrl;
-
   var htmlContent = "";
 
   if (isAttending) {
@@ -328,6 +527,45 @@ function sendConfirmationEmail(recipientEmail, guestName, attendance, message, c
   GmailApp.sendEmail(recipientEmail, subject, "", {
     name: EVENT_CONFIG.hostName + " — Graduation",
     htmlBody: htmlContent
+  });
+}
+
+// ----------------------------------------------------------------------------
+// 6. HÀM GỬI THÔNG BÁO TỨC THÌ ĐẾN GMAIL CỦA CHỦ TIỆC (DIỄM PHƯƠNG)
+// ----------------------------------------------------------------------------
+function sendHostNotificationEmail(guestName, attendance, guestEmail, message, timestamp) {
+  var hostEmail = Session.getActiveUser().getEmail();
+  if (!hostEmail) return;
+
+  var isYes = attendance === "Yes";
+  var subject = isYes
+    ? "🎉 [RSVP MỚI: CÓ THAM GIA] Khách " + guestName + " vừa phản hồi!"
+    : "🤍 [RSVP MỚI: BÁO BẬN] Khách " + guestName + " đã gửi lời chúc!";
+
+  var statusBadge = isYes
+    ? '<span style="display: inline-block; background-color: #2e7d32; color: #ffffff; padding: 4px 12px; border-radius: 12px; font-weight: bold; font-size: 13px;">CÓ THAM GIA (YES)</span>'
+    : '<span style="display: inline-block; background-color: #c62828; color: #ffffff; padding: 4px 12px; border-radius: 12px; font-weight: bold; font-size: 13px;">KHÔNG THAM GIA (NO)</span>';
+
+  var bodyHtml = [
+    '<div style="max-width: 520px; margin: 0 auto; font-family: Arial, sans-serif; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; background-color: #ffffff;">',
+      '<h2 style="margin-top: 0; color: #2a2825; font-size: 18px; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px;">🔔 Thông báo phản hồi thiệp mời tốt nghiệp</h2>',
+      '<p style="margin: 12px 0;">Phương ơi, vừa có khách phản hồi trên thiệp mời của bạn:</p>',
+      '<table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">',
+        '<tr><td style="padding: 8px 0; color: #666; width: 130px;"><strong>Tên khách:</strong></td><td style="padding: 8px 0; font-size: 16px; font-weight: bold; color: #111;">' + escapeHtml(guestName) + '</td></tr>',
+        '<tr><td style="padding: 8px 0; color: #666;"><strong>Trạng thái:</strong></td><td style="padding: 8px 0;">' + statusBadge + '</td></tr>',
+        (guestEmail ? '<tr><td style="padding: 8px 0; color: #666;"><strong>Email của khách:</strong></td><td style="padding: 8px 0; color: #1565c0;">' + escapeHtml(guestEmail) + '</td></tr>' : ''),
+        (message ? '<tr><td style="padding: 8px 0; color: #666; vertical-align: top;"><strong>' + (isYes ? 'Lời nhắn:' : 'Lời chúc:') + '</strong></td><td style="padding: 8px 0; background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-style: italic;">"' + escapeHtml(message) + '"</td></tr>' : ''),
+        '<tr><td style="padding: 8px 0; color: #666;"><strong>Thời gian gửi:</strong></td><td style="padding: 8px 0; color: #888;">' + timestamp + '</td></tr>',
+      '</table>',
+      '<div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid #eee; text-align: center;">',
+        '<a href="https://docs.google.com/spreadsheets/d/' + SpreadsheetApp.getActiveSpreadsheet().getId() + '/edit" target="_blank" style="display: inline-block; background-color: #2a2825; color: #ffffff; text-decoration: none; padding: 10px 18px; border-radius: 4px; font-size: 13px; font-weight: bold;">📊 Mở Google Sheet để xem toàn bộ danh sách</a>',
+      '</div>',
+    '</div>'
+  ].join("");
+
+  GmailApp.sendEmail(hostEmail, subject, "", {
+    name: "Thông báo Thiệp Mời Tốt Nghiệp",
+    htmlBody: bodyHtml
   });
 }
 

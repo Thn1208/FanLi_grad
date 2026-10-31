@@ -13,7 +13,7 @@
   // ========================================================================
   const CONFIG = {
     // Google Apps Script Web App URL to receive RSVPs in Google Sheets
-    googleSheetScriptUrl: "https://script.google.com/macros/s/AKfycbxjTIPPNvQzvFMDm-C5YgkkFW4CflvkBw8kHRXWJIF4AhWLhlh_zFT7jtrmds-Qj-dN/exec",
+    googleSheetScriptUrl: "https://script.google.com/macros/s/AKfycbxJ7CTI30yBxsGxbKOxBvjLvzKHiycBV5weznG15JZYFjghVVaIKP8r8Q2oaW9InqPy/exec",
 
     // Default guest name displayed on Slide 4 (Ceremony)
     defaultGuestName: "Ms. Thuy Linh",
@@ -179,7 +179,7 @@
     updateStoryScale();
     setupGuestPersonalization();
     bindEvents();
-    checkStoredRsvp();
+    fetchGuestDataFromSheet();
     startIntroHintTimer();
     flashNavArrows();
   }
@@ -213,7 +213,7 @@
 
         const cleanName = rawName.trim();
         // Tránh trùng tiền tố nếu tên đã có sẵn
-        if (/^(mr\.?|ms\.?|anh|chị)\s+/i.test(cleanName)) {
+        if (/^(mr\.?|ms\.?|miss\.?|mrs\.?|anh|chị)\s+/i.test(cleanName)) {
           resolvedName = cleanName;
         } else {
           resolvedName = prefix + cleanName;
@@ -1211,6 +1211,7 @@
       attendance: attendance,
       email: email,
       message: message,
+      wish: (attendance === 'No' ? message : ''),
       sourceUrl: window.location.href
     };
 
@@ -1221,13 +1222,11 @@
     STATE.lastSubmittedEmail = email;
     STATE.lastSubmittedMessage = message;
 
-    // Save to LocalStorage
+    // Lưu tạm trong bộ nhớ phiên làm việc hiện tại
     try {
-      localStorage.setItem('graduation_rsvp_submitted', 'true');
-      localStorage.setItem('graduation_rsvp_data', JSON.stringify(payload));
-    } catch (err) {
-      console.warn(err);
-    }
+      localStorage.removeItem('graduation_rsvp_submitted');
+      localStorage.removeItem('graduation_rsvp_data');
+    } catch (err) {}
 
     // Submit to Google Sheets webhook if configured (asynchronous background)
     if (CONFIG.googleSheetScriptUrl && CONFIG.googleSheetScriptUrl.startsWith('http')) {
@@ -1273,52 +1272,104 @@
     }
   }
 
-  function checkStoredRsvp() {
+  // ========================================================================
+  // ĐỒNG BỘ 100% TỪ GOOGLE SHEET (KHÔNG SỬ DỤNG BỘ NHỚ LOCALSTORAGE CỦA USER)
+  // ========================================================================
+  function fetchGuestDataFromSheet() {
+    // Xoá cache LocalStorage cũ để đảm bảo Google Sheet luôn là nguồn dữ liệu chuẩn duy nhất
     try {
-      const isSubmitted = localStorage.getItem('graduation_rsvp_submitted');
-      const stored = localStorage.getItem('graduation_rsvp_data');
-
-      if (isSubmitted === 'true' || stored) {
-        STATE.hasSubmittedRsvp = true;
-      }
-
-      if (stored) {
-        const data = JSON.parse(stored);
-        STATE.selectedAttendance = data.attendance;
-        STATE.lastSubmittedAttendance = data.attendance;
-        STATE.lastSubmittedEmail = data.email || '';
-        STATE.lastSubmittedMessage = data.message || '';
-        if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.toggle('selected', data.attendance === 'Yes');
-        if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.toggle('selected', data.attendance === 'No');
-
-        // Điền sẵn thông tin cũ nếu có để người dùng tiện chỉnh sửa
-        if (data.email && DOM.rsvpInlineEmail) {
-          DOM.rsvpInlineEmail.value = data.email;
-        }
-        if (data.attendance === 'Yes' && data.message && DOM.rsvpInlineMessage) {
-          DOM.rsvpInlineMessage.value = data.message;
-        } else if (data.attendance === 'No' && data.message && DOM.rsvpInlineWish) {
-          DOM.rsvpInlineWish.value = data.message;
-        }
-
-        // Hiển thị trạng thái đã trả lời kèm nút thay đổi, không hiện khung nhập cũ
-        updateRsvpCompletedUI(data.attendance);
-      }
-
-      // Kiểm tra trạng thái RSVP từ Google Sheets nếu có cấu hình webhook
-      if (CONFIG.googleSheetScriptUrl && CONFIG.googleSheetScriptUrl.startsWith('http')) {
-        const guestQuery = encodeURIComponent(STATE.guestName || '');
-        fetch(`${CONFIG.googleSheetScriptUrl}?action=check&guest=${guestQuery}`)
-          .then(res => res.json())
-          .then(result => {
-            if (result && result.hasRsvp) {
-              STATE.hasSubmittedRsvp = true;
-              localStorage.setItem('graduation_rsvp_submitted', 'true');
-            }
-          })
-          .catch(() => {});
-      }
+      localStorage.removeItem('graduation_rsvp_submitted');
+      localStorage.removeItem('graduation_rsvp_data');
     } catch (e) {}
+
+    if (!CONFIG.googleSheetScriptUrl || !CONFIG.googleSheetScriptUrl.startsWith('http')) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const guestParam = params.get('name') || params.get('guest') || params.get('to') || '';
+    const noParam = params.get('no') || params.get('id') || '';
+
+    // Tạo URL tra cứu dữ liệu từ Google Sheet Web App
+    let queryUrl = `${CONFIG.googleSheetScriptUrl}?action=getGuest`;
+    if (noParam) queryUrl += `&no=${encodeURIComponent(noParam)}`;
+    if (guestParam) queryUrl += `&name=${encodeURIComponent(guestParam)}`;
+
+    fetch(queryUrl)
+      .then(res => res.json())
+      .then(result => {
+        if (!result || !result.found || !result.guest) {
+          return;
+        }
+
+        const g = result.guest;
+
+        // 1. Cập nhật Tên & Danh xưng khách mời hiển thị trên Slide 4 từ Google Sheet
+        const urlToParam = params.get('to');
+        if (urlToParam && urlToParam.trim()) {
+          STATE.guestName = urlToParam.trim();
+        } else if (g.name) {
+          let prefix = '';
+          const genderLower = (g.gender || '').toLowerCase().trim();
+          if (genderLower === 'nam' || genderLower === 'male') {
+            prefix = 'Mr. ';
+          } else if (genderLower === 'nữ' || genderLower === 'nu' || genderLower === 'female') {
+            prefix = 'Ms. ';
+          }
+
+          let fullName = g.name.trim();
+          if (!/^(mr\.?|ms\.?|miss\.?|mrs\.?|anh|chị)\s+/i.test(fullName)) {
+            fullName = prefix + fullName;
+          }
+
+          STATE.guestName = fullName;
+          if (DOM.customGuestText) {
+            DOM.customGuestText.innerHTML = `Dear <strong class="guest-name-bold">${escapeHtml(STATE.guestName)}</strong>.`;
+          }
+        }
+
+        // 2. Cập nhật Khung giờ tham dự (Time) từ Google Sheet
+        if (g.time) {
+          const timeEl = document.querySelector('.datetime-time');
+          if (timeEl) {
+            timeEl.textContent = g.time.trim();
+          }
+        }
+
+        // 3. Cập nhật Trạng thái phản hồi RSVP (Response) hoàn toàn từ Google Sheet
+        if (g.status === 'Yes' || g.status === 'No') {
+          STATE.hasSubmittedRsvp = true;
+          STATE.selectedAttendance = g.status;
+          STATE.lastSubmittedAttendance = g.status;
+          STATE.lastSubmittedEmail = g.email || '';
+          STATE.lastSubmittedMessage = g.message || g.wish || g.note || '';
+
+          // Điền dữ liệu từ Sheet vào form chỉnh sửa để khách có thể xem lại/sửa
+          if (DOM.rsvpInlineEmail && g.email) {
+            DOM.rsvpInlineEmail.value = g.email;
+          }
+          if (g.status === 'Yes' && DOM.rsvpInlineMessage && (g.message || g.note)) {
+            DOM.rsvpInlineMessage.value = g.message || g.note;
+          } else if (g.status === 'No' && DOM.rsvpInlineWish && (g.wish || g.message || g.note)) {
+            DOM.rsvpInlineWish.value = g.wish || g.message || g.note;
+          }
+
+          if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.toggle('selected', g.status === 'Yes');
+          if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.toggle('selected', g.status === 'No');
+
+          // Hiển thị trực tiếp màn hình "Your response: Yes/No"
+          updateRsvpCompletedUI(g.status);
+        } else {
+          // Khách chưa phản hồi trong Google Sheet -> Hiển thị câu hỏi Yes / No ban đầu
+          STATE.hasSubmittedRsvp = false;
+          STATE.selectedAttendance = null;
+          STATE.lastSubmittedAttendance = null;
+          resetRsvpToInitial();
+        }
+      })
+      .catch(err => {
+        console.warn('Lỗi kết nối đồng bộ từ Google Sheet:', err);
+      });
   }
 
   // ========================================================================
