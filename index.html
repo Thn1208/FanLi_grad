@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cardo:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Montserrat:wght@400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=38">
+  <link rel="stylesheet" href="style.css?v=42">
 
   <!-- Instant Viewport Scale Calculation to Prevent FOUC -->
   <script>
@@ -276,28 +276,35 @@
                 </button>
               </div>
 
-              <!-- Completed View when user revisits Slide 5: đưa xuống dưới, gạch nối Change response, không cần button -->
-              <div class="rsvp-completed-view hidden" id="rsvpCompletedView">
-                <p class="rsvp-revisit-line">
-                  Your response: <strong class="rsvp-recorded-choice" id="rsvpRecordedChoice">Yes</strong> — <button type="button" class="rsvp-change-link" id="btnRsvpChangeResponse" title="Change your RSVP">Change response</button>
-                </p>
+              <!-- Completed View when user revisits Slide 5: your response: ... [icon edit] Change response (không tạo button) -->
+              <div class="rsvp-completed-view rsvp-line hidden" id="rsvpCompletedView">
+                <p class="rsvp-revisit-line">Your response: <strong class="rsvp-recorded-choice" id="rsvpRecordedChoice">Yes</strong></p>
+                <div class="rsvp-change-action" id="btnRsvpChangeResponse" role="button" tabindex="0" title="Change your response">
+                  <svg class="rsvp-edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  <span class="rsvp-change-text">Change response</span>
+                </div>
               </div>
             </div>
 
             <!-- Interactive Inline Step (Same background, no separate window/modal) -->
             <div class="rsvp-inline-step hidden" id="rsvpInlineStep">
-              <p class="rsvp-step-prompt" id="rsvpStepPrompt">Thank you! Would you like to leave a message for Phuong?</p>
-              
               <div class="rsvp-input-wrapper">
-                <!-- Yes inputs: Gmail + Note/Message -->
+                <!-- Yes inputs: Your Email: [text] + Would you like to... [text] -->
                 <div class="rsvp-fields-group" id="rsvpFieldsYes">
-                  <input type="email" class="rsvp-inline-input" id="rsvpInlineEmail" placeholder="Your Gmail address (required)" autocomplete="email" required>
-                  <textarea class="rsvp-inline-textarea" id="rsvpInlineMessage" rows="2" placeholder="Write your note or message for Phuong... (Optional)"></textarea>
+                  <label class="rsvp-field-label" for="rsvpInlineEmail">Your Email:</label>
+                  <input type="email" class="rsvp-inline-input" id="rsvpInlineEmail" placeholder="Enter your email address (required)" autocomplete="email" required>
+                  
+                  <label class="rsvp-field-label" for="rsvpInlineMessage" style="margin-top: 4px;">Would you like to leave a message for me?</label>
+                  <textarea class="rsvp-inline-textarea" id="rsvpInlineMessage" rows="2" placeholder="Write your note or message for me... (Optional)"></textarea>
                 </div>
 
-                <!-- No input: Wish -->
+                <!-- No input: thank you for letting me know. would you.... [text] -->
                 <div class="rsvp-fields-group hidden" id="rsvpFieldsNo">
-                  <textarea class="rsvp-inline-textarea" id="rsvpInlineWish" rows="3" placeholder="Write your warm wishes for Phuong... (Optional)"></textarea>
+                  <p class="rsvp-field-label rsvp-no-prompt" id="rsvpPromptNo">Thank you for letting me know. Would you like to leave a wish for me?</p>
+                  <textarea class="rsvp-inline-textarea" id="rsvpInlineWish" rows="3" placeholder="Write your warm wishes for me... (Optional)"></textarea>
                 </div>
 
                 <div class="rsvp-btn-actions">
@@ -432,6 +439,6 @@
   <div class="toast-notification" id="toastBox" role="status" aria-live="polite"></div>
 
   <!-- Main JavaScript Logic -->
-  <script src="app.js?v=39"></script>
+  <script src="app.js?v=43"></script>
 </body>
 </html>

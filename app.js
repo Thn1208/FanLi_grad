@@ -83,6 +83,7 @@
     rsvpInlineEmail: document.getElementById('rsvpInlineEmail'),
     rsvpInlineMessage: document.getElementById('rsvpInlineMessage'),
     rsvpInlineWish: document.getElementById('rsvpInlineWish'),
+    rsvpPromptNo: document.getElementById('rsvpPromptNo'),
     btnRsvpInlineSubmit: document.getElementById('btnRsvpInlineSubmit'),
     rsvpInlineFeedback: document.getElementById('rsvpInlineFeedback'),
     rsvpFeedbackMsg: document.getElementById('rsvpFeedbackMsg'),
@@ -126,6 +127,10 @@
     guestName: CONFIG.defaultGuestName,
     selectedAttendance: "Yes",
     hasSubmittedRsvp: false,
+    lastSubmittedAttendance: null,
+    lastSubmittedEmail: '',
+    lastSubmittedMessage: '',
+    isEditingRsvp: false,
     touchStartX: 0,
     touchStartY: 0
   };
@@ -650,6 +655,10 @@
         DOM.ceremonyDividerLine.style.animation = '';
       }
     } else if (index === 5) {
+      // Nếu đã từng submit trước đó mà quay lại Slide 5 (hoặc đang edit dở mà bỏ đi), luôn hiển thị Your response
+      if (STATE.hasSubmittedRsvp) {
+        cancelRsvpEdit();
+      }
       // Thanh gạt chậm trên Trang 6
       if (DOM.rsvpDividerLine) {
         DOM.rsvpDividerLine.style.animation = 'none';
@@ -951,7 +960,12 @@
     if (DOM.btnRsvpBack) {
       DOM.btnRsvpBack.addEventListener('click', (e) => {
         e.stopPropagation();
-        resetRsvpToInitial();
+        if (STATE.hasSubmittedRsvp) {
+          // Khi đã có câu trả lời: Bấm Back sẽ quay về câu hỏi Yes / No để user có thể đổi lựa chọn nếu muốn
+          showRsvpChoicesForEdit();
+        } else {
+          resetRsvpToInitial();
+        }
       });
     }
 
@@ -959,11 +973,13 @@
       DOM.btnRsvpChangeResponse.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (DOM.rsvpCompletedView) DOM.rsvpCompletedView.classList.add('hidden');
-        if (DOM.rsvpChoicesGroup) DOM.rsvpChoicesGroup.classList.remove('hidden');
+        STATE.isEditingRsvp = true;
 
-        // Mở thẳng màn hình điều chỉnh tương ứng với lựa chọn hiện tại (Yes hoặc No)
-        const currentChoice = STATE.selectedAttendance || 'Yes';
+        if (DOM.rsvpCompletedView) DOM.rsvpCompletedView.classList.add('hidden');
+        if (DOM.rsvpChoicesGroup) DOM.rsvpChoicesGroup.classList.add('hidden');
+
+        // Mở thẳng màn hình điều chỉnh cho đúng lựa chọn đã phản hồi trước đó (không hiển thị Yes/No)
+        const currentChoice = STATE.lastSubmittedAttendance || STATE.selectedAttendance || 'Yes';
         handleRsvpChoice(currentChoice);
       });
     }
@@ -1019,6 +1035,7 @@
   // 7. INLINE RSVP (NO POPUPS, SAME CARD & FONT, GOOGLE SHEETS)
   // ========================================================================
   function resetRsvpToInitial() {
+    STATE.isEditingRsvp = false;
     if (DOM.rsvpInlineStep) {
       DOM.rsvpInlineStep.classList.remove('revealed');
       DOM.rsvpInlineStep.classList.add('hidden');
@@ -1030,9 +1047,68 @@
     if (DOM.rsvpFlowInitial) {
       DOM.rsvpFlowInitial.classList.remove('hidden-flow');
     }
+    if (DOM.rsvpChoicesGroup) {
+      DOM.rsvpChoicesGroup.classList.remove('hidden');
+    }
+    if (DOM.rsvpCompletedView) {
+      DOM.rsvpCompletedView.classList.add('hidden');
+    }
     if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.remove('selected');
     if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.remove('selected');
     STATE.selectedAttendance = null;
+  }
+
+  function cancelRsvpEdit() {
+    STATE.isEditingRsvp = false;
+    const prevAttendance = STATE.lastSubmittedAttendance || STATE.selectedAttendance || 'Yes';
+    STATE.selectedAttendance = prevAttendance;
+
+    // Khôi phục lại các giá trị input từ bản đã lưu
+    if (DOM.rsvpInlineEmail && STATE.lastSubmittedEmail !== undefined) {
+      DOM.rsvpInlineEmail.value = STATE.lastSubmittedEmail;
+      DOM.rsvpInlineEmail.classList.remove('input-error');
+    }
+    if (DOM.rsvpInlineMessage && STATE.lastSubmittedMessage !== undefined) {
+      DOM.rsvpInlineMessage.value = (prevAttendance === 'Yes' ? STATE.lastSubmittedMessage : '');
+    }
+    if (DOM.rsvpInlineWish && STATE.lastSubmittedMessage !== undefined) {
+      DOM.rsvpInlineWish.value = (prevAttendance === 'No' ? STATE.lastSubmittedMessage : '');
+    }
+
+    // Khôi phục trạng thái Yes/No button
+    if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.toggle('selected', prevAttendance === 'Yes');
+    if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.toggle('selected', prevAttendance === 'No');
+
+    // Cập nhật lại giao diện đã hoàn thành: Your response: Yes/No
+    updateRsvpCompletedUI(prevAttendance);
+  }
+
+  function showRsvpChoicesForEdit() {
+    // Ẩn form nhập chi tiết
+    if (DOM.rsvpInlineStep) {
+      DOM.rsvpInlineStep.classList.remove('revealed');
+      DOM.rsvpInlineStep.classList.add('hidden');
+    }
+    if (DOM.rsvpInlineFeedback) {
+      DOM.rsvpInlineFeedback.classList.remove('revealed');
+      DOM.rsvpInlineFeedback.classList.add('hidden');
+    }
+
+    // Hiển thị lại khối câu hỏi với nút lựa chọn Yes / No
+    if (DOM.rsvpFlowInitial) {
+      DOM.rsvpFlowInitial.classList.remove('hidden-flow');
+    }
+    if (DOM.rsvpChoicesGroup) {
+      DOM.rsvpChoicesGroup.classList.remove('hidden');
+    }
+    if (DOM.rsvpCompletedView) {
+      DOM.rsvpCompletedView.classList.add('hidden');
+    }
+
+    // Đánh dấu nút đã chọn trước đó (để nếu không đổi gì thì mặc định giữ nguyên)
+    const prevAttendance = STATE.lastSubmittedAttendance || STATE.selectedAttendance || 'Yes';
+    if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.toggle('selected', prevAttendance === 'Yes');
+    if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.toggle('selected', prevAttendance === 'No');
   }
 
   function handleRsvpChoice(attendance) {
@@ -1046,7 +1122,7 @@
       DOM.rsvpFlowInitial.classList.add('hidden-flow');
     }
 
-    if (DOM.rsvpInlineStep && DOM.rsvpStepPrompt) {
+    if (DOM.rsvpInlineStep) {
       DOM.rsvpInlineStep.classList.remove('hidden');
       void DOM.rsvpInlineStep.offsetHeight;
       DOM.rsvpInlineStep.classList.add('revealed');
@@ -1055,11 +1131,18 @@
       const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
 
       if (attendance === 'Yes') {
-        // Khi chọn Yes: 1 khung hỏi Gmail, 1 khung hỏi note/message
+        // Khi chọn Yes: hiển thị Your Email: [text] và Would you like to leave a message for me? [text]
         if (DOM.rsvpFieldsYes) DOM.rsvpFieldsYes.classList.remove('hidden');
         if (DOM.rsvpFieldsNo) DOM.rsvpFieldsNo.classList.add('hidden');
 
-        DOM.rsvpStepPrompt.innerHTML = `Thank you${nameDisp}! Looking forward to seeing you at the ceremony. Would you like to leave a message for Phuong?`;
+        // Điền lại email và message đã lưu nếu có
+        if (DOM.rsvpInlineEmail && STATE.lastSubmittedEmail) {
+          DOM.rsvpInlineEmail.value = STATE.lastSubmittedEmail;
+        }
+        if (DOM.rsvpInlineMessage && STATE.lastSubmittedAttendance === 'Yes' && STATE.lastSubmittedMessage) {
+          DOM.rsvpInlineMessage.value = STATE.lastSubmittedMessage;
+        }
+
         if (DOM.btnRsvpInlineSubmit) {
           DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Confirm & Send';
         }
@@ -1067,11 +1150,18 @@
           DOM.rsvpInlineEmail.focus();
         }
       } else {
-        // Khi chọn No: 1 khung gửi wish
+        // Khi chọn No: hiển thị Thank you for letting me know. Would you like to leave a wish for me? [text]
         if (DOM.rsvpFieldsYes) DOM.rsvpFieldsYes.classList.add('hidden');
         if (DOM.rsvpFieldsNo) DOM.rsvpFieldsNo.classList.remove('hidden');
 
-        DOM.rsvpStepPrompt.innerHTML = `So sorry you can't make it${nameDisp}! Would you like to leave a wish for Phuong?`;
+        // Điền lại wish đã lưu nếu lựa chọn trước đó là No
+        if (DOM.rsvpInlineWish && STATE.lastSubmittedAttendance === 'No' && STATE.lastSubmittedMessage) {
+          DOM.rsvpInlineWish.value = STATE.lastSubmittedMessage;
+        }
+
+        if (DOM.rsvpPromptNo) {
+          DOM.rsvpPromptNo.innerHTML = `Thank you${nameDisp} for letting me know. Would you like to leave a wish for me?`;
+        }
         if (DOM.btnRsvpInlineSubmit) {
           DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Send Wishes';
         }
@@ -1126,6 +1216,10 @@
 
     // Ghi nhận đã trả lời RSVP để cho phép chuyển sang trang tiếp theo
     STATE.hasSubmittedRsvp = true;
+    STATE.isEditingRsvp = false;
+    STATE.lastSubmittedAttendance = attendance;
+    STATE.lastSubmittedEmail = email;
+    STATE.lastSubmittedMessage = message;
 
     // Save to LocalStorage
     try {
@@ -1191,6 +1285,9 @@
       if (stored) {
         const data = JSON.parse(stored);
         STATE.selectedAttendance = data.attendance;
+        STATE.lastSubmittedAttendance = data.attendance;
+        STATE.lastSubmittedEmail = data.email || '';
+        STATE.lastSubmittedMessage = data.message || '';
         if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.toggle('selected', data.attendance === 'Yes');
         if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.toggle('selected', data.attendance === 'No');
 
