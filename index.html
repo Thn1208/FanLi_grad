@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cardo:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Montserrat:wght@400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=31">
+  <link rel="stylesheet" href="style.css?v=38">
 
   <!-- Instant Viewport Scale Calculation to Prevent FOUC -->
   <script>
@@ -266,7 +266,7 @@
               </div>
 
               <!-- Yes / No Choice Buttons (No underline, styled as in Canva) -->
-              <div class="rsvp-line rsvp-choices-group">
+              <div class="rsvp-line rsvp-choices-group" id="rsvpChoicesGroup">
                 <button type="button" class="btn-rsvp-opt btn-opt-yes" id="btnRsvpYes" aria-label="Yes - Will join">
                   <span>Yes</span>
                 </button>
@@ -274,6 +274,13 @@
                 <button type="button" class="btn-rsvp-opt btn-opt-no" id="btnRsvpNo" aria-label="No - Cannot join">
                   <span>No</span>
                 </button>
+              </div>
+
+              <!-- Completed View when user revisits Slide 5: đưa xuống dưới, gạch nối Change response, không cần button -->
+              <div class="rsvp-completed-view hidden" id="rsvpCompletedView">
+                <p class="rsvp-revisit-line">
+                  Your response: <strong class="rsvp-recorded-choice" id="rsvpRecordedChoice">Yes</strong> — <button type="button" class="rsvp-change-link" id="btnRsvpChangeResponse" title="Change your RSVP">Change response</button>
+                </p>
               </div>
             </div>
 
@@ -284,7 +291,7 @@
               <div class="rsvp-input-wrapper">
                 <!-- Yes inputs: Gmail + Note/Message -->
                 <div class="rsvp-fields-group" id="rsvpFieldsYes">
-                  <input type="email" class="rsvp-inline-input" id="rsvpInlineEmail" placeholder="Your Gmail address (optional)" autocomplete="email">
+                  <input type="email" class="rsvp-inline-input" id="rsvpInlineEmail" placeholder="Your Gmail address (required)" autocomplete="email" required>
                   <textarea class="rsvp-inline-textarea" id="rsvpInlineMessage" rows="2" placeholder="Write your note or message for Phuong... (Optional)"></textarea>
                 </div>
 
@@ -407,13 +414,12 @@
             </div>
           </div>
 
-          <!-- Subtle Replay Button at the very bottom -->
-          <button type="button" class="replay-story-hotspot" id="btnReplayStory" title="Replay Invitation">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <!-- Replay Story: Chỉ giữ lại ký tự xoay vòng ở phía trên màn hình, không cần button -->
+          <button type="button" class="replay-story-icon" id="btnReplayStory" aria-label="Replay Invitation" title="Replay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="1 4 1 10 7 10"/>
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
             </svg>
-            <span>Replay</span>
           </button>
         </article>
 
@@ -426,6 +432,6 @@
   <div class="toast-notification" id="toastBox" role="status" aria-live="polite"></div>
 
   <!-- Main JavaScript Logic -->
-  <script src="app.js?v=31"></script>
+  <script src="app.js?v=39"></script>
 </body>
 </html>

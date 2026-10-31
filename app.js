@@ -73,6 +73,7 @@
     // Slide 5 (RSVP - thư.png): Yes/No Hotspots, Divider & Inline Step
     btnRsvpYes: document.getElementById('btnRsvpYes'),
     btnRsvpNo: document.getElementById('btnRsvpNo'),
+    rsvpChoicesGroup: document.getElementById('rsvpChoicesGroup'),
     rsvpFlowInitial: document.getElementById('rsvpFlowInitial'),
     rsvpInlineStep: document.getElementById('rsvpInlineStep'),
     rsvpFieldsYes: document.getElementById('rsvpFieldsYes'),
@@ -85,6 +86,9 @@
     btnRsvpInlineSubmit: document.getElementById('btnRsvpInlineSubmit'),
     rsvpInlineFeedback: document.getElementById('rsvpInlineFeedback'),
     rsvpFeedbackMsg: document.getElementById('rsvpFeedbackMsg'),
+    rsvpCompletedView: document.getElementById('rsvpCompletedView'),
+    rsvpRecordedChoice: document.getElementById('rsvpRecordedChoice'),
+    btnRsvpChangeResponse: document.getElementById('btnRsvpChangeResponse'),
     rsvpDividerLine: document.getElementById('rsvpDividerLine'),
 
     // Slide 6 (Thank you - núi2.png): Star, Text Box, Signature
@@ -180,17 +184,56 @@
   // ========================================================================
   function setupGuestPersonalization() {
     const params = new URLSearchParams(window.location.search);
-    const customName = params.get('to') || params.get('name') || params.get('guest');
+    let resolvedName = params.get('to');
 
-    if (customName && customName.trim() !== '') {
-      STATE.guestName = customName.trim();
+    // Nếu không có 'to', tự động nhận diện từ 'name' và 'gender'
+    if (!resolvedName) {
+      const rawName = params.get('name') || params.get('guest') || '';
+      const rawGender = (params.get('gender') || params.get('sex') || params.get('phai') || '').toLowerCase().trim();
+      const style = (params.get('style') || params.get('lang') || '').toLowerCase().trim();
+
+      if (rawName) {
+        let prefix = '';
+        const isMale = rawGender === 'nam' || rawGender === 'male' || rawGender === 'mr' || rawGender === 'anh';
+        const isFemale = rawGender === 'nu' || rawGender === 'nữ' || rawGender === 'female' || rawGender === 'ms' || rawGender === 'chi' || rawGender === 'chị';
+
+        if (style === 'vi' || rawGender === 'anh' || rawGender === 'chi' || rawGender === 'chị') {
+          if (isMale) prefix = 'Anh ';
+          else if (isFemale) prefix = 'Chị ';
+        } else {
+          // Mặc định chuẩn tiếng Anh theo thiệp: Mr. / Ms.
+          if (isMale) prefix = 'Mr. ';
+          else if (isFemale) prefix = 'Ms. ';
+        }
+
+        const cleanName = rawName.trim();
+        // Tránh trùng tiền tố nếu tên đã có sẵn
+        if (/^(mr\.?|ms\.?|anh|chị)\s+/i.test(cleanName)) {
+          resolvedName = cleanName;
+        } else {
+          resolvedName = prefix + cleanName;
+        }
+      }
+    }
+
+    if (resolvedName && resolvedName.trim() !== '') {
+      STATE.guestName = resolvedName.trim();
     } else {
       STATE.guestName = "Name";
     }
 
-    // Hiển thị ở Trang 5: Dear [Name]. (Tên in đậm, toàn dòng in nghiêng)
+    // Hiển thị ở Trang 5 (Slide 4): Dear [Name]. (Tên in đậm, toàn dòng in nghiêng)
     if (DOM.customGuestText) {
       DOM.customGuestText.innerHTML = `Dear <strong class="guest-name-bold">${escapeHtml(STATE.guestName)}</strong>.`;
+    }
+
+    // Tuỳ chỉnh khung giờ nếu URL có tham số ?time=...
+    const customTime = params.get('time');
+    if (customTime && customTime.trim() !== '') {
+      const timeEl = document.querySelector('.datetime-time');
+      if (timeEl) {
+        timeEl.textContent = customTime.trim();
+      }
     }
   }
 
@@ -912,6 +955,35 @@
       });
     }
 
+    if (DOM.btnRsvpChangeResponse) {
+      DOM.btnRsvpChangeResponse.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (DOM.rsvpCompletedView) DOM.rsvpCompletedView.classList.add('hidden');
+        if (DOM.rsvpChoicesGroup) DOM.rsvpChoicesGroup.classList.remove('hidden');
+
+        // Mở thẳng màn hình điều chỉnh tương ứng với lựa chọn hiện tại (Yes hoặc No)
+        const currentChoice = STATE.selectedAttendance || 'Yes';
+        handleRsvpChoice(currentChoice);
+      });
+    }
+
+    if (DOM.rsvpInlineEmail) {
+      DOM.rsvpInlineEmail.addEventListener('input', () => {
+        DOM.rsvpInlineEmail.classList.remove('input-error');
+      });
+      DOM.rsvpInlineEmail.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (DOM.rsvpInlineMessage) {
+            DOM.rsvpInlineMessage.focus();
+          } else {
+            handleInlineRsvpSubmit();
+          }
+        }
+      });
+    }
+
     if (DOM.btnRsvpInlineSubmit) {
       DOM.btnRsvpInlineSubmit.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1018,6 +1090,31 @@
       : (DOM.rsvpInlineWish ? DOM.rsvpInlineWish.value.trim() : '');
     const guestName = STATE.guestName || 'Name';
 
+    // Bắt buộc nhập Email hợp lệ khi chọn Yes (message là optional)
+    if (attendance === 'Yes') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email) {
+        showToast("Please enter your Gmail address to receive confirmation ✨");
+        if (DOM.rsvpInlineEmail) {
+          DOM.rsvpInlineEmail.focus();
+          DOM.rsvpInlineEmail.classList.remove('input-error');
+          void DOM.rsvpInlineEmail.offsetHeight;
+          DOM.rsvpInlineEmail.classList.add('input-error');
+        }
+        return;
+      }
+      if (!emailRegex.test(email)) {
+        showToast("Please enter a valid email address (e.g. name@gmail.com) ✨");
+        if (DOM.rsvpInlineEmail) {
+          DOM.rsvpInlineEmail.focus();
+          DOM.rsvpInlineEmail.classList.remove('input-error');
+          void DOM.rsvpInlineEmail.offsetHeight;
+          DOM.rsvpInlineEmail.classList.add('input-error');
+        }
+        return;
+      }
+    }
+
     const payload = {
       timestamp: new Date().toISOString(),
       guestName: guestName,
@@ -1038,46 +1135,47 @@
       console.warn(err);
     }
 
-    // Submit to Google Sheets webhook if configured
+    // Submit to Google Sheets webhook if configured (asynchronous background)
     if (CONFIG.googleSheetScriptUrl && CONFIG.googleSheetScriptUrl.startsWith('http')) {
       try {
-        await fetch(CONFIG.googleSheetScriptUrl, {
+        payload.action = 'rsvp';
+        fetch(CONFIG.googleSheetScriptUrl, {
           method: 'POST',
           mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
-        });
+        }).catch(err => console.warn(err));
       } catch (networkErr) {
         console.warn('Google Sheet submission warning:', networkErr);
       }
     }
 
-    // Ẩn form nhập và hiển thị lời cảm ơn trang nhã cuối cùng ngay trên nền thiệp
-    if (DOM.rsvpInlineStep) {
-      DOM.rsvpInlineStep.classList.remove('revealed');
-      DOM.rsvpInlineStep.classList.add('hidden');
+    // Cập nhật giao diện Slide 5 sang trạng thái đã ghi nhận (kèm nút Thay đổi câu trả lời)
+    updateRsvpCompletedUI(attendance);
+
+    // Sau khi điền rsvp thì chuyển sang trang sau luôn không cần hiển thị thêm gì cả
+    nextSlide();
+  }
+
+  function updateRsvpCompletedUI(attendance) {
+    if (DOM.rsvpCompletedView) {
+      DOM.rsvpCompletedView.classList.remove('hidden');
     }
-
-    if (DOM.rsvpInlineFeedback && DOM.rsvpFeedbackMsg) {
-      DOM.rsvpInlineFeedback.classList.remove('hidden');
-      void DOM.rsvpInlineFeedback.offsetHeight;
-      DOM.rsvpInlineFeedback.classList.add('revealed');
-
-      const isKnown = STATE.guestName && STATE.guestName !== 'Name';
-      const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
-
-      if (attendance === 'Yes') {
-        DOM.rsvpFeedbackMsg.innerHTML = `Thank you${nameDisp}! Looking forward to celebrating with you at the ceremony! ✨`;
-      } else {
-        DOM.rsvpFeedbackMsg.innerHTML = `Thank you so much${nameDisp}! Hope to see you on another lovely occasion! 🤍`;
-      }
-
-      // Tự động chuyển sang trang tiếp theo sau khi hiển thị lời cảm ơn
-      setTimeout(() => {
-        if (STATE.currentSlideIndex === 5) {
-          nextSlide();
-        }
-      }, 1400);
+    if (DOM.rsvpRecordedChoice) {
+      DOM.rsvpRecordedChoice.textContent = attendance === 'No' ? 'No' : 'Yes';
+    }
+    if (DOM.rsvpChoicesGroup) {
+      DOM.rsvpChoicesGroup.classList.add('hidden');
+    }
+    if (DOM.rsvpFlowInitial) {
+      DOM.rsvpFlowInitial.classList.remove('hidden-flow');
+    }
+    if (DOM.rsvpInlineStep) {
+      DOM.rsvpInlineStep.classList.add('hidden');
+      DOM.rsvpInlineStep.classList.remove('revealed');
+    }
+    if (DOM.rsvpInlineFeedback) {
+      DOM.rsvpInlineFeedback.classList.add('hidden');
     }
   }
 
@@ -1096,18 +1194,18 @@
         if (DOM.btnRsvpYes) DOM.btnRsvpYes.classList.toggle('selected', data.attendance === 'Yes');
         if (DOM.btnRsvpNo) DOM.btnRsvpNo.classList.toggle('selected', data.attendance === 'No');
 
-        if (DOM.rsvpFlowInitial) DOM.rsvpFlowInitial.classList.add('hidden-flow');
-        if (DOM.rsvpInlineFeedback && DOM.rsvpFeedbackMsg) {
-          DOM.rsvpInlineFeedback.classList.remove('hidden');
-          DOM.rsvpInlineFeedback.classList.add('revealed');
-          const isKnown = STATE.guestName && STATE.guestName !== 'Name';
-          const nameDisp = isKnown ? ` <strong>${escapeHtml(STATE.guestName)}</strong>` : '';
-          if (data.attendance === 'Yes') {
-            DOM.rsvpFeedbackMsg.innerHTML = `Thank you${nameDisp}! Looking forward to celebrating with you at the ceremony! ✨`;
-          } else {
-            DOM.rsvpFeedbackMsg.innerHTML = `Thank you so much${nameDisp}! Hope to see you on another lovely occasion! 🤍`;
-          }
+        // Điền sẵn thông tin cũ nếu có để người dùng tiện chỉnh sửa
+        if (data.email && DOM.rsvpInlineEmail) {
+          DOM.rsvpInlineEmail.value = data.email;
         }
+        if (data.attendance === 'Yes' && data.message && DOM.rsvpInlineMessage) {
+          DOM.rsvpInlineMessage.value = data.message;
+        } else if (data.attendance === 'No' && data.message && DOM.rsvpInlineWish) {
+          DOM.rsvpInlineWish.value = data.message;
+        }
+
+        // Hiển thị trạng thái đã trả lời kèm nút thay đổi, không hiện khung nhập cũ
+        updateRsvpCompletedUI(data.attendance);
       }
 
       // Kiểm tra trạng thái RSVP từ Google Sheets nếu có cấu hình webhook

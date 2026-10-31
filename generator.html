@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tạo Link Thiệp Mời Cá Nhân Hoá — The Quiet Strength</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-warm: #f6f3ee;
+      --card-bg: #fdfbf7;
+      --border-color: #e5ded3;
+      --text-main: #242220;
+      --text-muted: #6b6660;
+      --accent-burgundy: #8b3a2b;
+      --accent-gold: #b38b4d;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-cardo: 'Cardo', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-warm);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 32px 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .header-sub {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      margin-bottom: 6px;
+    }
+
+    .header-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .main-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+      padding: 28px 24px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .hint-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px 14px;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus, select:focus {
+      border-color: var(--accent-burgundy);
+      box-shadow: 0 0 0 3px rgba(139, 58, 43, 0.12);
+    }
+
+    .radio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .radio-card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      transition: all 0.2s;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    .radio-card:hover {
+      border-color: var(--accent-gold);
+    }
+
+    .radio-card.active {
+      border-color: var(--accent-burgundy);
+      background: #fbf5f4;
+      color: var(--accent-burgundy);
+      font-weight: 600;
+    }
+
+    .btn-generate {
+      width: 100%;
+      background: var(--accent-burgundy);
+      color: #ffffff;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-generate:hover {
+      background: #732f22;
+    }
+
+    .btn-generate:active {
+      transform: scale(0.99);
+    }
+
+    /* Result Box */
+    .result-section {
+      margin-top: 26px;
+      padding-top: 24px;
+      border-top: 1px dashed var(--border-color);
+      display: none;
+    }
+
+    .result-section.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .preview-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: #f1ebd8;
+      color: #7d6537;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .link-output-box {
+      background: #f6f3eb;
+      border: 1px solid #e2dac9;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: monospace;
+      font-size: 13px;
+      word-break: break-all;
+      color: #38342e;
+      margin-bottom: 12px;
+      user-select: all;
+    }
+
+    .btn-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .btn-action {
+      flex: 1;
+      min-width: 140px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-copy {
+      background: #2a2825;
+      color: #ffffff;
+      border: none;
+    }
+
+    .btn-copy:hover {
+      background: #44403b;
+    }
+
+    .btn-preview {
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-preview:hover {
+      border-color: var(--text-main);
+    }
+
+    /* Message template */
+    .message-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .message-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .btn-copy-msg {
+      background: none;
+      border: 1px solid var(--border-color);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    .btn-copy-msg:hover {
+      background: var(--bg-warm);
+    }
+
+    .message-content {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+      background: #fbf9f5;
+      padding: 12px;
+      border-radius: 6px;
+      white-space: pre-line;
+      border: 1px solid #efeae0;
+    }
+
+    /* Google Sheet Formula Box */
+    .sheet-tip-box {
+      background: #ffffff;
+      border: 1px solid #d9d0c1;
+      border-radius: 10px;
+      padding: 22px;
+    }
+
+    .sheet-tip-title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent-burgundy);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .code-box {
+      background: #252422;
+      color: #d8cbb8;
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      margin: 10px 0;
+      overflow-x: auto;
+      user-select: all;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      background: #2a2825;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <p class="header-sub">The Quiet Strength • Admin Tool</p>
+      <h1>Tạo Link Thiệp Mời Cá Nhân Hoá</h1>
+      <p class="header-desc">Nhập tên khách mời để tạo đường link thiệp và tin nhắn gửi Zalo / Messenger chỉ trong 1 chạm.</p>
+    </header>
+
+    <div class="main-card">
+      <form id="inviteForm" onsubmit="return false;">
+        <!-- Tên khách mời -->
+        <div class="form-group">
+          <label for="guestName">Tên khách mời <span style="color: var(--accent-burgundy)">*</span></label>
+          <input type="text" id="guestName" placeholder="Ví dụ: Minh Tuấn, Thùy Linh, Hoàng Nam..." autocomplete="off" required>
+          <p class="hint-text">Gõ họ và tên hoặc tên gọi thân mật của khách.</p>
+        </div>
+
+        <!-- Giới tính / Danh xưng -->
+        <div class="form-group">
+          <label>Giới tính & Danh xưng xưng hô</label>
+          <div class="radio-grid">
+            <div class="radio-card active" data-gender="nam" data-prefix-en="Mr. " data-prefix-vi="Anh ">
+              <input type="radio" name="gender" value="nam" checked style="display:none;">
+              <span>👨 Nam (Mr. / Anh)</span>
+            </div>
+            <div class="radio-card" data-gender="nu" data-prefix-en="Ms. " data-prefix-vi="Chị ">
+              <input type="radio" name="gender" value="nu" style="display:none;">
+              <span>👩 Nữ (Ms. / Chị)</span>
+            </div>
+            <div class="radio-card" data-gender="none" data-prefix-en="" data-prefix-vi="">
+              <input type="radio" name="gender" value="none" style="display:none;">
+              <span>✨ Bạn bè (Không danh xưng)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kiểu danh xưng hiển thị trên thiệp -->
+        <div class="form-group">
+          <label for="salutationStyle">Phong cách hiển thị trên thiệp (Slide 5)</label>
+          <select id="salutationStyle">
+            <option value="en">Chuẩn quốc tế tiếng Anh: "Dear Mr./Ms. [Tên]." (Đẹp nhất)</option>
+            <option value="vi">Thân mật tiếng Việt: "Dear Anh/Chị [Tên]."</option>
+            <option value="direct">Chỉ dùng tên: "Dear [Tên]."</option>
+          </select>
+        </div>
+
+        <!-- Khung giờ mời -->
+        <div class="form-group">
+          <label for="eventTime">Khung giờ tham dự</label>
+          <input type="text" id="eventTime" value="08:00 AM – 11:30 AM" placeholder="08:00 AM – 11:30 AM">
+          <p class="hint-text">Nếu bạn xếp ca mời riêng cho khách thì chỉnh sửa tại đây.</p>
+        </div>
+
+        <!-- Domain Web Thiệp Mời -->
+        <div class="form-group">
+          <label for="baseDomain">Đường dẫn trang web thiệp mời</label>
+          <input type="text" id="baseDomain" placeholder="https://username.github.io/FanLi_grad/">
+          <p class="hint-text">Tự động điền theo domain hiện tại (bạn có thể thay bằng link GitHub Pages thực tế).</p>
+        </div>
+
+        <!-- Nút Tạo Link -->
+        <button type="button" class="btn-generate" id="btnGenerate">
+          <span>✨ Tạo Đường Link Thiệp Mời</span>
+        </button>
+      </form>
+
+      <!-- Kết Quả -->
+      <div class="result-section" id="resultSection">
+        <span class="preview-badge">Link thiệp mời đã tạo</span>
+        <div class="link-output-box" id="linkOutput"></div>
+
+        <div class="btn-actions">
+          <button type="button" class="btn-action btn-copy" id="btnCopyLink">
+            <span>📋 Sao chép Link</span>
+          </button>
+          <a href="#" target="_blank" class="btn-action btn-preview" id="btnOpenLink">
+            <span>👁️ Mở xem trước thiệp</span>
+          </a>
+        </div>
+
+        <!-- Tin nhắn mẫu gửi kèm -->
+        <div class="message-card">
+          <div class="message-header">
+            <span class="message-title">💬 Tin nhắn mẫu gửi Zalo / Messenger:</span>
+            <button type="button" class="btn-copy-msg" id="btnCopyMsg">📋 Sao chép tin nhắn</button>
+          </div>
+          <div class="message-content" id="messageOutput"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hướng dẫn công thức Google Sheet hàng loạt -->
+    <div class="sheet-tip-box">
+      <h2 class="sheet-tip-title">💡 Cách tạo link hàng loạt cho cả 100 khách trong Google Sheet</h2>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;">
+        Nếu bạn có sẵn danh sách khách mời trong Google Sheet (gồm các cột <code>No. | Name | Time | Nam/nữ | Status | Note</code>), bạn <strong>không cần phải điền form từng người</strong>! Hãy thêm 1 cột <strong>Link Thiệp Mời</strong> (Cột G) và dán công thức bên dưới:
+      </p>
+
+      <p style="font-size: 13px; font-weight: 600; color: #2a2825; margin-bottom: 4px;">Công thức tạo link tự động (Dán vào ô G2 rồi kéo xuống):</p>
+      <div class="code-box" id="formulaBox">=IF(B2="","", "<span class="domain-placeholder">https://your-domain.github.io/FanLi_grad/</span>?to=" &amp; ENCODEURL(IF(REGEXMATCH(LOWER(D2),"nam"), "Mr. ", "Ms. ") &amp; B2) &amp; IF(C2&lt;&gt;"","&amp;time=" &amp; ENCODEURL(C2),""))</div>
+
+      <p style="font-size: 12.5px; color: #6b645b; margin-top: 8px;">
+        👉 Khi bạn gõ tên ai và chọn Nam/Nữ ở Cột B và D, đường link thiệp mời của người đó sẽ <strong>tự động xuất hiện ngay lập tức</strong>!
+      </p>
+    </div>
+  </div>
+
+  <div class="toast" id="toastBox">Đã sao chép vào bộ nhớ tạm!</div>
+
+  <script>
+    // Tự động nhận diện Base URL hiện tại
+    const path = window.location.pathname;
+    const dir = path.substring(0, path.lastIndexOf('/') + 1);
+    const defaultDomain = window.location.origin + dir;
+    const baseDomainInput = document.getElementById('baseDomain');
+    baseDomainInput.value = defaultDomain;
+
+    updateFormulaDomain(defaultDomain);
+
+    baseDomainInput.addEventListener('input', () => {
+      updateFormulaDomain(baseDomainInput.value.trim() || defaultDomain);
+    });
+
+    function updateFormulaDomain(domain) {
+      const placeholder = document.querySelector('.domain-placeholder');
+      if (placeholder) {
+        placeholder.textContent = domain;
+      }
+    }
+
+    // Radio Card Selection
+    const radioCards = document.querySelectorAll('.radio-card');
+    let selectedGender = 'nam';
+
+    radioCards.forEach(card => {
+      card.addEventListener('click', () => {
+        radioCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        selectedGender = card.getAttribute('data-gender');
+      });
+    });
+
+    // Generate Action
+    const btnGenerate = document.getElementById('btnGenerate');
+    const resultSection = document.getElementById('resultSection');
+    const linkOutput = document.getElementById('linkOutput');
+    const btnOpenLink = document.getElementById('btnOpenLink');
+    const messageOutput = document.getElementById('messageOutput');
+
+    btnGenerate.addEventListener('click', generateLink);
+    document.getElementById('guestName').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        generateLink();
+      }
+    });
+
+    function generateLink() {
+      const rawName = document.getElementById('guestName').value.trim();
+      if (!rawName) {
+        showToast('Vui lòng nhập tên khách mời nhé!');
+        document.getElementById('guestName').focus();
+        return;
+      }
+
+      const style = document.getElementById('salutationStyle').value;
+      const eventTime = document.getElementById('eventTime').value.trim();
+      let baseDomain = baseDomainInput.value.trim() || defaultDomain;
+      if (!baseDomain.endsWith('/')) {
+        baseDomain += '/';
+      }
+
+      // Xác định danh xưng
+      let prefix = '';
+      let pronounVi = 'bạn';
+
+      if (style === 'en') {
+        if (selectedGender === 'nam') { prefix = 'Mr. '; pronounVi = 'anh'; }
+        else if (selectedGender === 'nu') { prefix = 'Ms. '; pronounVi = 'chị'; }
+      } else if (style === 'vi') {
+        if (selectedGender === 'nam') { prefix = 'Anh '; pronounVi = 'anh'; }
+        else if (selectedGender === 'nu') { prefix = 'Chị '; pronounVi = 'chị'; }
+      }
+
+      // Tránh lặp nếu tên người dùng gõ đã có sẵn tiền tố
+      let fullName = rawName;
+      if (!/^(mr\.?|ms\.?|anh|chị)\s+/i.test(rawName)) {
+        fullName = prefix + rawName;
+      }
+
+      // Tạo Query Params
+      const url = new URL(baseDomain);
+      url.searchParams.set('to', fullName);
+      if (eventTime && eventTime !== '08:00 AM – 11:30 AM') {
+        url.searchParams.set('time', eventTime);
+      }
+
+      const generatedUrl = url.toString();
+
+      // Hiển thị kết quả
+      linkOutput.textContent = generatedUrl;
+      btnOpenLink.href = generatedUrl;
+
+      // Soạn tin nhắn mẫu
+      const salutationGreeting = pronounVi === 'anh' ? `Thân gửi anh ${rawName}` : (pronounVi === 'chị' ? `Thân gửi chị ${rawName}` : `Thân gửi ${rawName}`);
+      const sampleMsg = `${salutationGreeting},
+
+Phương thân mời ${pronounVi} đến tham dự buổi Lễ tốt nghiệp của Phương vào Chủ Nhật, ngày 08/11/2026 tại Trường Đại học FPT TP.HCM nhé! ✨
+
+${pronounVi.charAt(0).toUpperCase() + pronounVi.slice(1)} mở thiệp mời điện tử tại đây nha:
+${generatedUrl}
+
+Rất mong được đón tiếp và chụp ảnh cùng ${pronounVi} trong ngày này ạ! 🎓🤍`;
+
+      messageOutput.textContent = sampleMsg;
+
+      resultSection.classList.add('show');
+      resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      showToast('Đã tạo link thiệp thành công!');
+    }
+
+    // Sao chép link
+    document.getElementById('btnCopyLink').addEventListener('click', () => {
+      const link = linkOutput.textContent;
+      navigator.clipboard.writeText(link).then(() => {
+        showToast('📋 Đã sao chép đường link!');
+      }).catch(() => {
+        showToast('Sao chép thất bại, bạn hãy chọn và copy thủ công nhé.');
+      });
+    });
+
+    // Sao chép tin nhắn
+    document.getElementById('btnCopyMsg').addEventListener('click', () => {
+      const msg = messageOutput.textContent;
+      navigator.clipboard.writeText(msg).then(() => {
+        showToast('💬 Đã sao chép tin nhắn mẫu!');
+      }).catch(() => {
+        showToast('Sao chép thất bại, bạn hãy chọn và copy thủ công nhé.');
+      });
+    });
+
+    // Toast
+    let toastTimeout;
+    function showToast(text) {
+      const toast = document.getElementById('toastBox');
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
+
