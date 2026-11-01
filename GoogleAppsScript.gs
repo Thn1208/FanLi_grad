@@ -4,7 +4,7 @@
  * Graduation Ceremony: The Quiet Strength — Nguyen Thi Diem Phuong
  * ============================================================================
  *
- * GOOGLE SHEET COLUMNS (Row 1 Headers):
+ * GOOGLE SHEET COLUMNS (Row 1):
  * Col A (1): No.                         (Guest ID / Sequence: 1, 2, 3...)
  * Col B (2): Name                        (Guest Name: Tran Nguyen Phuoc, Nguyen Thanh Phat,...)
  * Col C (3): Time                        (Ceremony Time from Sheet: 10AM, 08:00 AM – 11:30 AM,...)
@@ -12,9 +12,13 @@
  * Col E (5): Status                      (Dropdown: Yes, No, Gửi thư, Email (remind), Email (Thank you))
  * Col F (6): Note                        (Internal note - Protected, never overwritten)
  * Col G (7): Email                       (Guest Email address)
- * Col H (8): Message                     (Guest Message / Warm Wishes)
- * Col I (9): Thời gian phản hồi          (Timestamp of RSVP response)
- * Col J (10): Link                       (Personalized invitation link)
+ * Col H (8): Message                     (Guest Message / Wish slot 1)
+ * Col I (9): Thời gian phản hồi          (Timestamp slot 1)
+ * Col J (10): link                       (Personalized invitation link)
+ *
+ * * TỰ ĐỘNG MỞ RỘNG CỘT LỊCH SỬ PHẢN HỒI (NẾU KHÁCH GỬI THÊM / ĐỔI LỜI NHẮN MỚI):
+ * Col K: Message 2 | Col L: Thời gian phản hồi 2
+ * Col M: Message 3 | Col N: Thời gian phản hồi 3 ...
  * ============================================================================
  */
 
@@ -22,7 +26,7 @@
 var EVENT_CONFIG = {
   hostName: "Nguyen Thi Diem Phuong",
   eventName: "Phuong's Graduation Ceremony — The Quiet Strength",
-  dateText: "Sunday, November 8, 2026 (SUN, NOV 8, 2026)",
+  dateText: "Sunday, November 8, 2026",
   timeText: "08:00 AM – 11:30 AM",
   venueName: "Hall A, FPT University HCMC",
   venueAddress: "D1 High-Tech Park, Long Thanh My, Thu Duc City, HCMC",
@@ -32,7 +36,7 @@ var EVENT_CONFIG = {
 };
 
 // ----------------------------------------------------------------------------
-// 1. DYNAMIC COLUMN MAPPING
+// 1. DYNAMIC COLUMN MAPPING (Hỗ trợ nhiều slot Message & Thời gian phản hồi)
 // ----------------------------------------------------------------------------
 function getSheetColumnIndexes(headers) {
   var cols = {
@@ -43,17 +47,17 @@ function getSheetColumnIndexes(headers) {
     status: -1,
     note: -1,
     email: -1,
-    message: -1,
-    wish: -1,
     link: -1,
-    timestamp: -1
+    msgSlots: {},   // { 1: colIndex, 2: colIndex, ... }
+    timeSlots: {}   // { 1: colIndex, 2: colIndex, ... }
   };
 
   for (var i = 0; i < headers.length; i++) {
-    var h = (headers[i] || "").toString().toLowerCase().trim();
+    var rawH = (headers[i] || "").toString().trim();
+    var h = rawH.toLowerCase();
     if (!h) continue;
 
-    if (h === "no" || h === "no." || h === "stt") {
+    if (h === "no" || h === "no." || h === "stt" || h === "id") {
       cols.no = i;
     } else if (h === "name" || h === "tên" || h === "họ và tên" || h === "khách mời") {
       cols.name = i;
@@ -61,30 +65,41 @@ function getSheetColumnIndexes(headers) {
       cols.gender = i;
     } else if (h === "status" || h === "trạng thái" || h === "xác nhận" || h === "rsvp") {
       cols.status = i;
-    } else if (h === "email" || h === "e-mail" || h === "mail") {
-      cols.email = i;
-    } else if (h.indexOf("wish") !== -1 || h.indexOf("lời chúc") !== -1) {
-      cols.wish = i;
-    } else if (h.indexOf("message") !== -1 || h.indexOf("lời nhắn") !== -1 || h.indexOf("phản hồi") !== -1) {
-      cols.message = i;
     } else if (h === "note" || h === "ghi chú" || h === "notes") {
       cols.note = i;
-    } else if (h.indexOf("thời gian") !== -1 || h.indexOf("timestamp") !== -1 || h.indexOf("ngày gửi") !== -1) {
-      cols.timestamp = i;
-    } else if (h.indexOf("link") !== -1 || h.indexOf("url") !== -1 || h.indexOf("thiệp") !== -1) {
+    } else if (h === "email" || h === "e-mail" || h === "mail") {
+      cols.email = i;
+    } else if (h === "link" || h === "url" || h === "thiệp") {
       cols.link = i;
     } else if (h === "time" || h === "giờ" || h === "khung giờ") {
       cols.time = i;
+    } else {
+      // Nhận diện các cột Message / Lời nhắn / Lời chúc (Message, Message 2, Message 3,...)
+      var mMatch = h.match(/^message\s*(\d+)?$/i) || h.match(/^(?:lời nhắn|lời chúc|phản hồi)\s*(\d+)?$/i);
+      // Nhận diện các cột Thời gian phản hồi (Thời gian phản hồi, Thời gian phản hồi 2,...)
+      var tMatch = h.match(/^(?:thời gian phản hồi|thời gian|timestamp)\s*(\d+)?$/i);
+
+      if (tMatch) {
+        var numT = tMatch[1] ? parseInt(tMatch[1], 10) : 1;
+        cols.timeSlots[numT] = i;
+      } else if (mMatch) {
+        var numM = mMatch[1] ? parseInt(mMatch[1], 10) : 1;
+        cols.msgSlots[numM] = i;
+      }
     }
   }
 
-  // Fallbacks if not detected
-  if (cols.no === -1) cols.no = 0;
-  if (cols.name === -1) cols.name = 1;
-  if (cols.time === -1) cols.time = 2;
-  if (cols.gender === -1) cols.gender = 3;
-  if (cols.status === -1) cols.status = 4;
-  if (cols.note === -1 && headers.length > 5) cols.note = 5;
+  // Fallbacks mặc định nếu bảng chưa có header chuẩn
+  if (cols.no === -1) cols.no = 0;       // Col A
+  if (cols.name === -1) cols.name = 1;   // Col B
+  if (cols.time === -1) cols.time = 2;   // Col C
+  if (cols.gender === -1) cols.gender = 3; // Col D
+  if (cols.status === -1) cols.status = 4; // Col E
+  if (cols.note === -1 && headers.length > 5) cols.note = 5; // Col F
+  if (cols.email === -1 && headers.length > 6) cols.email = 6; // Col G
+  if (cols.msgSlots[1] === undefined && headers.length > 7) cols.msgSlots[1] = 7; // Col H
+  if (cols.timeSlots[1] === undefined && headers.length > 8) cols.timeSlots[1] = 8; // Col I
+  if (cols.link === -1 && headers.length > 9) cols.link = 9; // Col J
 
   return cols;
 }
@@ -100,25 +115,16 @@ function testSendMail() {
     myEmail,
     "Ms. Diem Phuong",
     "Yes",
-    "Looking forward to the graduation ceremony! Congratulations!",
+    "Looking forward to the graduation ceremony. Congratulations!",
     "10:00 AM",
     EVENT_CONFIG.websiteUrl
   );
 
-  sendHostNotificationEmail(
-    "Mr. Tran Nguyen Phuoc",
-    "Yes",
-    myEmail,
-    "Looking forward to celebrating with you!",
-    "10:00 AM",
-    new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })
-  );
-
-  Logger.log("Successfully sent test emails to: " + myEmail);
+  Logger.log("Successfully sent test email without icons to: " + myEmail);
 }
 
 // ----------------------------------------------------------------------------
-// 3. GET REQUEST: FETCH GUEST DATA & RSVP STATUS FROM GOOGLE SHEET
+// 3. GET REQUEST: FETCH GUEST DATA & LATEST RSVP STATUS FROM GOOGLE SHEET
 // ----------------------------------------------------------------------------
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || "getGuest";
@@ -174,27 +180,36 @@ function doGet(e) {
           normalizedStatus = "No";
         }
 
-        var msg = "";
-        if (cols.message !== -1 && row[cols.message]) {
-          msg = row[cols.message].toString().trim();
-        } else if (cols.wish !== -1 && row[cols.wish]) {
-          msg = row[cols.wish].toString().trim();
-        } else if (cols.note !== -1 && cols.message === -1 && row[cols.note]) {
-          msg = row[cols.note].toString().trim();
+        // Tìm lời nhắn mới nhất (quét từ Message, Message 2, Message 3... lấy slot cao nhất có chữ)
+        var latestMsg = "";
+        var latestTimestamp = "";
+        var s = 1;
+        while (cols.msgSlots[s] !== undefined || s <= 10) {
+          var mCol = cols.msgSlots[s];
+          if (mCol !== undefined && mCol < row.length && row[mCol] !== undefined) {
+            var val = row[mCol].toString().trim();
+            if (val) {
+              latestMsg = val;
+              var tCol = cols.timeSlots[s];
+              if (tCol !== undefined && tCol < row.length && row[tCol] !== undefined) {
+                latestTimestamp = row[tCol].toString().trim();
+              }
+            }
+          }
+          s++;
         }
-
-        var wishVal = (cols.wish !== -1 && row[cols.wish]) ? row[cols.wish].toString().trim() : msg;
 
         foundGuest = {
           no: rowNo,
           name: rowName,
           time: cols.time !== -1 ? (row[cols.time] || "").toString().trim() : "",
           gender: cols.gender !== -1 ? (row[cols.gender] || "").toString().trim() : "",
-          status: normalizedStatus, // "Yes", "No", or ""
+          status: normalizedStatus, // "Yes", "No", hoặc rỗng
           rawStatus: statusRaw,
           email: cols.email !== -1 ? (row[cols.email] || "").toString().trim() : "",
-          message: msg,
-          wish: wishVal,
+          message: latestMsg,
+          wish: latestMsg,
+          timestamp: latestTimestamp,
           internalNote: cols.note !== -1 ? (row[cols.note] || "").toString().trim() : ""
         };
         break;
@@ -219,12 +234,12 @@ function doGet(e) {
 
   return ContentService.createTextOutput(JSON.stringify({
     status: "active",
-    message: "Google Apps Script Web App is active for Phuong's Graduation Ceremony!"
+    message: "Google Apps Script Web App is running for Phuong's Graduation Ceremony!"
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
 // ----------------------------------------------------------------------------
-// 4. POST REQUEST: SAVE RSVP TO SHEET & SEND CONFIRMATION EMAIL
+// 4. POST REQUEST: GHI NHẬN RSVP, TỰ ĐỘNG TẠO MESSAGE 2/3 NẾU CÓ THAY ĐỔI
 // ----------------------------------------------------------------------------
 function doPost(e) {
   var lock = LockService.getScriptLock();
@@ -244,7 +259,6 @@ function doPost(e) {
       payload = e.parameter;
     }
 
-    var action = payload.action || "rsvp";
     var payloadNo = (payload.no || payload.id || "").toString().trim();
     var guestName = (payload.guestName || "Name").trim();
     var attendance = payload.attendance || "Yes";
@@ -252,28 +266,9 @@ function doPost(e) {
     var message = (payload.message || "").trim();
     var timestamp = new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" });
 
-    // ACTION: RSVP SUBMISSION
     var data = sheet.getDataRange().getValues();
     var headers = data.length > 0 ? data[0] : [];
     var cols = getSheetColumnIndexes(headers);
-
-    // Ensure Email and Message columns exist
-    var currentHeaderLen = headers.length;
-    if (cols.email === -1) {
-      currentHeaderLen++;
-      sheet.getRange(1, currentHeaderLen).setValue("Email");
-      cols.email = currentHeaderLen - 1;
-    }
-    if (cols.message === -1 && cols.wish === -1) {
-      currentHeaderLen++;
-      sheet.getRange(1, currentHeaderLen).setValue("Message");
-      cols.message = currentHeaderLen - 1;
-    }
-    if (cols.timestamp === -1) {
-      currentHeaderLen++;
-      sheet.getRange(1, currentHeaderLen).setValue("Thời gian phản hồi");
-      cols.timestamp = currentHeaderLen - 1;
-    }
 
     function cleanName(str) {
       return (str || "")
@@ -287,7 +282,7 @@ function doPost(e) {
     var normalizedGuest = cleanName(guestName);
     var targetRow = -1;
 
-    // Search by No. first, then by clean name
+    // Tìm dòng tương ứng theo Số thứ tự (No.) trước, rồi đến Tên
     for (var i = 1; i < data.length; i++) {
       var rowNo = (cols.no !== -1 && data[i][cols.no] !== undefined) ? data[i][cols.no].toString().trim() : "";
       var rowName = (cols.name !== -1 && data[i][cols.name] !== undefined) ? cleanName(data[i][cols.name]) : "";
@@ -300,23 +295,21 @@ function doPost(e) {
       }
 
       if (isMatch) {
-        targetRow = i + 1; // 1-based index in Sheet
+        targetRow = i + 1; // 1-based index trong Sheet
         break;
       }
     }
 
-    // MATCH EXACT DROPDOWN VALUES: "Yes" or "No" (Fixes Data Validation Error!)
     var statusText = attendance === "Yes" ? "Yes" : "No";
     var guestCeremonyTime = EVENT_CONFIG.timeText;
     var guestDisplayFullName = guestName;
 
     if (targetRow > 0) {
-      // Get ceremony time from Sheet
+      // 1. Lấy thông tin từ dòng trên Sheet
       if (cols.time !== -1 && data[targetRow - 1][cols.time]) {
         guestCeremonyTime = data[targetRow - 1][cols.time].toString().trim();
       }
 
-      // Build personalized display name from Sheet (Name + Gender)
       if (cols.name !== -1 && data[targetRow - 1][cols.name]) {
         var baseName = data[targetRow - 1][cols.name].toString().trim();
         var pref = "";
@@ -332,43 +325,75 @@ function doPost(e) {
         }
       }
 
-      // 1. Update Status (Writes "Yes" or "No" to satisfy dropdown validation)
+      // 2. Cập nhật Status ("Yes" hoặc "No" khớp Dropdown E)
       if (cols.status !== -1) {
         sheet.getRange(targetRow, cols.status + 1).setValue(statusText);
       }
 
-      // 2. Update Email
+      // 3. Cập nhật Email (khi có nhập)
       if (cols.email !== -1 && email) {
         sheet.getRange(targetRow, cols.email + 1).setValue(email);
       }
 
-      // 3. Update Message / Wish (Never overwrites Note)
-      if (attendance === "Yes") {
-        if (cols.message !== -1) {
-          sheet.getRange(targetRow, cols.message + 1).setValue(message);
-        } else if (cols.note !== -1) {
-          sheet.getRange(targetRow, cols.note + 1).setValue(message);
+      // 4. Xử lý Lời nhắn (Message) và Thời gian phản hồi theo Slot (Message 1, Message 2, Message 3,...)
+      if (message) {
+        var slot = 1;
+        var targetMsgCol = -1;
+        var targetTimeCol = -1;
+
+        while (true) {
+          var mCol = cols.msgSlots[slot];
+          if (mCol === undefined) {
+            // Cần tạo thêm cột Message N và Thời gian phản hồi N
+            var lastCol = sheet.getLastColumn();
+            var mHeaderName = slot === 1 ? "Message" : "Message " + slot;
+            var tHeaderName = slot === 1 ? "Thời gian phản hồi" : "Thời gian phản hồi " + slot;
+
+            sheet.getRange(1, lastCol + 1).setValue(mHeaderName);
+            sheet.getRange(1, lastCol + 2).setValue(tHeaderName);
+
+            cols.msgSlots[slot] = lastCol;
+            cols.timeSlots[slot] = lastCol + 1;
+
+            targetMsgCol = cols.msgSlots[slot];
+            targetTimeCol = cols.timeSlots[slot];
+            break;
+          }
+
+          var existingVal = (mCol < data[targetRow - 1].length && data[targetRow - 1][mCol] !== undefined)
+            ? data[targetRow - 1][mCol].toString().trim()
+            : "";
+
+          // Nếu ô này còn trống hoặc nội dung mới giống hệt nội dung cũ -> ghi đè vào slot này
+          if (!existingVal || existingVal === message) {
+            targetMsgCol = mCol;
+            targetTimeCol = cols.timeSlots[slot];
+            break;
+          } else {
+            // Khách gửi lời nhắn MỚI KHÁC VỚI LỜI NHẮN TRƯỚC -> chuyển sang slot tiếp theo (Message 2, Message 3,...)
+            slot++;
+          }
+        }
+
+        if (targetMsgCol !== -1) {
+          sheet.getRange(targetRow, targetMsgCol + 1).setValue(message);
+        }
+        if (targetTimeCol !== -1 && targetTimeCol !== undefined) {
+          sheet.getRange(targetRow, targetTimeCol + 1).setValue(timestamp);
         }
       } else {
-        if (cols.wish !== -1) {
-          sheet.getRange(targetRow, cols.wish + 1).setValue(message);
-        } else if (cols.message !== -1) {
-          sheet.getRange(targetRow, cols.message + 1).setValue(message);
-        } else if (cols.note !== -1) {
-          sheet.getRange(targetRow, cols.note + 1).setValue(message);
+        // Nếu không có message (chỉ chọn Yes/No), cập nhật thời gian phản hồi vào slot 1
+        var tCol1 = cols.timeSlots[1];
+        if (tCol1 !== undefined && tCol1 !== -1) {
+          sheet.getRange(targetRow, tCol1 + 1).setValue(timestamp);
         }
-      }
-
-      // 4. Update Timestamp
-      if (cols.timestamp !== -1) {
-        sheet.getRange(targetRow, cols.timestamp + 1).setValue(timestamp);
       }
 
     } else {
-      // Append new row if guest not found
+      // Nếu khách chưa có dòng trong danh sách -> Tạo dòng mới
       var newNo = sheet.getLastRow();
       var newRow = [];
-      var maxCols = Math.max(headers.length, 9);
+      var maxCols = Math.max(headers.length, 10);
       for (var c = 0; c < maxCols; c++) newRow.push("");
 
       if (cols.no !== -1) newRow[cols.no] = newNo;
@@ -376,29 +401,21 @@ function doPost(e) {
       if (cols.time !== -1) newRow[cols.time] = EVENT_CONFIG.timeText;
       if (cols.status !== -1) newRow[cols.status] = statusText;
       if (cols.email !== -1) newRow[cols.email] = email;
-      if (cols.message !== -1) newRow[cols.message] = message;
-      else if (cols.wish !== -1 && attendance === "No") newRow[cols.wish] = message;
-      if (cols.timestamp !== -1) newRow[cols.timestamp] = timestamp;
+      if (cols.msgSlots[1] !== undefined) newRow[cols.msgSlots[1]] = message;
+      if (cols.timeSlots[1] !== undefined) newRow[cols.timeSlots[1]] = timestamp;
 
       sheet.appendRow(newRow);
     }
 
-    // 1. AUTOMATIC EMAIL TO GUEST IN ENGLISH (IF VALID EMAIL AND ATTENDING)
+    // 5. CHỈ GỬI EMAIL KHI ATTENDANCE LÀ "YES" VÀ CÓ EMAIL HỢP LỆ (NO THÌ KHÔNG GỬI EMAIL)
     var emailSentToGuest = false;
-    if (email && email.indexOf("@") !== -1 && email.indexOf(".") !== -1) {
+    if (attendance === "Yes" && email && email.indexOf("@") !== -1 && email.indexOf(".") !== -1) {
       try {
         sendConfirmationEmail(email, guestDisplayFullName, attendance, message, guestCeremonyTime, payload.sourceUrl);
         emailSentToGuest = true;
       } catch (mailError) {
         console.warn("Error sending confirmation email to guest:", mailError);
       }
-    }
-
-    // 2. AUTOMATIC NOTIFICATION EMAIL TO HOST (PHUONG) IN ENGLISH
-    try {
-      sendHostNotificationEmail(guestDisplayFullName, attendance, email, message, guestCeremonyTime, timestamp);
-    } catch (hostMailErr) {
-      console.warn("Error notifying host:", hostMailErr);
     }
 
     return ContentService.createTextOutput(JSON.stringify({
@@ -419,142 +436,70 @@ function doPost(e) {
 }
 
 // ----------------------------------------------------------------------------
-// 5. SEND CONFIRMATION EMAIL TO GUEST (100% ELEGANT ENGLISH)
+// 5. GỬI EMAIL XÁC NHẬN BẰNG TIẾNG ANH (HOÀN TOÀN KHÔNG DÙNG ICON)
 // ----------------------------------------------------------------------------
 function sendConfirmationEmail(recipientEmail, guestName, attendance, message, ceremonyTime, cardUrl) {
-  var isAttending = attendance === "Yes";
-  var subject = isAttending
-    ? "[RSVP Confirmation] The Quiet Strength — Phuong's Graduation Ceremony 🎓"
-    : "[Warm Wishes] The Quiet Strength — Phuong's Graduation Ceremony 🤍";
+  // Chỉ gửi khi attendance là Yes
+  if (attendance !== "Yes") return;
 
+  // Tiêu đề sạch sẽ, trang trọng, không có icon
+  var subject = "[RSVP Confirmation] The Quiet Strength — Phuong's Graduation Ceremony";
   var displayCardUrl = cardUrl || EVENT_CONFIG.websiteUrl;
   var displayTime = ceremonyTime || EVENT_CONFIG.timeText;
-  var htmlContent = "";
 
-  if (isAttending) {
-    // ELEGANT ENGLISH TEMPLATE FOR ATTENDING (YES)
-    htmlContent = [
-      '<div style="max-width: 580px; margin: 0 auto; background-color: #fbf9f5; font-family: \'Playfair Display\', \'Georgia\', \'Times New Roman\', serif; color: #2a2825; border: 1px solid #e7ded0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.06);">',
-        // Banner Header
-        '<div style="background-color: #2a2825; color: #f5efe6; padding: 32px 24px; text-align: center;">',
-          '<p style="margin: 0 0 6px 0; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #c8b79b;">Graduation Ceremony</p>',
-          '<h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 0.04em;">THE QUIET STRENGTH</h1>',
-          '<p style="margin: 8px 0 0 0; font-style: italic; font-size: 14px; color: #e0d5c1;">Nguyen Thi Diem Phuong</p>',
-        '</div>',
-
-        // Body Content
-        '<div style="padding: 32px 28px; line-height: 1.7; font-size: 15px;">',
-          '<p style="font-size: 17px; margin-top: 0;">Dear <strong>' + escapeHtml(guestName) + '</strong>,</p>',
-          '<p>Thank you so much for confirming your attendance at my <strong>Graduation Ceremony</strong>!</p>',
-          '<p>Your presence means a lot to me and will make this milestone even more memorable and joyful. ✨</p>',
-
-          // Event Info Box
-          '<div style="background-color: #ffffff; border-left: 3px solid #8b3a2b; padding: 18px 22px; margin: 24px 0; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">',
-            '<h3 style="margin: 0 0 12px 0; font-size: 16px; color: #8b3a2b; letter-spacing: 0.03em;">CEREMONY DETAILS:</h3>',
-            '<p style="margin: 6px 0;">📅 <strong>Date:</strong> ' + EVENT_CONFIG.dateText + '</p>',
-            '<p style="margin: 6px 0;">⏰ <strong>Time:</strong> ' + escapeHtml(displayTime) + '</p>',
-            '<p style="margin: 6px 0;">📍 <strong>Venue:</strong> ' + EVENT_CONFIG.venueName + '</p>',
-            '<p style="margin: 4px 0 0 24px; font-size: 13px; color: #5a5650;">' + EVENT_CONFIG.venueAddress + '</p>',
-          '</div>',
-
-          (message ? '<div style="margin: 18px 0; padding: 12px 18px; background-color: #f3ede2; border-radius: 6px; font-style: italic; font-size: 14px;"><strong>Your message:</strong> "' + escapeHtml(message) + '"</div>' : ''),
-
-          // Call to action buttons
-          '<div style="text-align: center; margin: 30px 0 16px 0;">',
-            '<a href="' + EVENT_CONFIG.mapsUrl + '" target="_blank" style="display: inline-block; background-color: #8b3a2b; color: #ffffff; text-decoration: none; padding: 11px 22px; border-radius: 4px; font-size: 14px; font-weight: 500; margin-right: 8px; letter-spacing: 0.03em;">📍 View on Google Maps</a>',
-            '<a href="' + displayCardUrl + '" target="_blank" style="display: inline-block; background-color: #e5dbc9; color: #2a2825; text-decoration: none; padding: 11px 22px; border-radius: 4px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em;">💌 View Invitation</a>',
-          '</div>',
-
-          '<p style="text-align: center; font-size: 13px; color: #767067; margin-top: 14px;">(If your schedule changes, you can reopen your invitation link anytime and click <em>Change response</em> to update.)</p>',
-        '</div>',
-
-        // Footer
-        '<div style="background-color: #f3ede2; padding: 20px 28px; text-align: center; font-size: 13px; color: #6b645b; border-top: 1px solid #e7ded0;">',
-          '<p style="margin: 0 0 4px 0;">Looking forward to celebrating with you! 🎓</p>',
-          '<p style="margin: 4px 0; font-weight: bold; color: #2a2825;">Nguyen Thi Diem Phuong</p>',
-          '<p style="margin: 2px 0 0 0; font-size: 12px;">Contact: ' + EVENT_CONFIG.contactPhone + '</p>',
-        '</div>',
-      '</div>'
-    ].join("");
-
-  } else {
-    // ELEGANT ENGLISH TEMPLATE FOR DECLINING (NO)
-    htmlContent = [
-      '<div style="max-width: 580px; margin: 0 auto; background-color: #fbf9f5; font-family: \'Playfair Display\', \'Georgia\', \'Times New Roman\', serif; color: #2a2825; border: 1px solid #e7ded0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.06);">',
-        // Header
-        '<div style="background-color: #2a2825; color: #f5efe6; padding: 28px 24px; text-align: center;">',
-          '<p style="margin: 0 0 6px 0; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #c8b79b;">Graduation Ceremony</p>',
-          '<h1 style="margin: 0; font-size: 22px; font-weight: 600;">THE QUIET STRENGTH</h1>',
-          '<p style="margin: 6px 0 0 0; font-style: italic; font-size: 14px; color: #e0d5c1;">Nguyen Thi Diem Phuong</p>',
-        '</div>',
-
-        // Body
-        '<div style="padding: 32px 28px; line-height: 1.7; font-size: 15px;">',
-          '<p style="font-size: 17px; margin-top: 0;">Dear <strong>' + escapeHtml(guestName) + '</strong>,</p>',
-          '<p>Thank you for letting me know. While I\'m sorry you won\'t be able to make it to the ceremony, I truly appreciate your warm thoughts and kind support.</p>',
-
-          (message ? '<div style="margin: 22px 0; padding: 16px 20px; background-color: #f3ede2; border-left: 3px solid #8b3a2b; border-radius: 4px; font-style: italic; font-size: 14px;"><strong>Your warm wishes:</strong><br>"' + escapeHtml(message) + '"</div>' : ''),
-
-          '<p>Wishing you all the very best, happiness, and continued success. I hope to see you again soon! 🤍</p>',
-
-          '<div style="text-align: center; margin: 24px 0 8px 0;">',
-            '<a href="' + displayCardUrl + '" target="_blank" style="display: inline-block; background-color: #e5dbc9; color: #2a2825; text-decoration: none; padding: 10px 20px; border-radius: 4px; font-size: 14px; font-weight: 500;">💌 Open Invitation Card</a>',
-          '</div>',
-        '</div>',
-
-        // Footer
-        '<div style="background-color: #f3ede2; padding: 18px 28px; text-align: center; font-size: 13px; color: #6b645b; border-top: 1px solid #e7ded0;">',
-          '<p style="margin: 0 0 4px 0; font-weight: bold; color: #2a2825;">Nguyen Thi Diem Phuong</p>',
-          '<p style="margin: 2px 0 0 0; font-size: 12px;">Contact: ' + EVENT_CONFIG.contactPhone + '</p>',
-        '</div>',
-      '</div>'
-    ].join("");
+  var messageBox = "";
+  if (message) {
+    messageBox = '<div style="margin: 18px 0; padding: 12px 18px; background-color: #f3ede2; border-radius: 6px; font-style: italic; font-size: 14px;"><strong>Your message:</strong> "' + escapeHtml(message) + '"</div>';
   }
 
-  // Send via GmailApp
-  GmailApp.sendEmail(recipientEmail, subject, "", {
-    name: EVENT_CONFIG.hostName + " — Graduation",
-    htmlBody: htmlContent
-  });
-}
+  // Template email tiếng Anh sang trọng, chuẩn typography, KHÔNG SỬ DỤNG BẤT KỲ ICON NÀO
+  var htmlContent = [
+    '<div style="max-width: 580px; margin: 0 auto; background-color: #fbf9f5; font-family: \'Playfair Display\', \'Georgia\', \'Times New Roman\', serif; color: #2a2825; border: 1px solid #e7ded0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.06);">',
+      // Header Banner
+      '<div style="background-color: #2a2825; color: #f5efe6; padding: 32px 24px; text-align: center;">',
+        '<p style="margin: 0 0 6px 0; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #c8b79b;">Graduation Ceremony</p>',
+        '<h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 0.04em;">THE QUIET STRENGTH</h1>',
+        '<p style="margin: 8px 0 0 0; font-style: italic; font-size: 14px; color: #e0d5c1;">Nguyen Thi Diem Phuong</p>',
+      '</div>',
 
-// ----------------------------------------------------------------------------
-// 6. SEND INSTANT NOTIFICATION TO HOST (PHUONG) IN ENGLISH
-// ----------------------------------------------------------------------------
-function sendHostNotificationEmail(guestName, attendance, guestEmail, message, ceremonyTime, timestamp) {
-  var hostEmail = Session.getActiveUser().getEmail();
-  if (!hostEmail) return;
+      // Body Content
+      '<div style="padding: 32px 28px; line-height: 1.7; font-size: 15px;">',
+        '<p style="font-size: 17px; margin-top: 0;">Dear <strong>' + escapeHtml(guestName) + '</strong>,</p>',
+        '<p>Thank you so much for confirming your attendance at my <strong>Graduation Ceremony</strong>.</p>',
+        '<p>Your presence means a lot to me and will make this milestone even more memorable and joyful.</p>',
 
-  var isYes = attendance === "Yes";
-  var subject = isYes
-    ? "🎉 [NEW RSVP: ATTENDING] Guest " + guestName + " confirmed attendance!"
-    : "🤍 [NEW RSVP: UNABLE TO ATTEND] Guest " + guestName + " sent warm wishes!";
+        // Event Info Box (Không có icon)
+        '<div style="background-color: #ffffff; border-left: 3px solid #8b3a2b; padding: 18px 22px; margin: 24px 0; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">',
+          '<h3 style="margin: 0 0 12px 0; font-size: 15px; color: #8b3a2b; letter-spacing: 0.03em;">CEREMONY DETAILS:</h3>',
+          '<p style="margin: 6px 0;"><strong>Date:</strong> ' + EVENT_CONFIG.dateText + '</p>',
+          '<p style="margin: 6px 0;"><strong>Time:</strong> ' + escapeHtml(displayTime) + '</p>',
+          '<p style="margin: 6px 0;"><strong>Venue:</strong> ' + EVENT_CONFIG.venueName + '</p>',
+          '<p style="margin: 4px 0 0 0; font-size: 13px; color: #5a5650;">Address: ' + EVENT_CONFIG.venueAddress + '</p>',
+        '</div>',
 
-  var statusBadge = isYes
-    ? '<span style="display: inline-block; background-color: #2e7d32; color: #ffffff; padding: 4px 12px; border-radius: 12px; font-weight: bold; font-size: 13px;">ATTENDING (YES)</span>'
-    : '<span style="display: inline-block; background-color: #c62828; color: #ffffff; padding: 4px 12px; border-radius: 12px; font-weight: bold; font-size: 13px;">UNABLE TO ATTEND (NO)</span>';
+        messageBox,
 
-  var bodyHtml = [
-    '<div style="max-width: 520px; margin: 0 auto; font-family: Arial, sans-serif; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; background-color: #ffffff;">',
-      '<h2 style="margin-top: 0; color: #2a2825; font-size: 18px; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px;">🔔 Graduation Invitation RSVP Update</h2>',
-      '<p style="margin: 12px 0;">Phuong, a guest has just submitted their RSVP response:</p>',
-      '<table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">',
-        '<tr><td style="padding: 8px 0; color: #666; width: 140px;"><strong>Guest Name:</strong></td><td style="padding: 8px 0; font-size: 16px; font-weight: bold; color: #111;">' + escapeHtml(guestName) + '</td></tr>',
-        '<tr><td style="padding: 8px 0; color: #666;"><strong>Response:</strong></td><td style="padding: 8px 0;">' + statusBadge + '</td></tr>',
-        '<tr><td style="padding: 8px 0; color: #666;"><strong>Ceremony Time:</strong></td><td style="padding: 8px 0; color: #111;">' + escapeHtml(ceremonyTime || "08:00 AM – 11:30 AM") + '</td></tr>',
-        (guestEmail ? '<tr><td style="padding: 8px 0; color: #666;"><strong>Guest Email:</strong></td><td style="padding: 8px 0; color: #1565c0;">' + escapeHtml(guestEmail) + '</td></tr>' : ''),
-        (message ? '<tr><td style="padding: 8px 0; color: #666; vertical-align: top;"><strong>' + (isYes ? 'Message:' : 'Wishes:') + '</strong></td><td style="padding: 8px 0; background-color: #f9f9f9; padding: 10px; border-radius: 4px; font-style: italic;">"' + escapeHtml(message) + '"</td></tr>' : ''),
-        '<tr><td style="padding: 8px 0; color: #666;"><strong>Submitted At:</strong></td><td style="padding: 8px 0; color: #888;">' + timestamp + '</td></tr>',
-      '</table>',
-      '<div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid #eee; text-align: center;">',
-        '<a href="https://docs.google.com/spreadsheets/d/' + SpreadsheetApp.getActiveSpreadsheet().getId() + '/edit" target="_blank" style="display: inline-block; background-color: #2a2825; color: #ffffff; text-decoration: none; padding: 10px 18px; border-radius: 4px; font-size: 13px; font-weight: bold;">📊 Open Google Sheet Guest List</a>',
+        // Call to action buttons (Không có icon)
+        '<div style="text-align: center; margin: 30px 0 16px 0;">',
+          '<a href="' + EVENT_CONFIG.mapsUrl + '" target="_blank" style="display: inline-block; background-color: #8b3a2b; color: #ffffff; text-decoration: none; padding: 11px 22px; border-radius: 4px; font-size: 14px; font-weight: 500; margin-right: 8px; letter-spacing: 0.03em;">View on Google Maps</a>',
+          '<a href="' + displayCardUrl + '" target="_blank" style="display: inline-block; background-color: #e5dbc9; color: #2a2825; text-decoration: none; padding: 11px 22px; border-radius: 4px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em;">View Invitation Card</a>',
+        '</div>',
+
+        '<p style="text-align: center; font-size: 13px; color: #767067; margin-top: 14px;">(If your schedule changes, you can reopen your invitation link anytime and click <em>Change response</em> to update.)</p>',
+      '</div>',
+
+      // Footer
+      '<div style="background-color: #f3ede2; padding: 20px 28px; text-align: center; font-size: 13px; color: #6b645b; border-top: 1px solid #e7ded0;">',
+        '<p style="margin: 0 0 4px 0;">Looking forward to celebrating with you.</p>',
+        '<p style="margin: 4px 0; font-weight: bold; color: #2a2825;">Nguyen Thi Diem Phuong</p>',
+        '<p style="margin: 2px 0 0 0; font-size: 12px;">Contact: ' + EVENT_CONFIG.contactPhone + '</p>',
       '</div>',
     '</div>'
   ].join("");
 
-  GmailApp.sendEmail(hostEmail, subject, "", {
-    name: "Graduation RSVP Notification",
-    htmlBody: bodyHtml
+  GmailApp.sendEmail(recipientEmail, subject, "", {
+    name: EVENT_CONFIG.hostName + " — Graduation",
+    htmlBody: htmlContent
   });
 }
 
