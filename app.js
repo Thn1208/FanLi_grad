@@ -1205,8 +1205,11 @@
       }
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const resolvedNo = urlParams.get('no') || urlParams.get('id') || STATE.guestNo || '';
     const payload = {
       timestamp: new Date().toISOString(),
+      no: resolvedNo,
       guestName: guestName,
       attendance: attendance,
       email: email,
@@ -1304,16 +1307,25 @@
 
         const g = result.guest;
 
-        // 1. Cập nhật Tên & Danh xưng khách mời hiển thị trên Slide 4 từ Google Sheet
-        const urlToParam = params.get('to');
-        if (urlToParam && urlToParam.trim()) {
-          STATE.guestName = urlToParam.trim();
-        } else if (g.name) {
+        // 1. Cập nhật Số thứ tự & Khung giờ hoàn toàn từ Google Sheet
+        if (g.no) {
+          STATE.guestNo = g.no.toString().trim();
+        }
+        if (g.time) {
+          STATE.guestTime = g.time.trim();
+          const timeEl = document.querySelector('.datetime-time');
+          if (timeEl) {
+            timeEl.textContent = STATE.guestTime;
+          }
+        }
+
+        // 2. Cập nhật Tên & Danh xưng khách mời hoàn toàn từ Google Sheet
+        if (g.name) {
           let prefix = '';
           const genderLower = (g.gender || '').toLowerCase().trim();
-          if (genderLower === 'nam' || genderLower === 'male') {
+          if (genderLower === 'nam' || genderLower === 'male' || genderLower === 'mr' || genderLower === 'mr.') {
             prefix = 'Mr. ';
-          } else if (genderLower === 'nữ' || genderLower === 'nu' || genderLower === 'female') {
+          } else if (genderLower === 'nữ' || genderLower === 'nu' || genderLower === 'female' || genderLower === 'ms' || genderLower === 'ms.' || genderLower === 'miss') {
             prefix = 'Ms. ';
           }
 
@@ -1323,17 +1335,15 @@
           }
 
           STATE.guestName = fullName;
-          if (DOM.customGuestText) {
-            DOM.customGuestText.innerHTML = `Dear <strong class="guest-name-bold">${escapeHtml(STATE.guestName)}</strong>.`;
+        } else {
+          const urlToParam = params.get('to');
+          if (urlToParam && urlToParam.trim()) {
+            STATE.guestName = urlToParam.trim();
           }
         }
 
-        // 2. Cập nhật Khung giờ tham dự (Time) từ Google Sheet
-        if (g.time) {
-          const timeEl = document.querySelector('.datetime-time');
-          if (timeEl) {
-            timeEl.textContent = g.time.trim();
-          }
+        if (DOM.customGuestText) {
+          DOM.customGuestText.innerHTML = `Dear <strong class="guest-name-bold">${escapeHtml(STATE.guestName)}</strong>.`;
         }
 
         // 3. Cập nhật Trạng thái phản hồi RSVP (Response) hoàn toàn từ Google Sheet
