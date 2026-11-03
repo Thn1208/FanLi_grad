@@ -448,64 +448,68 @@ function sendConfirmationEmail(recipientEmail, guestName, attendance, message, c
   var subject = "Confirmation | Phuong's Graduation Ceremony";
   var displayTime = ceremonyTime || EVENT_CONFIG.timeText;
 
-  // Template email sang trọng với ảnh nền bg_mail và banner_mail ở đầu
+  // Template email sang trọng với font Times New Roman, banner fit tràn mép trên và 2 bên khung
   var htmlContent = [
-    '<div style="margin: 0; padding: 40px 10px; width: 100% !important; background-color: #12100e; background-image: url(\'' + EVENT_CONFIG.bgMailUrl + '\'); background-repeat: no-repeat; background-position: center top; background-size: cover; font-family: \'Cardo\', \'Georgia\', \'Times New Roman\', serif;">',
-      '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 460px; margin: 0 auto; background-color: #161413; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); overflow: hidden;">',
-        '<tr>',
-          '<td style="padding: 36px 30px 24px 30px; text-align: left; color: #ede8e1;">',
+    '<div style="margin: 0; padding: 40px 10px; width: 100% !important; background-color: #12100e; background-image: url(\'' + EVENT_CONFIG.bgMailUrl + '\'); background-repeat: no-repeat; background-position: center top; background-size: cover; font-family: \'Times New Roman\', Times, serif;">',
+      '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 460px; margin: 0 auto; background-color: #161413; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); overflow: hidden; font-family: \'Times New Roman\', Times, serif;">',
 
-            // Header: Banner Mail
-            '<div style="text-align: center; margin-bottom: 20px;">',
-              '<img src="' + EVENT_CONFIG.bannerMailUrl + '" alt="THE QUIET STRENGTH — Graduation Ceremony" width="240" style="display: block; width: 100%; max-width: 240px; margin: 0 auto; height: auto; border: 0;" />',
-            '</div>',
+        // Header: Banner Mail vừa vặn khít cạnh trên và 2 bên mép khung thiệp
+        '<tr>',
+          '<td style="padding: 0; margin: 0; line-height: 0; font-size: 0; border: 0; background-color: #161413;">',
+            '<img src="' + EVENT_CONFIG.bannerMailUrl + '" alt="THE QUIET STRENGTH — Graduation Ceremony" width="460" style="display: block; width: 100%; max-width: 460px; height: auto; border: 0; margin: 0;" />',
+          '</td>',
+        '</tr>',
+
+        // Phần nội dung thiệp bên dưới
+        '<tr>',
+          '<td style="padding: 20px 30px 24px 30px; text-align: left; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
 
             // Đường kẻ mỏng
-            '<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 22px 0;" />',
+            '<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 20px 0;" />',
 
             // Lời chào (Dear Mr/Ms... Name in đậm, in nghiêng)
-            '<p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #f2eee8;">',
+            '<p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #f2eee8; font-family: \'Times New Roman\', Times, serif;">',
               'Dear <strong><em>' + escapeHtml(guestName) + '</em></strong>,',
             '</p>',
 
-            // Cảm ơn & thông báo RSVP
-            '<p style="margin: 0 0 6px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+            // Cảm ơn & thông báo chi tiết (đưa sát nhau, không cách dòng trống)
+            '<p style="margin: 0 0 3px 0; font-size: 14px; line-height: 1.5; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
               'Thank you for responding to my graduation invitation!',
             '</p>',
-            '<p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
-              'Your RSVP has been successfully submitted. Here are the event details:',
+            '<p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.5; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
+              'Here are the event details:',
             '</p>',
 
             // Chi tiết sự kiện (GRADUATION CEREMONY)
-            '<p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; letter-spacing: 0.05em; color: #ffffff;">',
+            '<p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; letter-spacing: 0.05em; color: #ffffff; font-family: \'Times New Roman\', Times, serif;">',
               'GRADUATION CEREMONY',
             '</p>',
-            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
               '- Date: ' + EVENT_CONFIG.dateText,
             '</p>',
-            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
               '- Time: ' + escapeHtml(displayTime),
             '</p>',
-            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
               '- Venue: ' + EVENT_CONFIG.venueName + ' (<a href="' + EVENT_CONFIG.mapsUrl + '" target="_blank" style="color: #ffffff; text-decoration: underline;">Google maps</a>)',
             '</p>',
-            '<p style="margin: 0 0 22px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+            '<p style="margin: 0 0 22px 0; font-size: 14px; line-height: 1.6; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
               '- Contact: ' + EVENT_CONFIG.contactPhone,
             '</p>',
 
             // Lời chúc & cảm xúc
-            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
               'I&#39;m truly grateful to have you be part of this special milestone.',
             '</p>',
-            '<p style="margin: 0 0 22px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+            '<p style="margin: 0 0 22px 0; font-size: 14px; line-height: 1.6; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
               'Looking forward to sharing this moment with you!',
             '</p>',
 
             // Ký tên
-            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
               'With love,',
             '</p>',
-            '<p style="margin: 0 0 24px 0; font-size: 14px; font-style: italic; color: #ffffff;">',
+            '<p style="margin: 0 0 24px 0; font-size: 14px; font-style: italic; color: #ffffff; font-family: \'Times New Roman\', Times, serif;">',
               'Phuong Nguyen',
             '</p>',
 
