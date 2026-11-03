@@ -517,7 +517,7 @@
     }, 2100));
   }
 
-  // --- Slide 8 (Trang 9): Typewriter "Graduation Ceremony" + Blur Meta (Thank you & Contact) ---
+  // --- Slide 7 (Trang 8): Typewriter "Graduation Ceremony" + Blur Meta (Thank you & Contact) ---
   function startOutroTypewriter() {
     outroTimers.forEach(t => clearTimeout(t));
     outroTimers = [];
@@ -541,7 +541,7 @@
     let charIndex = 0;
 
     function typeNextChar() {
-      if (STATE.currentSlideIndex !== 8) return;
+      if (STATE.currentSlideIndex !== 7) return;
 
       charIndex++;
       scriptTextEl.textContent = fullText.slice(0, charIndex);
@@ -555,7 +555,7 @@
 
         // Sau khi hoàn tất gõ chữ, hiển thị 2 dòng dưới (Thank you Cardo Italic 18.9pt & Contact 8.9pt)
         outroTimers.push(setTimeout(() => {
-          if (STATE.currentSlideIndex !== 8) return;
+          if (STATE.currentSlideIndex !== 7) return;
           if (footerMeta) footerMeta.classList.add('revealed');
         }, 320));
       }
