@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cardo:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Montserrat:wght@400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=44">
+  <link rel="stylesheet" href="style.css?v=49">
 
   <!-- Instant Viewport Scale Calculation to Prevent FOUC -->
   <script>
@@ -69,9 +69,17 @@
       <!-- ============================================== -->
       <div class="slides-wrapper" id="slidesWrapper">
 
-        <!-- SLIDE 0 (TRANG 1): INTRO RIBBON BOW (Nơ.png on #1d1a18) -->
+        <!-- SLIDE 0 (TRANG 1): INTRO DRAWING & RIBBON BOW (on #1d1a18) -->
         <article class="slide-item active slide-intro" data-index="0" aria-label="Tap to open invitation">
-          <div class="intro-bow-wrapper" aria-hidden="true">
+          <!-- Animated Line Drawing: Graduation Cap (1 continuous stroke, ~10s preloader) -->
+          <div class="intro-drawing-wrapper" id="introDrawingWrapper" aria-hidden="true">
+            <svg class="intro-drawing-svg" id="introDrawingSvg" viewBox="0 0 240 240" fill="none">
+              <path class="intro-draw-path" id="drawCapPath" d="M 40,90 L 120,56 L 200,90 L 120,124 L 40,90 C 50,98 62,106 72,112 L 72,126 C 72,156 168,156 168,126 L 168,112 C 152,104 136,97 120,90 C 117,87 123,87 120,90 C 155,94 190,108 194,142 C 191,146 199,146 195,150 L 191,188 L 195,150 L 195,192 L 195,150 L 199,188" />
+            </svg>
+          </div>
+
+          <!-- Ribbon Bow: Revealed after drawing finishes -->
+          <div class="intro-bow-wrapper" id="introBowWrapper" aria-hidden="true">
             <img src="Nơ.png" alt="" class="intro-bow-img" id="introBowImg" draggable="false">
           </div>
           <p class="intro-tap-hint" id="introTapHint">Tap to open</p>
@@ -439,6 +447,6 @@
   <div class="toast-notification" id="toastBox" role="status" aria-live="polite"></div>
 
   <!-- Main JavaScript Logic -->
-  <script src="app.js?v=48"></script>
+  <script src="app.js?v=49"></script>
 </body>
 </html>

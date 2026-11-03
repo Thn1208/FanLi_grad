@@ -26,13 +26,15 @@
 var EVENT_CONFIG = {
   hostName: "Nguyen Thi Diem Phuong",
   eventName: "Phuong's Graduation Ceremony — The Quiet Strength",
-  dateText: "Sunday, November 8, 2026",
-  timeText: "08:00 AM – 11:30 AM",
-  venueName: "Hall A, FPT University HCMC",
+  dateText: "Sunday, Nov 8th, 2026",
+  timeText: "10AM",
+  venueName: "FPT University HCMC",
   venueAddress: "D1 High-Tech Park, Long Thanh My, Thu Duc City, HCMC",
   mapsUrl: "https://maps.app.goo.gl/F1LVCkgJ4KDwRs2bA",
-  contactPhone: "0367 989 880",
-  websiteUrl: "https://franynguyen.id.vn/"
+  contactPhone: "0367 989 880 (Mr. Đạt)",
+  websiteUrl: "https://franynguyen.id.vn/",
+  bannerMailUrl: "https://franynguyen.id.vn/banner_mail.gif", // Đổi thành .gif nếu bạn xuất dạng động
+  bgMailUrl: "https://franynguyen.id.vn/bg_mail.jpg"
 };
 
 // ----------------------------------------------------------------------------
@@ -436,69 +438,98 @@ function doPost(e) {
 }
 
 // ----------------------------------------------------------------------------
-// 5. GỬI EMAIL XÁC NHẬN BẰNG TIẾNG ANH (HOÀN TOÀN KHÔNG DÙNG ICON)
+// ----------------------------------------------------------------------------
+// 5. GỬI EMAIL XÁC NHẬN BẰNG TIẾNG ANH (THEO ĐÚNG MẪU BANNER_MAIL & BG_MAIL)
 // ----------------------------------------------------------------------------
 function sendConfirmationEmail(recipientEmail, guestName, attendance, message, ceremonyTime, cardUrl) {
   // Chỉ gửi khi attendance là Yes
   if (attendance !== "Yes") return;
 
-  // Tiêu đề sạch sẽ, trang trọng, không có icon
-  var subject = "[RSVP Confirmation] The Quiet Strength — Phuong's Graduation Ceremony";
-  var displayCardUrl = cardUrl || EVENT_CONFIG.websiteUrl;
+  var subject = "Confirmation | Phuong's Graduation Ceremony";
   var displayTime = ceremonyTime || EVENT_CONFIG.timeText;
 
-  var messageBox = "";
-  if (message) {
-    messageBox = '<div style="margin: 18px 0; padding: 12px 18px; background-color: #f3ede2; border-radius: 6px; font-style: italic; font-size: 14px;"><strong>Your message:</strong> "' + escapeHtml(message) + '"</div>';
-  }
-
-  // Template email tiếng Anh sang trọng, chuẩn typography, KHÔNG SỬ DỤNG BẤT KỲ ICON NÀO
+  // Template email sang trọng với ảnh nền bg_mail và banner_mail ở đầu
   var htmlContent = [
-    '<div style="max-width: 580px; margin: 0 auto; background-color: #fbf9f5; font-family: \'Playfair Display\', \'Georgia\', \'Times New Roman\', serif; color: #2a2825; border: 1px solid #e7ded0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.06);">',
-      // Header Banner
-      '<div style="background-color: #2a2825; color: #f5efe6; padding: 32px 24px; text-align: center;">',
-        '<p style="margin: 0 0 6px 0; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #c8b79b;">Graduation Ceremony</p>',
-        '<h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 0.04em;">THE QUIET STRENGTH</h1>',
-        '<p style="margin: 8px 0 0 0; font-style: italic; font-size: 14px; color: #e0d5c1;">Nguyen Thi Diem Phuong</p>',
-      '</div>',
+    '<div style="margin: 0; padding: 40px 10px; width: 100% !important; background-color: #12100e; background-image: url(\'' + EVENT_CONFIG.bgMailUrl + '\'); background-repeat: no-repeat; background-position: center top; background-size: cover; font-family: \'Cardo\', \'Georgia\', \'Times New Roman\', serif;">',
+      '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 460px; margin: 0 auto; background-color: #161413; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); overflow: hidden;">',
+        '<tr>',
+          '<td style="padding: 36px 30px 24px 30px; text-align: left; color: #ede8e1;">',
 
-      // Body Content
-      '<div style="padding: 32px 28px; line-height: 1.7; font-size: 15px;">',
-        '<p style="font-size: 17px; margin-top: 0;">Dear <strong>' + escapeHtml(guestName) + '</strong>,</p>',
-        '<p>Thank you so much for confirming your attendance at my <strong>Graduation Ceremony</strong>.</p>',
-        '<p>Your presence means a lot to me and will make this milestone even more memorable and joyful.</p>',
+            // Header: Banner Mail
+            '<div style="text-align: center; margin-bottom: 20px;">',
+              '<img src="' + EVENT_CONFIG.bannerMailUrl + '" alt="THE QUIET STRENGTH — Graduation Ceremony" width="240" style="display: block; width: 100%; max-width: 240px; margin: 0 auto; height: auto; border: 0;" />',
+            '</div>',
 
-        // Event Info Box (Không có icon)
-        '<div style="background-color: #ffffff; border-left: 3px solid #8b3a2b; padding: 18px 22px; margin: 24px 0; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">',
-          '<h3 style="margin: 0 0 12px 0; font-size: 15px; color: #8b3a2b; letter-spacing: 0.03em;">CEREMONY DETAILS:</h3>',
-          '<p style="margin: 6px 0;"><strong>Date:</strong> ' + EVENT_CONFIG.dateText + '</p>',
-          '<p style="margin: 6px 0;"><strong>Time:</strong> ' + escapeHtml(displayTime) + '</p>',
-          '<p style="margin: 6px 0;"><strong>Venue:</strong> ' + EVENT_CONFIG.venueName + '</p>',
-          '<p style="margin: 4px 0 0 0; font-size: 13px; color: #5a5650;">Address: ' + EVENT_CONFIG.venueAddress + '</p>',
-        '</div>',
+            // Đường kẻ mỏng
+            '<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 22px 0;" />',
 
-        messageBox,
+            // Lời chào (Dear Mr/Ms... Name in đậm, in nghiêng)
+            '<p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #f2eee8;">',
+              'Dear <strong><em>' + escapeHtml(guestName) + '</em></strong>,',
+            '</p>',
 
-        // Call to action buttons (Không có icon)
-        '<div style="text-align: center; margin: 30px 0 16px 0;">',
-          '<a href="' + EVENT_CONFIG.mapsUrl + '" target="_blank" style="display: inline-block; background-color: #8b3a2b; color: #ffffff; text-decoration: none; padding: 11px 22px; border-radius: 4px; font-size: 14px; font-weight: 500; margin-right: 8px; letter-spacing: 0.03em;">View on Google Maps</a>',
-          '<a href="' + displayCardUrl + '" target="_blank" style="display: inline-block; background-color: #e5dbc9; color: #2a2825; text-decoration: none; padding: 11px 22px; border-radius: 4px; font-size: 14px; font-weight: 500; letter-spacing: 0.03em;">View Invitation Card</a>',
-        '</div>',
+            // Cảm ơn & thông báo RSVP
+            '<p style="margin: 0 0 6px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+              'Thank you for responding to my graduation invitation!',
+            '</p>',
+            '<p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+              'Your RSVP has been successfully submitted. Here are the event details:',
+            '</p>',
 
-        '<p style="text-align: center; font-size: 13px; color: #767067; margin-top: 14px;">(If your schedule changes, you can reopen your invitation link anytime and click <em>Change response</em> to update.)</p>',
-      '</div>',
+            // Chi tiết sự kiện (GRADUATION CEREMONY)
+            '<p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; letter-spacing: 0.05em; color: #ffffff;">',
+              'GRADUATION CEREMONY',
+            '</p>',
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+              '- Date: ' + EVENT_CONFIG.dateText,
+            '</p>',
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+              '- Time: ' + escapeHtml(displayTime),
+            '</p>',
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+              '- Venue: ' + EVENT_CONFIG.venueName + ' (<a href="' + EVENT_CONFIG.mapsUrl + '" target="_blank" style="color: #ffffff; text-decoration: underline;">Google maps</a>)',
+            '</p>',
+            '<p style="margin: 0 0 22px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+              '- Contact: ' + EVENT_CONFIG.contactPhone,
+            '</p>',
 
-      // Footer
-      '<div style="background-color: #f3ede2; padding: 20px 28px; text-align: center; font-size: 13px; color: #6b645b; border-top: 1px solid #e7ded0;">',
-        '<p style="margin: 0 0 4px 0;">Looking forward to celebrating with you.</p>',
-        '<p style="margin: 4px 0; font-weight: bold; color: #2a2825;">Nguyen Thi Diem Phuong</p>',
-        '<p style="margin: 2px 0 0 0; font-size: 12px;">Contact: ' + EVENT_CONFIG.contactPhone + '</p>',
-      '</div>',
+            // Lời chúc & cảm xúc
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+              'I&#39;m truly grateful to have you be part of this special milestone.',
+            '</p>',
+            '<p style="margin: 0 0 22px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+              'Looking forward to sharing this moment with you!',
+            '</p>',
+
+            // Ký tên
+            '<p style="margin: 0 0 4px 0; font-size: 14px; line-height: 1.6; color: #ede8e1;">',
+              'With love,',
+            '</p>',
+            '<p style="margin: 0 0 24px 0; font-size: 14px; font-style: italic; color: #ffffff;">',
+              'Phuong Nguyen',
+            '</p>',
+
+            // Đường kẻ mỏng đáy
+            '<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 16px 0;" />',
+
+            // Social Icons (FB & IG)
+            '<div style="text-align: center; padding-top: 4px;">',
+              '<a href="https://facebook.com" target="_blank" style="text-decoration: none; display: inline-block; margin: 0 8px;">',
+                '<img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="18" height="18" style="display: inline-block; border: 0; vertical-align: middle; filter: invert(0.85);" />',
+              '</a>',
+              '<a href="https://instagram.com" target="_blank" style="text-decoration: none; display: inline-block; margin: 0 8px;">',
+                '<img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="18" height="18" style="display: inline-block; border: 0; vertical-align: middle; filter: invert(0.85);" />',
+              '</a>',
+            '</div>',
+
+          '</td>',
+        '</tr>',
+      '</table>',
     '</div>'
   ].join("");
 
   GmailApp.sendEmail(recipientEmail, subject, "", {
-    name: EVENT_CONFIG.hostName + " — Graduation",
+    name: EVENT_CONFIG.hostName,
     htmlBody: htmlContent
   });
 }

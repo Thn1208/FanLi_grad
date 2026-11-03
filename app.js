@@ -36,6 +36,11 @@
     storyContainer: document.getElementById('storyContainer'),
     introStars: document.getElementById('introStars'),
     introTapHint: document.getElementById('introTapHint'),
+    introDrawingWrapper: document.getElementById('introDrawingWrapper'),
+    introDrawingSvg: document.getElementById('introDrawingSvg'),
+    drawCapPath: document.getElementById('drawCapPath'),
+    introBowWrapper: document.getElementById('introBowWrapper'),
+    introBowImg: document.getElementById('introBowImg'),
     slides: Array.from(document.querySelectorAll('.slide-item')),
 
     // Slide 1 (Cover): Crisp Title, Typewriter Script & Blur Meta
@@ -132,7 +137,9 @@
     lastSubmittedMessage: '',
     isEditingRsvp: false,
     touchStartX: 0,
-    touchStartY: 0
+    touchStartY: 0,
+    introDrawn: false,
+    introReady: false
   };
 
   // Timers & Transition Locks
@@ -145,6 +152,7 @@
   let inviteExitTimer = null;
   let thankyouExitTimer = null;
   let introHintTimer = null;
+  let introDrawingTimer = null;
   let navFlashTimer = null;
   let isTransitioningCover = false;
   let isTransitioningInvite = false;
@@ -180,7 +188,7 @@
     setupGuestPersonalization();
     bindEvents();
     fetchGuestDataFromSheet();
-    startIntroHintTimer();
+    initIntroDrawing();
     flashNavArrows();
   }
 
@@ -559,6 +567,69 @@
   // 5. MANUAL SCREEN-TAP NAVIGATION (100% CANVA CROSS-DISSOLVE)
   // ========================================================================
 
+    // Khởi tạo hiệu ứng vẽ nét nón cử nhân & cuộn bằng (Preloader)
+  function initIntroDrawing() {
+    if (!DOM.drawCapPath || !DOM.introDrawingWrapper) {
+      if (DOM.introBowWrapper) DOM.introBowWrapper.classList.add('revealed');
+      STATE.introDrawn = true;
+      STATE.introReady = true;
+      startIntroHintTimer();
+      return;
+    }
+
+    // 1. Tính toán chính xác độ dài nét vẽ SVG bằng getTotalLength
+    try {
+      const pathLength = DOM.drawCapPath.getTotalLength();
+      DOM.drawCapPath.style.transition = 'none';
+      DOM.drawCapPath.style.strokeDasharray = pathLength;
+      DOM.drawCapPath.style.strokeDashoffset = pathLength;
+      void DOM.drawCapPath.getBoundingClientRect(); // Trigger reflow
+    } catch (err) {
+      console.warn('SVG getTotalLength fallback:', err);
+    }
+
+    // 2. Preload ngầm các hình ảnh nền nặng ở các slide tiếp theo
+    const criticalImages = [
+      'Nơ.png',
+      'ribbon1.png',
+      'sao.png',
+      'thư.png',
+      'núi2.png',
+      'sign.png'
+    ];
+    criticalImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+
+
+    // 3. Kích hoạt chuyển động vẽ nét liền mạch nón cử nhân trong 5 giây (Preloader)
+    const DRAW_DURATION = 10000;
+    DOM.drawCapPath.style.transition = 'stroke-dashoffset ' + DRAW_DURATION + 'ms cubic-bezier(0.25, 0.05, 0.25, 1)';
+    DOM.drawCapPath.style.strokeDashoffset = '0';
+
+    // 4. Khi vẽ xong nét vẽ nón và cuộn bằng: biến mất và hiện cái nơ ra
+    clearTimeout(introDrawingTimer);
+    introDrawingTimer = setTimeout(() => {
+      if (STATE.introReady) return; // Đã tua nhanh trước đó
+      fastForwardIntro();
+    }, DRAW_DURATION + 100);
+  }
+
+  // Tua nhanh hiển thị nơ nếu người dùng chạm màn hình khi đang vẽ
+  function fastForwardIntro() {
+    clearTimeout(introDrawingTimer);
+    STATE.introDrawn = true;
+    STATE.introReady = true;
+    if (DOM.introDrawingWrapper) {
+      DOM.introDrawingWrapper.classList.add('completed');
+    }
+    if (DOM.introBowWrapper) {
+      DOM.introBowWrapper.classList.add('revealed');
+    }
+    startIntroHintTimer();
+  }
+
   // Gợi ý chạm màn hình sau 3 giây trên Trang 1 (Nơ.png) nếu không có tương tác
   function startIntroHintTimer() {
     clearTimeout(introHintTimer);
@@ -624,9 +695,13 @@
     // Hiển thị chớp nhoáng mũi tên dẫn hướng khi vừa đổi slide
     flashNavArrows();
 
-    // Quản lý gợi ý chạm màn hình ở Trang 1
+        // Quản lý gợi ý chạm màn hình ở Trang 1
     if (index === 0) {
-      startIntroHintTimer();
+      if (STATE.introDrawn) {
+        if (DOM.introDrawingWrapper) DOM.introDrawingWrapper.classList.add('completed');
+        if (DOM.introBowWrapper) DOM.introBowWrapper.classList.add('revealed');
+        startIntroHintTimer();
+      }
     } else {
       clearTimeout(introHintTimer);
       if (DOM.introTapHint) {
@@ -870,8 +945,12 @@
           return;
         }
 
-        // On Slide 0, clicking ANYWHERE unties the bow and opens Slide 1
+                // On Slide 0, clicking ANYWHERE unties the bow and opens Slide 1
         if (STATE.currentSlideIndex === 0) {
+          if (!STATE.introReady) {
+            fastForwardIntro();
+            return;
+          }
           clearTimeout(introHintTimer);
           if (DOM.introTapHint) DOM.introTapHint.classList.remove('revealed');
           nextSlide();

@@ -277,13 +277,58 @@ html, body {
   overflow: hidden;
 }
 
+/* Màn hình vẽ nét nón tốt nghiệp 1 nét duy nhất (Preloader & Loading ~10s) */
+.intro-drawing-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  height: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intro-drawing-wrapper.completed {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.intro-drawing-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.intro-draw-path {
+  fill: none;
+  stroke: #e2d7c5;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(226, 215, 197, 0.5));
+}
+
 .intro-bow-wrapper {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1), transform 1s cubic-bezier(0.22, 1, 0.36, 1);
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
   z-index: 1;
+}
+
+.intro-bow-wrapper.revealed {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .intro-bow-img {
