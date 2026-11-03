@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cardo:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Montserrat:wght@400;500;600&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=49">
+  <link rel="stylesheet" href="style.css?v=50">
 
   <!-- Instant Viewport Scale Calculation to Prevent FOUC -->
   <script>
@@ -359,33 +359,10 @@
           </div>
         </article>
 
-        <!-- SLIDE 7 (TRANG 8): SHORT VIDEO (núi2.png background) -->
-        <article class="slide-item slide-video" data-index="7" style="background-image: url('núi2.png');">
-          <div class="video-overlay-tint"></div>
-          <!-- Center Play Trigger for the Memory Video -->
-          <div class="video-trigger-hotspot" id="btnTriggerVideo" title="Tap to Play Video">
-            <div class="play-pulse-ring"></div>
-            <div class="play-icon-box">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="8 5 19 12 8 19 8 5"/>
-              </svg>
-            </div>
-            <span class="play-label">Play Video</span>
-          </div>
+        
 
-          <!-- Video Player Modal / Overlay -->
-          <div class="video-modal-overlay hidden" id="videoModal">
-            <div class="video-modal-box">
-              <button class="btn-close-video" id="btnCloseVideo" aria-label="Close video">✕</button>
-              <video id="memoryVideo" class="memory-video" playsinline controls preload="metadata">
-                <source src="The.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-        </article>
-
-        <!-- SLIDE 8 (TRANG 9): OUTRO (Bố cục & hiệu ứng giữ nguyên 100% như Trang 2) -->
-        <article class="slide-item slide-cover slide-outro" data-index="8">
+        <!-- SLIDE 7 (TRANG 8): OUTRO (Bố cục & hiệu ứng giữ nguyên 100% như Trang 2) -->
+        <article class="slide-item slide-cover slide-outro" data-index="7">
           <!-- Background Ribbon Layer: ribbon1.png, opacity 41%, tilted -80deg in Canva, zoom animation -->
           <div class="cover-ribbon-layer" aria-hidden="true">
             <img src="ribbon1.png" alt="" class="cover-ribbon-img outro-ribbon-img" draggable="false">
@@ -447,6 +424,6 @@
   <div class="toast-notification" id="toastBox" role="status" aria-live="polite"></div>
 
   <!-- Main JavaScript Logic -->
-  <script src="app.js?v=49"></script>
+  <script src="app.js?v=50"></script>
 </body>
 </html>

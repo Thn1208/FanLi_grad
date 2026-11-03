@@ -314,14 +314,31 @@ function doPost(e) {
 
       if (cols.name !== -1 && data[targetRow - 1][cols.name]) {
         var baseName = data[targetRow - 1][cols.name].toString().trim();
+        var rawGender = (cols.gender !== -1 && data[targetRow - 1][cols.gender] !== undefined)
+          ? data[targetRow - 1][cols.gender].toString().trim()
+          : "";
         var pref = "";
-        if (cols.gender !== -1 && data[targetRow - 1][cols.gender]) {
-          var gLower = data[targetRow - 1][cols.gender].toString().toLowerCase().trim();
-          if (gLower === "nam" || gLower === "mr" || gLower === "mr.") pref = "Mr. ";
-          else if (gLower === "nữ" || gLower === "nu" || gLower === "ms" || gLower === "ms." || gLower === "miss") pref = "Ms. ";
+
+        if (rawGender) {
+          var gLower = rawGender.toLowerCase();
+          if (gLower === "nam" || gLower === "mr" || gLower === "mr.") {
+            pref = "Mr. ";
+          } else if (gLower === "nữ" || gLower === "nu" || gLower === "ms" || gLower === "ms." || gLower === "miss" || gLower === "mrs") {
+            pref = "Ms. ";
+          } else {
+            // Đảm bảo chèn bất kỳ danh xưng/thông tin nào khác từ cột Nam/Nữ (Anh, Chị, Bạn, Thầy, Cô, Bác, Em...)
+            pref = rawGender.charAt(0).toUpperCase() + rawGender.slice(1).trim() + " ";
+          }
         }
-        if (pref && !/^(mr\.?|ms\.?|miss\.?|mrs\.?|anh|chị)\s+/i.test(baseName)) {
-          guestDisplayFullName = pref + baseName;
+
+        // Chèn danh xưng vào trước tên (tránh lặp từ nếu tên đã có sẵn từ đó)
+        if (pref) {
+          var cleanPref = pref.trim().toLowerCase();
+          if (baseName.toLowerCase().indexOf(cleanPref) !== 0) {
+            guestDisplayFullName = pref + baseName;
+          } else {
+            guestDisplayFullName = baseName;
+          }
         } else {
           guestDisplayFullName = baseName;
         }
@@ -512,19 +529,6 @@ function sendConfirmationEmail(recipientEmail, guestName, attendance, message, c
             '<p style="margin: 0 0 24px 0; font-size: 14px; font-style: italic; color: #ffffff; font-family: \'Times New Roman\', Times, serif;">',
               'Phuong Nguyen',
             '</p>',
-
-            // Đường kẻ mỏng đáy
-            '<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 16px 0;" />',
-
-            // Social Icons (FB & IG)
-            '<div style="text-align: center; padding-top: 4px;">',
-              '<a href="https://facebook.com" target="_blank" style="text-decoration: none; display: inline-block; margin: 0 8px;">',
-                '<img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="18" height="18" style="display: inline-block; border: 0; vertical-align: middle; filter: invert(0.85);" />',
-              '</a>',
-              '<a href="https://instagram.com" target="_blank" style="text-decoration: none; display: inline-block; margin: 0 8px;">',
-                '<img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="18" height="18" style="display: inline-block; border: 0; vertical-align: middle; filter: invert(0.85);" />',
-              '</a>',
-            '</div>',
 
           '</td>',
         '</tr>',

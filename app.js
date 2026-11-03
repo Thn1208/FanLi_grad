@@ -213,10 +213,11 @@
         if (style === 'vi' || rawGender === 'anh' || rawGender === 'chi' || rawGender === 'chị') {
           if (isMale) prefix = 'Anh ';
           else if (isFemale) prefix = 'Chị ';
+          else if (rawGender) prefix = rawGender.charAt(0).toUpperCase() + rawGender.slice(1).trim() + ' ';
         } else {
-          // Mặc định chuẩn tiếng Anh theo thiệp: Mr. / Ms.
           if (isMale) prefix = 'Mr. ';
           else if (isFemale) prefix = 'Ms. ';
+          else if (rawGender) prefix = rawGender.charAt(0).toUpperCase() + rawGender.slice(1).trim() + ' ';
         }
 
         const cleanName = rawName.trim();
@@ -743,8 +744,8 @@
     } else if (index === 6) {
       // Trang 7 (Thank you & Sign): Nền núi 2 -> sao -> dòng chữ -> sign
       startThankyouAnimation();
-    } else if (index === 8) {
-      // Trang 9: Outro (Giữ nguyên bố cục & hiệu ứng như Trang 2)
+    } else if (index === 7) {
+      // Trang 8: Outro (Giữ nguyên bố cục & hiệu ứng như Trang 2)
       const outroRibbon = document.querySelector('.outro-ribbon-img');
       if (outroRibbon) {
         outroRibbon.style.animation = 'none';
@@ -752,11 +753,6 @@
         outroRibbon.style.animation = '';
       }
       startOutroTypewriter();
-    }
-
-    // If leaving video slide (Slide index 7), close video player
-    if (index !== 7 && DOM.videoModal && !DOM.videoModal.classList.contains('hidden')) {
-      closeVideoModal();
     }
   }
 
@@ -842,8 +838,8 @@
     }
 
     // 4. Khi chuyển từ Trang 9 (index 8) về Trang 1 (replay):
-    if (STATE.currentSlideIndex === 8 && index === 0) {
-      const outroSlide = DOM.slides[8];
+    if (STATE.currentSlideIndex === 7 && index === 0) {
+      const outroSlide = DOM.slides[7];
       if (outroSlide) {
         outroSlide.classList.add('exiting-title');
         setTimeout(() => {
@@ -1086,22 +1082,7 @@
       });
     }
 
-    // 6. Video Modal Hotspots (Slide index 7)
-    if (DOM.btnTriggerVideo) {
-      DOM.btnTriggerVideo.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openVideoModal();
-      });
-    }
-
-    if (DOM.btnCloseVideo) {
-      DOM.btnCloseVideo.addEventListener('click', (e) => {
-        e.stopPropagation();
-        closeVideoModal();
-      });
-    }
-
-    // 7. Replay Story (Slide index 8)
+    // 6. Replay Story (Slide index 7 - Outro)
     if (DOM.btnReplayStory) {
       DOM.btnReplayStory.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1239,7 +1220,7 @@
         }
 
         if (DOM.rsvpPromptNo) {
-          DOM.rsvpPromptNo.innerHTML = `Thank you${nameDisp} for letting me know. Would you like to leave a wish for me?`;
+          DOM.rsvpPromptNo.textContent = 'Thank you for letting me know. Would you like to leave a wish for me?';
         }
         if (DOM.btnRsvpInlineSubmit) {
           DOM.btnRsvpInlineSubmit.querySelector('span').textContent = 'Send Wishes';
@@ -1401,15 +1382,19 @@
         // 2. Cập nhật Tên & Danh xưng khách mời hoàn toàn từ Google Sheet
         if (g.name) {
           let prefix = '';
-          const genderLower = (g.gender || '').toLowerCase().trim();
+          const rawGender = (g.gender || '').trim();
+          const genderLower = rawGender.toLowerCase();
           if (genderLower === 'nam' || genderLower === 'male' || genderLower === 'mr' || genderLower === 'mr.') {
             prefix = 'Mr. ';
           } else if (genderLower === 'nữ' || genderLower === 'nu' || genderLower === 'female' || genderLower === 'ms' || genderLower === 'ms.' || genderLower === 'miss') {
             prefix = 'Ms. ';
+          } else if (rawGender) {
+            // Chèn bất kỳ danh xưng nào khác trong cột Nam/Nữ (Anh, Chị, Bạn, Thầy, Cô, Bác, Em...)
+            prefix = rawGender.charAt(0).toUpperCase() + rawGender.slice(1).trim() + ' ';
           }
 
           let fullName = g.name.trim();
-          if (!/^(mr\.?|ms\.?|miss\.?|mrs\.?|anh|chị)\s+/i.test(fullName)) {
+          if (prefix && fullName.toLowerCase().indexOf(prefix.trim().toLowerCase()) !== 0) {
             fullName = prefix + fullName;
           }
 
@@ -1459,24 +1444,6 @@
       .catch(err => {
         console.warn('Lỗi kết nối đồng bộ từ Google Sheet:', err);
       });
-  }
-
-  // ========================================================================
-  // 8. VIDEO MODAL (Slide index 7 / The/9.png)
-  // ========================================================================
-  function openVideoModal() {
-    if (DOM.videoModal && DOM.memoryVideo) {
-      DOM.videoModal.classList.remove('hidden');
-      DOM.memoryVideo.currentTime = 0;
-      DOM.memoryVideo.play().catch(e => console.warn(e));
-    }
-  }
-
-  function closeVideoModal() {
-    if (DOM.videoModal && DOM.memoryVideo) {
-      DOM.memoryVideo.pause();
-      DOM.videoModal.classList.add('hidden');
-    }
   }
 
   // ========================================================================
