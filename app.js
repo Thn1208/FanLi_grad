@@ -238,7 +238,7 @@
 
     // Hiển thị ở Trang 5 (Slide 4): Dear [Name]. (Tên in đậm, toàn dòng in nghiêng)
     if (DOM.customGuestText) {
-      DOM.customGuestText.innerHTML = `Dear <strong class="guest-name-bold">${escapeHtml(STATE.guestName)}</strong>.`;
+      DOM.customGuestText.innerHTML = `Dear <strong class="guest-name-bold">${escapeHtml(STATE.guestName)}</strong>,`;
     }
 
     // Tuỳ chỉnh khung giờ nếu URL có tham số ?time=...
@@ -1407,7 +1407,7 @@
         }
 
         if (DOM.customGuestText) {
-          DOM.customGuestText.innerHTML = `Dear <strong class="guest-name-bold">${escapeHtml(STATE.guestName)}</strong>.`;
+          DOM.customGuestText.innerHTML = `Dear <strong class="guest-name-bold">${escapeHtml(STATE.guestName)}</strong>,`;
         }
 
         // 3. Cập nhật Trạng thái phản hồi RSVP (Response) hoàn toàn từ Google Sheet
