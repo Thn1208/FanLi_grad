@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ Confirmation | Phuong's Graduation Ceremony 🎓</title>
+  <style>
+    /* Reset & Page Style */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0b0a09;
+      color: #ede8e1;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Live Preview Control Toolbar */
+    .preview-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(18, 16, 14, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: #cfc8be;
+    }
+    .preview-toolbar strong {
+      color: #fff;
+    }
+    .toolbar-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .toolbar-input {
+      background: #252220;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      outline: none;
+    }
+    .toolbar-input:focus {
+      border-color: #d1b894;
+    }
+    .toolbar-btn {
+      background: #2b2724;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ede8e1;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.15s;
+    }
+    .toolbar-btn:hover {
+      background: #3d3733;
+      color: #fff;
+    }
+    .toolbar-btn.active {
+      background: #5a4b38;
+      border-color: #d1b894;
+      color: #fff;
+    }
+
+    /* Outer Wrapper representing the email client viewing area */
+    .email-viewport-container {
+      width: 100%;
+      min-height: calc(100vh - 50px);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 10px 60px 10px;
+      background-color: #12100e;
+      background-image: url('bg_mail.jpg');
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: cover;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Preview Toolbar để bạn tiện test nhanh nhiều tên & danh xưng -->
+  <div class="preview-toolbar" id="previewToolbar">
+    <div><strong>Preview Email (GoogleAppsScript.gs)</strong></div>
+    
+    <div class="toolbar-group">
+      <label for="inputGuestName">Tên khách:</label>
+      <input type="text" id="inputGuestName" class="toolbar-input" value="Mr. Trần Nguyễn Phước" style="width: 200px;">
+    </div>
+
+    <div class="toolbar-group">
+      <label for="inputCeremonyTime">Khung giờ:</label>
+      <input type="text" id="inputCeremonyTime" class="toolbar-input" value="10AM" style="width: 80px;">
+    </div>
+
+    <div class="toolbar-group" style="background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);">
+      <label for="inputLineHeight" style="color: #f7d08a; font-weight: bold;">Cách dòng (line-height):</label>
+      <input type="number" id="inputLineHeight" class="toolbar-input" value="1.0" step="0.05" min="0.8" max="2.5" style="width: 60px; font-weight: bold; text-align: center; color: #f7d08a;">
+      <input type="range" id="sliderLineHeight" min="0.9" max="2.0" step="0.05" value="1.0" style="cursor: pointer; width: 90px; vertical-align: middle;">
+      <span id="labelCurrentLineHeight" style="color: #fff; font-size: 11px; min-width: 28px;">1.0</span>
+    </div>
+
+    <div class="toolbar-group" style="background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);">
+      <label for="inputParagraphSpacing" style="color: #9cdcfe; font-weight: bold;">Cách đoạn:</label>
+      <input type="number" id="inputParagraphSpacing" class="toolbar-input" value="20" step="2" min="6" max="50" style="width: 55px; font-weight: bold; text-align: center; color: #9cdcfe;">
+      <span style="font-size: 11px; color: #9cdcfe;">px (~1.5 dòng)</span>
+      <input type="range" id="sliderParagraphSpacing" min="8" max="44" step="2" value="20" style="cursor: pointer; width: 90px; vertical-align: middle;">
+    </div>
+
+    <div style="margin-left: auto; font-size: 12px; color: #9c958a;">
+      File này dùng để test giao diện trực tiếp trên trình duyệt
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <!-- NỘI DUNG EMAIL 100% GIỐNG GOOGLE APPS SCRIPT SẼ GỬI ĐI                 -->
+  <!-- ====================================================================== -->
+  <div class="email-viewport-container">
+    
+    <!-- Table thiệp email chuẩn: căn đều lề 2 bên, table-layout: fixed triệt tiêu thanh cuộn ngang -->
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100% !important; min-width: 100%; max-width: 100%; margin: 0; padding: 0; background-color: #12100e; table-layout: fixed; font-family: 'Times New Roman', Times, serif;">
+      <tr>
+        <td align="center" style="padding: 30px 12px; background-color: #12100e; background-image: url('bg_mail.jpg'); background-repeat: no-repeat; background-position: center top; background-size: cover; font-family: 'Times New Roman', Times, serif;">
+
+          <!-- Khung thiệp chính: căn giữa tuyệt đối, cân đều 2 bên lề, co giãn linh hoạt tối đa 440px -->
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" align="center" style="width: 100%; max-width: 440px; margin: 0 auto; background-color: #161413; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); overflow: hidden; font-family: 'Times New Roman', Times, serif;">
+            <tr>
+              <td style="padding: 26px 26px 26px 26px; text-align: left; color: #ede8e1; font-family: 'Times New Roman', Times, serif;">
+
+                <!-- Header: Banner Mail vừa vặn chiều rộng dòng thư, không bị tràn ảnh -->
+                <div style="text-align: center; margin: 0 0 16px 0; line-height: 0;">
+                  <img src="banner_mail.gif" alt="THE QUIET STRENGTH — Graduation Ceremony" width="100%" style="display: block; width: 100%; max-width: 100%; height: auto; border: 0; margin: 0 auto;" />
+                </div>
+
+                <!-- Đường kẻ mỏng -->
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 18px 0;" />
+
+                <!-- Lời chào (Dear Mr. / Ms. [Name], dùng dấu phẩy ở cuối câu chào, in đậm in nghiêng) -->
+                <p class="email-line" style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #f2eee8; font-family: 'Times New Roman', Times, serif;">
+                  Dear <strong style="font-weight: bold;"><em id="dispGuestName">Mr. Trần Nguyễn Phước</em></strong>,
+                </p>
+
+                <!-- Cảm ơn & thông báo chi tiết (dãn dòng 1.35) -->
+                <p class="email-line" style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #ede8e1; font-family: 'Times New Roman', Times, serif;">
+                  Thank you for responding to my graduation invitation!<br />
+                  Here are the event details:
+                </p>
+
+                <!-- Chi tiết sự kiện (dãn dòng 1.35) -->
+                <p class="email-line" style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #ede8e1; font-family: 'Times New Roman', Times, serif;">
+                  <strong style="letter-spacing: 0.05em; color: #ffffff;">GRADUATION CEREMONY</strong><br />
+                  - Date: Sunday, November 8th, 2026<br />
+                  - Time: <span id="dispCeremonyTime">10AM</span><br />
+                  - Venue: FPT University HCMC (<a href="https://maps.app.goo.gl/F1LVCkgJ4KDwRs2bA" target="_blank" style="color: #ffffff; text-decoration: underline;">Google maps</a>)<br />
+                  - Contact: 0367 989 880 (Mr. Đạt)
+                </p>
+
+                <!-- Lời chúc & cảm xúc (dãn dòng 1.35) -->
+                <p class="email-line" style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #ede8e1; font-family: 'Times New Roman', Times, serif;">
+                  I&#39;m truly grateful to have you be part of this special milestone.<br />
+                  Looking forward to sharing this moment with you!
+                </p>
+
+                <!-- Ký tên (dãn dòng 1.35) -->
+                <p class="email-line" style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #ede8e1; font-family: 'Times New Roman', Times, serif;">
+                  With love,<br />
+                  <span style="font-style: italic; color: #ffffff;">Phuong Nguyen</span>
+                </p>
+
+                <!-- Đường kẻ mỏng ở đáy (giống phía trên, giữ cho phần footer trống nhưng vẫn có mặt) -->
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 30px 0;" />
+
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    // Live update guest name
+    const inputGuestName = document.getElementById('inputGuestName');
+    const dispGuestName = document.getElementById('dispGuestName');
+    const inputCeremonyTime = document.getElementById('inputCeremonyTime');
+    const dispCeremonyTime = document.getElementById('dispCeremonyTime');
+
+    if (inputGuestName && dispGuestName) {
+      inputGuestName.addEventListener('input', (e) => {
+        let val = e.target.value.trim().replace(/[\,\s]+$/, '');
+        val = val.replace(/(?<!\b(Mr|Ms|Mrs|Dr|Prof))\.$/i, '');
+        dispGuestName.textContent = val || 'Name';
+      });
+    }
+
+    if (inputCeremonyTime && dispCeremonyTime) {
+      inputCeremonyTime.addEventListener('input', (e) => {
+        dispCeremonyTime.textContent = e.target.value.trim() || '10AM';
+      });
+    }
+
+    const inputLineHeight = document.getElementById('inputLineHeight');
+    const sliderLineHeight = document.getElementById('sliderLineHeight');
+    const labelCurrentLineHeight = document.getElementById('labelCurrentLineHeight');
+
+    function applyLineHeight(val) {
+      const num = parseFloat(val);
+      if (isNaN(num) || num <= 0) return;
+
+      const formatted = num.toFixed(2).replace(/\.00$/, '').replace(/(\.\d)0$/, '$1');
+
+      // Update text input & slider
+      if (inputLineHeight && inputLineHeight.value !== formatted) {
+        inputLineHeight.value = formatted;
+      }
+      if (sliderLineHeight && sliderLineHeight.value !== formatted) {
+        sliderLineHeight.value = formatted;
+      }
+      if (labelCurrentLineHeight) {
+        labelCurrentLineHeight.textContent = formatted;
+      }
+
+      // Apply to all email text elements
+      const lines = document.querySelectorAll('.email-line');
+      lines.forEach(p => {
+        p.style.lineHeight = formatted;
+      });
+
+      // Update active state on preset buttons
+      document.querySelectorAll('.preview-toolbar .toolbar-btn').forEach(b => {
+        if (b.textContent.trim() === formatted) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+    }
+
+    const inputParagraphSpacing = document.getElementById('inputParagraphSpacing');
+    const sliderParagraphSpacing = document.getElementById('sliderParagraphSpacing');
+
+    function applyParagraphSpacing(val) {
+      const num = parseInt(val, 10);
+      if (isNaN(num) || num < 0) return;
+      if (inputParagraphSpacing && inputParagraphSpacing.value != num) inputParagraphSpacing.value = num;
+      if (sliderParagraphSpacing && sliderParagraphSpacing.value != num) sliderParagraphSpacing.value = num;
+
+      const lines = document.querySelectorAll('.email-line');
+      lines.forEach(p => {
+        p.style.marginBottom = num + 'px';
+      });
+    }
+
+    if (inputParagraphSpacing) {
+      inputParagraphSpacing.addEventListener('input', (e) => applyParagraphSpacing(e.target.value));
+    }
+    if (sliderParagraphSpacing) {
+      sliderParagraphSpacing.addEventListener('input', (e) => applyParagraphSpacing(e.target.value));
+    }
+
+    if (inputLineHeight) {
+      inputLineHeight.addEventListener('input', (e) => {
+        applyLineHeight(e.target.value);
+      });
+    }
+
+    if (sliderLineHeight) {
+      sliderLineHeight.addEventListener('input', (e) => {
+        applyLineHeight(e.target.value);
+      });
+    }
+  </script>
+</body>
+</html>
+

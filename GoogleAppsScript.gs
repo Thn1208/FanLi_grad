@@ -26,7 +26,7 @@
 var EVENT_CONFIG = {
   hostName: "Nguyen Thi Diem Phuong",
   eventName: "Phuong's Graduation Ceremony — The Quiet Strength",
-  dateText: "Sunday, Nov 8th, 2026",
+  dateText: "Sunday, November 8th, 2026",
   timeText: "10AM",
   venueName: "FPT University HCMC",
   venueAddress: "D1 High-Tech Park, Long Thanh My, Thu Duc City, HCMC",
@@ -462,68 +462,80 @@ function sendConfirmationEmail(recipientEmail, guestName, attendance, message, c
   // Chỉ gửi khi attendance là Yes
   if (attendance !== "Yes") return;
 
-  var subject = "Confirmation | Phuong's Graduation Ceremony";
+  var subject = "✨ Confirmation | Phuong's Graduation Ceremony🎓";
   var displayTime = ceremonyTime || EVENT_CONFIG.timeText;
 
   // Giữ nguyên chuẩn Mr. / Ms. và các danh xưng từ Google Sheet; chỉ loại bỏ dấu chấm/phẩy dư thừa nếu ở cuối cùng của tên (ví dụ: "Phước." -> "Phước")
   var cleanGuestName = (guestName || "").toString().trim().replace(/[\,\s]+$/, '');
   cleanGuestName = cleanGuestName.replace(/(?<!\b(Mr|Ms|Mrs|Dr|Prof))\.$/i, '');
 
-  // Template email sang trọng với font Times New Roman:
-  // - Banner cách lề trên và cách đều 2 bên mép (bằng chính xác chiều rộng dòng chữ)
-  // - Dãn dòng (line-height: 1) theo đúng yêu cầu để các dòng thông tin sát gần nhau
+  // Template email chuẩn responsive, căn đều lề 2 bên và triệt tiêu hoàn toàn thanh cuộn ngang (horizontal scrollbar):
+  // - Bảng ngoài cùng width="100%" với table-layout: fixed để khoá chặt chiều rộng vừa vặn mọi màn hình
+  // - Khung thiệp căn giữa tuyệt đối (align="center", margin: 0 auto) với lề 2 bên cân đối
+  // - Banner có thuộc tính width="100%" giúp luôn vừa khít khung thư
+  // - Cách dòng 1 (line-height: 1), cách đoạn 20px (margin-bottom: 20px)
   // - Lời chào kết thúc bằng dấu phẩy: Dear [Name],
+  // - Đường kẻ mảnh ở đáy hoàn thiện bố cục thiệp
   var htmlContent = [
-    '<div style="margin: 0; padding: 40px 10px; width: 100% !important; background-color: #12100e; background-image: url(\'' + EVENT_CONFIG.bgMailUrl + '\'); background-repeat: no-repeat; background-position: center top; background-size: cover; font-family: \'Times New Roman\', Times, serif;">',
-      '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 460px; margin: 0 auto; background-color: #161413; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); overflow: hidden; font-family: \'Times New Roman\', Times, serif;">',
+    '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100% !important; min-width: 100%; max-width: 100%; margin: 0; padding: 0; background-color: #12100e; table-layout: fixed; font-family: \'Times New Roman\', Times, serif;">',
+      '<tr>',
+        '<td align="center" style="padding: 30px 12px; background-color: #12100e; background-image: url(\'' + EVENT_CONFIG.bgMailUrl + '\'); background-repeat: no-repeat; background-position: center top; background-size: cover; font-family: \'Times New Roman\', Times, serif;">',
 
-        '<tr>',
-          '<td style="padding: 28px 30px 28px 30px; text-align: left; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
+          // Khung thiệp chính: căn giữa tuyệt đối, cân đều 2 bên lề, co giãn linh hoạt tối đa 440px
+          '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" align="center" style="width: 100%; max-width: 440px; margin: 0 auto; background-color: #161413; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); overflow: hidden; font-family: \'Times New Roman\', Times, serif;">',
+            '<tr>',
+              '<td style="padding: 26px 26px 26px 26px; text-align: left; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
 
-            // Header: Banner Mail cách lề trên và cách 2 bên mép bằng đúng chiều rộng dòng thư
-            '<div style="text-align: center; margin: 0 0 16px 0;">',
-              '<img src="' + EVENT_CONFIG.bannerMailUrl + '" alt="THE QUIET STRENGTH — Graduation Ceremony" style="display: block; width: 100%; max-width: 100%; height: auto; border: 0; margin: 0 auto;" />',
-            '</div>',
+                // Header: Banner Mail vừa vặn chiều rộng dòng thư, không bị tràn ảnh
+                '<div style="text-align: center; margin: 0 0 16px 0; line-height: 0;">',
+                  '<img src="' + EVENT_CONFIG.bannerMailUrl + '" alt="THE QUIET STRENGTH — Graduation Ceremony" width="100%" style="display: block; width: 100%; max-width: 100%; height: auto; border: 0; margin: 0 auto;" />',
+                '</div>',
 
-            // Đường kẻ mỏng
-            '<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 18px 0;" />',
+                // Đường kẻ mỏng
+                '<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 18px 0;" />',
 
-            // Lời chào (Dear Mr. / Ms. [Name], dùng dấu phẩy ở cuối câu chào, in đậm in nghiêng)
-            '<p style="margin: 0 0 12px 0; font-size: 15px; line-height: 1; color: #f2eee8; font-family: \'Times New Roman\', Times, serif;">',
-              'Dear <strong><em>' + escapeHtml(cleanGuestName) + '</em></strong>,',
-            '</p>',
+                // Lời chào (Dear Mr. / Ms. [Name], dùng dấu phẩy ở cuối câu chào, in đậm in nghiêng)
+                '<p style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #f2eee8; font-family: \'Times New Roman\', Times, serif;">',
+                  'Dear <strong><em>' + escapeHtml(cleanGuestName) + '</em></strong>,',
+                '</p>',
 
-            // Cảm ơn & thông báo chi tiết (dãn dòng 1)
-            '<p style="margin: 0 0 12px 0; font-size: 14px; line-height: 1; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
-              'Thank you for responding to my graduation invitation!<br />',
-              'Here are the event details:',
-            '</p>',
+                // Cảm ơn & thông báo chi tiết (cách dòng 1, cách đoạn 20px)
+                '<p style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
+                  'Thank you for responding to my graduation invitation!<br />',
+                  'Here are the event details:',
+                '</p>',
 
-            // Chi tiết sự kiện (dãn dòng 1)
-            '<p style="margin: 0 0 14px 0; font-size: 14px; line-height: 1; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
-              '<strong style="letter-spacing: 0.05em; color: #ffffff;">GRADUATION CEREMONY</strong><br />',
-              '- Date: ' + EVENT_CONFIG.dateText + '<br />',
-              '- Time: ' + escapeHtml(displayTime) + '<br />',
-              '- Venue: ' + EVENT_CONFIG.venueName + ' (<a href="' + EVENT_CONFIG.mapsUrl + '" target="_blank" style="color: #ffffff; text-decoration: underline;">Google maps</a>)<br />',
-              '- Contact: ' + EVENT_CONFIG.contactPhone,
-            '</p>',
+                // Chi tiết sự kiện (cách dòng 1, cách đoạn 20px)
+                '<p style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
+                  '<strong style="letter-spacing: 0.05em; color: #ffffff;">GRADUATION CEREMONY</strong><br />',
+                  '- Date: ' + EVENT_CONFIG.dateText + '<br />',
+                  '- Time: ' + escapeHtml(displayTime) + '<br />',
+                  '- Venue: ' + EVENT_CONFIG.venueName + ' (<a href="' + EVENT_CONFIG.mapsUrl + '" target="_blank" style="color: #ffffff; text-decoration: underline;">Google maps</a>)<br />',
+                  '- Contact: ' + EVENT_CONFIG.contactPhone,
+                '</p>',
 
-            // Lời chúc & cảm xúc (dãn dòng 1)
-            '<p style="margin: 0 0 14px 0; font-size: 14px; line-height: 1; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
-              'I&#39;m truly grateful to have you be part of this special milestone.<br />',
-              'Looking forward to sharing this moment with you!',
-            '</p>',
+                // Lời chúc & cảm xúc (cách dòng 1, cách đoạn 20px)
+                '<p style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
+                  'I&#39;m truly grateful to have you be part of this special milestone.<br />',
+                  'Looking forward to sharing this moment with you!',
+                '</p>',
 
-            // Ký tên (dãn dòng 1)
-            '<p style="margin: 0; font-size: 14px; line-height: 1; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
-              'With love,<br />',
-              '<span style="font-style: italic; color: #ffffff;">Phuong Nguyen</span>',
-            '</p>',
+                // Ký tên (cách dòng 1, cách đoạn 20px)
+                '<p style="margin: 0 0 20px 0; font-size: 18px; line-height: 1; color: #ede8e1; font-family: \'Times New Roman\', Times, serif;">',
+                  'With love,<br />',
+                  '<span style="font-style: italic; color: #ffffff;">Phuong Nguyen</span>',
+                '</p>',
 
-          '</td>',
-        '</tr>',
-      '</table>',
-    '</div>'
+                // Đường kẻ mỏng ở đáy (giống phía trên, giữ cho phần footer trống nhưng vẫn có mặt)
+                '<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.22); margin: 0 0 30px 0;" />',
+
+              '</td>',
+            '</tr>',
+          '</table>',
+
+        '</td>',
+      '</tr>',
+    '</table>'
   ].join("");
 
   GmailApp.sendEmail(recipientEmail, subject, "", {
